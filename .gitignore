@@ -1,0 +1,17 @@
+# Python compiled files
+__pycache__/
+*py[cod]
+
+#Virtual Env
+venv/
+env/
+
+# Databases (We use Postgres, but beause sqlite comes with standard Django, ignore it just in case)
+db.sqlite3
+*.sqlite3
+
+# Mac System Files (annoying hidden files)
+.DS_Store
+
+#Environment Variables
+.env
