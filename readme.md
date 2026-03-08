@@ -1,1 +1,1 @@
-Repository for our language learning app
+SongLingo is a language learning app
