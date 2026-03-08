@@ -1,1 +1,1 @@
-initial commit
+Repository for our language learning app
