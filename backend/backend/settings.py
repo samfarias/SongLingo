@@ -81,8 +81,8 @@ DATABASES = {
         'NAME': 'capstone',  # <--- Make sure you create this DB name!
         'USER': 'postgres',        # The default user for Postgres.app
         'PASSWORD': '',            # Postgres.app usually has no password by default
-        'HOST': '',
-        'PORT': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
