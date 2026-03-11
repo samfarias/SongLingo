@@ -1,7 +1,8 @@
 from django.contrib import admin
+from .models import UserProfile, Song, Vocabulary, UserProgress
 
 # Register your models here.
-
-# example below (this allows us to see our model data in the /admin page):
-# from .models import UserProfile
-# admin.site.register(UserProfile)
+admin.site.register(UserProfile)
+admin.site.register(Song)
+admin.site.register(Vocabulary)
+admin.site.register(UserProgress)
