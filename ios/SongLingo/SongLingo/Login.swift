@@ -61,7 +61,25 @@ struct Login: View {
                             .background(.gray.opacity(0.2))
                             .cornerRadius(10)
                         
+                        Button("Sign In") {
+                            print("Sign in tapped")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        
                         Text("Don't have an account?")
+                        
+                        Button("Create Account") {
+                            print("Create account tapped")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
                     }
                 }
                 .padding(25)
