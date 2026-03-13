@@ -61,6 +61,9 @@ struct Login: View {
                             .background(.gray.opacity(0.2))
                             .cornerRadius(10)
                         
+                        Text("Forgot Password?")
+                            .foregroundColor(Color(red: 0.486, green: 0.227, blue: 0.929))
+                        
                         Button("Sign In") {
                             print("Sign in tapped")
                         }
@@ -71,6 +74,7 @@ struct Login: View {
                         .cornerRadius(12)
                         
                         Text("Don't have an account?")
+                            .foregroundColor(.gray)
                         
                         Button("Create Account") {
                             print("Create account tapped")
