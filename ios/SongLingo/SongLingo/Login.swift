@@ -33,34 +33,41 @@ struct Login: View {
                 
                 Text("Learn languages through the music you love")
                     .foregroundColor(.white)
-                    
-                    Text("Welcome Back")
+            
+                VStack(spacing: 20) {
+            
+                Text("Welcome Back")
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text("Sign in to continue your journey")
+                Text("Sign in to continue your journey")
                         .foregroundColor(.gray)
                 
-                VStack(alignment: .leading, spacing: 15) {
-                    
-                    Text("Email")
-                        .fontWeight(.semibold)
-                    
-                    TextField("", text: $email)
-                        .padding()
-                        .background(.gray.opacity(0.2))
-                        .cornerRadius(10)
-                    
-                    Text("Password")
-                        .fontWeight(.semibold)
-                    
-                    SecureField("", text: $password)
-                        .padding()
-                        .background(.gray.opacity(0.2))
-                        .cornerRadius(10)
-                    
-                    Text("Don't have an account?")
+                    VStack(alignment: .leading, spacing: 15) {
+                        
+                        Text("Email")
+                            .fontWeight(.semibold)
+                        
+                        TextField("", text: $email)
+                            .padding()
+                            .background(.gray.opacity(0.2))
+                            .cornerRadius(10)
+                        
+                        Text("Password")
+                            .fontWeight(.semibold)
+                        
+                        SecureField("", text: $password)
+                            .padding()
+                            .background(.gray.opacity(0.2))
+                            .cornerRadius(10)
+                        
+                        Text("Don't have an account?")
+                    }
                 }
+                .padding(25)
+                .background(Color.white)
+                .cornerRadius(25)
+                .padding(.horizontal, 30)
             }
         }
     }
