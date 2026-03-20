@@ -27,7 +27,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id', 'first_name', 'last_name', 'target_language', 'proficiency_level']
+        fields = '__all__'
 
 class GenreSelectionSerializer(serializers.ModelSerializer):
     class Meta:
