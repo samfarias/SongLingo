@@ -3,40 +3,55 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import UserProfile, Song
-from .serializers import SongSerializer
+from .models import UserProfile, Song, UserWords, UserSongs, UserActivity
+from .serializers import SongSerializer, UserProfileSerializer, UserActivitySerializer
 
-class HomeStatusView(APIView):
-    def get(self, request):
-        # 1. Get a user profile (hardcoding the first one in the DB to test)
-        # In the future, this will use actual authentication
-        profile = UserProfile.objects.first() 
+class HomeScreenView(APIView):
+    def get(self, request): # provides the frontend with all of the data for the home screen
+
+        # user_info
+        user_id = request.query_params.get('user_id', None)
+        if user_id == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user_profile = UserProfile.objects.get(pk=user_id)
+        except UserProfile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
-        # 2. Get a recommended song (Just grabbing the first one for now)
-        # This is where we'll build the "difficulty algorithm" later
-        recommended_song = Song.objects.first()
+        user_info = UserProfileSerializer(user_profile).data
+
+        # user_progress
+        num_words_learned = UserWords.objects.filter(user_profile_id=user_id).count()
+        num_songs_completed = UserSongs.objects.filter(user_profile_id=user_id).count()
+        current_streak = UserActivity.objects.get(user_profile_id=user_id).current_streak
+        user_progress = {
+            "num_words_learned": num_words_learned,
+            "num_songs_completed": num_songs_completed,
+            "current_streak": current_streak
+        }
+
+        # daily recommended song
+   
+        # current/suggested Playlists
         
-        # 3. Serialize the song into JSON (so Swift can understand it)
-        song_data = SongSerializer(recommended_song).data if recommended_song else None
-        
-        # 4. Construct the exact JSON Swift is expecting
+        # JSON response for Swift frontend
         return Response({
-            "current_streak": profile.current_streak if profile else 0,
-            "recommended_song": song_data
+            "user_info": user_info,
+            "user_progress": user_progress
         })
 
 
 @api_view(['GET'])
 def getSongs(request):
-    songs = Song.objects.all()
+    language_filter = request.query_params.get('language', None)
+    songs = Song.objects.filter(language=language_filter) if language_filter else Song.objects.all()
     serializer = SongSerializer(songs, many=True)
     return Response({"songs": serializer.data})
     
 @api_view(['POST'])
 def createSong(request):
-    if request.method == 'POST':
-        serializer = SongSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = SongSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

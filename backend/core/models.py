@@ -24,8 +24,8 @@ class Genre(models.Model):
 ########################
 
 class UserProfile(models.Model):
-    # Links this profile to the built-in Django Auth system
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    # # Links this profile to the built-in Django Auth system
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
     first_name = models.CharField(max_length=100, null=True)
     last_name = models.CharField(max_length=100, null=True)
@@ -41,28 +41,28 @@ class UserProfile(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 class GenreSelection(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='genre_selections')
+    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='genre_selections')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='genre_selections')
 
     def __str__(self):
-        return f"{self.user_profile} - {self.genre}"
+        return f"{self.user_profile_id} - {self.genre}"
 
 
 class UserActivity(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='activities')
+    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='activities')
     current_streak = models.IntegerField(default=0)
     longest_streak = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"Activity for {self.user_profile}"
+        return f"Activity for {self.user_profile_id}"
 
 
 class DaysActive(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='days_active')
+    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='days_active')
     date = models.DateField()
 
     def __str__(self):
-        return f"{self.user_profile} active on {self.date}"
+        return f"{self.user_profile_id} active on {self.date}"
 
 ########################
 # Word models
@@ -85,14 +85,14 @@ class Word(models.Model):
         return f"{self.word_text} ({self.translation})"
 
 class UserWords(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_words')
+    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_words')
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='user_words')
     num_listens = models.IntegerField(default=0)
     num_practices_completed = models.IntegerField(default=0)
     mastery_lvl = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.user_profile} - {self.word}"
+        return f"{self.user_profile_id} - {self.word}"
 
 ########################
 # Song models
@@ -121,21 +121,21 @@ class SongGenres(models.Model):
         return f"{self.song} - {self.genre}"
 
 class UserSongs(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_songs')
+    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_songs')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_progress')
     num_listens = models.IntegerField(default=0)
     num_lyric_challenges_completed = models.IntegerField(default=0)
     mastery_lvl = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.user_profile} - {self.song}"
+        return f"{self.user_profile_id} - {self.song}"
 
 ########################
 # Playlist models
 ########################
 
 class Playlist(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
+    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
     playlist_name = models.CharField(max_length=200)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
     description = models.TextField(blank=True)
