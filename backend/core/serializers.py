@@ -55,9 +55,16 @@ class WordSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserWordsSerializer(serializers.ModelSerializer):
+    class WordsLearnedScreenWordSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Word
+            fields = ['word_text', 'translation']
+
+    word = WordsLearnedScreenWordSerializer(read_only=True) # This nests the Word data inside the UserWord object
+
     class Meta:
         model = UserWords
-        fields = '__all__'
+        fields = ['word', 'num_listens', 'num_practices_completed', 'mastery_lvl']
 
 
 ########################
@@ -75,9 +82,16 @@ class SongGenresSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserSongsSerializer(serializers.ModelSerializer):
+    class SongsListenedScreenSongSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Song
+            fields = ['title', 'artist']
+
+    song = SongsListenedScreenSongSerializer(read_only=True) # This nests the Song data inside the UserSongs object
+
     class Meta:
         model = UserSongs
-        fields = '__all__'
+        fields = ['song', 'num_listens', 'num_lyric_challenges_completed', 'mastery_lvl']
 
 
 ########################

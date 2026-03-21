@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import UserProfile, Song, UserWords, UserSongs, UserActivity
-from .serializers import SongSerializer, UserProfileSerializer, UserActivitySerializer
+from .serializers import (
+    SongSerializer, UserProfileSerializer, UserWordsSerializer, UserSongsSerializer
+)
 
 class HomeScreenView(APIView):
-    def get(self, request): # provides the frontend with all of the data for the home screen
+    def get(self, request): # returns all data for the user's Home Screen
 
         # user_info
         user_id = request.query_params.get('user_id', None)
@@ -32,13 +34,38 @@ class HomeScreenView(APIView):
 
         # daily recommended song
    
-        # current/suggested Playlists
+        # recent_playlists (returns the 3 most recently listened to playlists)
+        
         
         # JSON response for Swift frontend
         return Response({
             "user_info": user_info,
             "user_progress": user_progress
         })
+    
+
+class WordsLearnedView(APIView):
+    def get(self, request): # returns all data for the user's "Words Learned" screen
+        
+        user_id = request.query_params.get('user_id', None)
+        if user_id == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user_words = UserWords.objects.filter(user_profile_id=user_id).select_related('word')
+        user_word_data = UserWordsSerializer(user_words, many=True).data
+        return Response({"user_word_data": user_word_data})
+
+
+class SongsListenedView(APIView):
+    def get(self, request): # returns all data for the user's "Songs Listened" screen
+
+        user_id = request.query_params.get('user_id', None)
+        if user_id == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user_songs = UserSongs.objects.filter(user_profile_id=user_id).select_related('song')
+        user_song_data = UserSongsSerializer(user_songs, many=True).data
+        return Response({"user_song_data": user_song_data})
+
+
 
 
 @api_view(['GET'])
