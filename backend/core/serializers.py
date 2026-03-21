@@ -104,9 +104,23 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PlaylistSongsSerializer(serializers.ModelSerializer):
+    class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):
+        class SinglePlaylistScreenGenreSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = Genre
+                fields = ['genre_name']
+
+        primary_genre = SinglePlaylistScreenGenreSerializer(read_only=True)
+
+        class Meta:
+            model = Song
+            fields = ['title', 'artist', 'proficiency_level', 'primary_genre']
+
+    song = SinglePlaylistScreenSongSerializer(read_only=True) # This nests the Song data inside the PlaylistSongs object
+
     class Meta:
         model = PlaylistSongs
-        fields = '__all__'
+        fields = ['song']
 
 class PlaylistGenresSerializer(serializers.ModelSerializer):
     class Meta:

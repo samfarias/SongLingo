@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
-                    getSongs, createSong
+                    SinglePlaylistView, getSongs, createSong
 )
 
 urlpatterns = [
@@ -9,5 +9,6 @@ urlpatterns = [
     path('songs/create/', createSong, name='create-song'),
     path('words-learned/', WordsLearnedView.as_view(), name='words-learned'),
     path('songs-listened/', SongsListenedView.as_view(), name='songs-listened'),
-    path('user-activity/', UserActivityView.as_view(), name='user-activity')
+    path('user-activity/', UserActivityView.as_view(), name='user-activity'),
+    path('playlist', SinglePlaylistView.as_view(), name='playlist')
 ]

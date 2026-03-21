@@ -101,7 +101,8 @@ class UserWords(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=200)
     artist = models.CharField(max_length=200)
-    language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE, related_name='songs')
+    language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE, related_name='song')
+    primary_genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='song')
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(

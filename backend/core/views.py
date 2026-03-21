@@ -4,11 +4,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import (
-  UserProfile, Song, UserWords, UserSongs, UserActivity, DaysActive
+  UserProfile, Song, UserWords, UserSongs, UserActivity, DaysActive, Playlist,
+  PlaylistSongs
 )
 from .serializers import (
     SongSerializer, UserProfileSerializer, UserWordsSerializer, UserSongsSerializer,
-    UserActivitySerializer, DaysActiveSerializer
+    UserActivitySerializer, DaysActiveSerializer, PlaylistSerializer, PlaylistSongsSerializer
 )
 
 class HomeScreenView(APIView):
@@ -84,6 +85,26 @@ class UserActivityView(APIView):
         return Response({"streak_info": user_activity_data,
                          "days_active": days_active_data})
     
+
+class SinglePlaylistView(APIView):
+    def get(self, request): # returns all data for a single "Playlist" screen
+
+        playlist_id = request.query_params.get('playlist_id', None)
+        if playlist_id == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            playlist = Playlist.objects.get(pk=playlist_id)
+        except Playlist.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        playlist_info = PlaylistSerializer(playlist).data
+        # select_related to join Song, and prefetch the song's SongGenres->Genre to avoid N+1 queries
+        playlist_songs = PlaylistSongs.objects.filter(playlist_id=playlist_id).select_related('song').prefetch_related('song__primary_genre')
+        playlist_song_data = PlaylistSongsSerializer(playlist_songs, many=True).data
+
+        return Response({"playlist_info": playlist_info,
+                         "playlist_songs": playlist_song_data})
+
 
 
 
