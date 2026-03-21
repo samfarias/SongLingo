@@ -37,12 +37,12 @@ class GenreSelectionSerializer(serializers.ModelSerializer):
 class UserActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserActivity
-        fields = '__all__'
+        fields = ['user_profile_id', 'current_streak', 'longest_streak']
 
 class DaysActiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = DaysActive
-        fields = '__all__'
+        fields = ['date']
 
 
 ########################

@@ -3,9 +3,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import UserProfile, Song, UserWords, UserSongs, UserActivity
+from .models import (
+  UserProfile, Song, UserWords, UserSongs, UserActivity, DaysActive
+)
 from .serializers import (
-    SongSerializer, UserProfileSerializer, UserWordsSerializer, UserSongsSerializer
+    SongSerializer, UserProfileSerializer, UserWordsSerializer, UserSongsSerializer,
+    UserActivitySerializer, DaysActiveSerializer
 )
 
 class HomeScreenView(APIView):
@@ -65,6 +68,22 @@ class SongsListenedView(APIView):
         user_song_data = UserSongsSerializer(user_songs, many=True).data
         return Response({"user_song_data": user_song_data})
 
+
+class UserActivityView(APIView):
+    def get(self, request): # returns all data for the user's "Activity" screen (streak/calendar)
+
+        user_id = request.query_params.get('user_id', None)
+        if user_id == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user_activity = UserActivity.objects.get(user_profile_id=user_id)
+        user_activity_data = UserActivitySerializer(user_activity).data # contains streak info
+
+        days_active = DaysActive.objects.filter(user_profile_id=user_id)
+        days_active_data = DaysActiveSerializer(days_active, many=True).data
+
+        return Response({"streak_info": user_activity_data,
+                         "days_active": days_active_data})
+    
 
 
 
