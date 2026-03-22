@@ -94,12 +94,12 @@ class PlaylistCollectionView(APIView):
         if user_id == None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         sql_query = "SELECT " \
-        "               p.id, p.playlist_name, p.proficiency_level, " \
+        "               p.id, p.playlist_name, p.genre_id, p.proficiency_level, " \
         "               MAX(dl.date) AS last_date_played" \
         "           FROM core_playlist AS p" \
         "           JOIN core_playlistdayslistened AS dl ON p.id = dl.playlist_id" \
         "           WHERE p.user_profile_id = %s" \
-        "           GROUP BY p.id, p.playlist_name, p.proficiency_level"
+        "           GROUP BY p.id, p.playlist_name, genre_id, p.proficiency_level"
         user_playlists = Playlist.objects.raw(sql_query, [user_id])
         playlists_and_date_info = PlaylistCollectionSerializer(user_playlists, many=True).data
 
@@ -122,8 +122,7 @@ class SinglePlaylistView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         playlist_info = PlaylistSerializer(playlist).data
-        # select_related to join Song, and prefetch the song's SongGenres->Genre to avoid N+1 queries
-        playlist_songs = PlaylistSongs.objects.filter(playlist=playlist_id).select_related('song').prefetch_related('song__primary_genre')
+        playlist_songs = PlaylistSongs.objects.filter(playlist=playlist_id).select_related('song')
         playlist_song_data = PlaylistSongsSerializer(playlist_songs, many=True).data
 
         return Response({"playlist_info": playlist_info,

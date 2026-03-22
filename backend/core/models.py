@@ -102,7 +102,7 @@ class Song(models.Model):
     title = models.CharField(max_length=200)
     artist = models.CharField(max_length=200)
     language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE, related_name='song')
-    primary_genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='song')
+    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='song')
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(
@@ -113,13 +113,6 @@ class Song(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.artist}"
-
-class SongGenres(models.Model):
-    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='song_genres')
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='song_entries')
-
-    def __str__(self):
-        return f"{self.song} - {self.genre}"
 
 class UserSongs(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_songs')
@@ -139,6 +132,7 @@ class Playlist(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
     playlist_name = models.CharField(max_length=200)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
+    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='playlist')
     description = models.TextField(blank=True)
     num_listens = models.IntegerField(default=0)
     num_song_listens = models.IntegerField(default=0)
@@ -158,13 +152,6 @@ class PlaylistSongs(models.Model):
 
     def __str__(self):
         return f"{self.playlist} - {self.song}"
-
-class PlaylistGenres(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='playlist_genres')
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='playlists_featuring')
-
-    def __str__(self):
-        return f"{self.playlist} - {self.genre}"
 
 class PlaylistDaysListened(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='days_listened')
