@@ -37,7 +37,7 @@ class GenreSelectionSerializer(serializers.ModelSerializer):
 class UserActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserActivity
-        fields = ['user_profile_id', 'current_streak', 'longest_streak']
+        fields = ['user_profile', 'current_streak', 'longest_streak']
 
 class DaysActiveSerializer(serializers.ModelSerializer):
     class Meta:
@@ -102,6 +102,14 @@ class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = '__all__'
+
+class PlaylistCollectionSerializer(serializers.ModelSerializer):
+
+    last_date_played = serializers.DateField(read_only=True)
+
+    class Meta:
+        model = Playlist
+        fields = ['playlist_name', 'proficiency_level', 'last_date_played']
 
 class PlaylistSongsSerializer(serializers.ModelSerializer):
     class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):
