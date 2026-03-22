@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Language, Genre, UserProfile, GenreSelection, UserActivity, DaysActive,
-    Word, UserWords, Song, SongGenres, UserSongs, Playlist, PlaylistSongs,
-    PlaylistGenres, PlaylistDaysListened
+    Word, UserWords, Song, UserSongs, Playlist, PlaylistSongs, PlaylistDaysListened
 )
 
 ########################
@@ -37,12 +36,12 @@ class GenreSelectionSerializer(serializers.ModelSerializer):
 class UserActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserActivity
-        fields = '__all__'
+        fields = ['user_profile', 'current_streak', 'longest_streak']
 
 class DaysActiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = DaysActive
-        fields = '__all__'
+        fields = ['date']
 
 
 ########################
@@ -76,11 +75,6 @@ class SongSerializer(serializers.ModelSerializer):
         model = Song
         fields = '__all__'
 
-class SongGenresSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SongGenres
-        fields = '__all__'
-
 class UserSongsSerializer(serializers.ModelSerializer):
     class SongsListenedScreenSongSerializer(serializers.ModelSerializer):
         class Meta:
@@ -103,15 +97,25 @@ class PlaylistSerializer(serializers.ModelSerializer):
         model = Playlist
         fields = '__all__'
 
+class PlaylistCollectionSerializer(serializers.ModelSerializer):
+
+    last_date_played = serializers.DateField(read_only=True)
+
+    class Meta:
+        model = Playlist
+        fields = ['playlist_name', 'genre', 'proficiency_level', 'last_date_played']
+
 class PlaylistSongsSerializer(serializers.ModelSerializer):
+    class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Song
+            fields = ['title', 'artist', 'proficiency_level', 'genre']
+
+    song = SinglePlaylistScreenSongSerializer(read_only=True) # This nests the Song data inside the PlaylistSongs object
+
     class Meta:
         model = PlaylistSongs
-        fields = '__all__'
-
-class PlaylistGenresSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PlaylistGenres
-        fields = '__all__'
+        fields = ['song']
 
 class PlaylistDaysListenedSerializer(serializers.ModelSerializer):
     class Meta:

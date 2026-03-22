@@ -41,28 +41,28 @@ class UserProfile(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 class GenreSelection(models.Model):
-    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='genre_selections')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='genre_selections')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='genre_selections')
 
     def __str__(self):
-        return f"{self.user_profile_id} - {self.genre}"
+        return f"{self.user_profile} - {self.genre}"
 
 
 class UserActivity(models.Model):
-    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='activities')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='activities')
     current_streak = models.IntegerField(default=0)
     longest_streak = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"Activity for {self.user_profile_id}"
+        return f"Activity for {self.user_profile}"
 
 
 class DaysActive(models.Model):
-    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='days_active')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='days_active')
     date = models.DateField()
 
     def __str__(self):
-        return f"{self.user_profile_id} active on {self.date}"
+        return f"{self.user_profile} active on {self.date}"
 
 ########################
 # Word models
@@ -85,14 +85,14 @@ class Word(models.Model):
         return f"{self.word_text} ({self.translation})"
 
 class UserWords(models.Model):
-    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_words')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_words')
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='user_words')
     num_listens = models.IntegerField(default=0)
     num_practices_completed = models.IntegerField(default=0)
     mastery_lvl = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.user_profile_id} - {self.word}"
+        return f"{self.user_profile} - {self.word}"
 
 ########################
 # Song models
@@ -101,7 +101,8 @@ class UserWords(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=200)
     artist = models.CharField(max_length=200)
-    language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE, related_name='songs')
+    language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE, related_name='song')
+    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='song')
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(
@@ -113,31 +114,25 @@ class Song(models.Model):
     def __str__(self):
         return f"{self.title} - {self.artist}"
 
-class SongGenres(models.Model):
-    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='song_genres')
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='song_entries')
-
-    def __str__(self):
-        return f"{self.song} - {self.genre}"
-
 class UserSongs(models.Model):
-    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_songs')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_songs')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_progress')
     num_listens = models.IntegerField(default=0)
     num_lyric_challenges_completed = models.IntegerField(default=0)
     mastery_lvl = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.user_profile_id} - {self.song}"
+        return f"{self.user_profile} - {self.song}"
 
 ########################
 # Playlist models
 ########################
 
 class Playlist(models.Model):
-    user_profile_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
     playlist_name = models.CharField(max_length=200)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
+    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='playlist')
     description = models.TextField(blank=True)
     num_listens = models.IntegerField(default=0)
     num_song_listens = models.IntegerField(default=0)
@@ -157,13 +152,6 @@ class PlaylistSongs(models.Model):
 
     def __str__(self):
         return f"{self.playlist} - {self.song}"
-
-class PlaylistGenres(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='playlist_genres')
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='playlists_featuring')
-
-    def __str__(self):
-        return f"{self.playlist} - {self.genre}"
 
 class PlaylistDaysListened(models.Model):
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='days_listened')

@@ -2,8 +2,7 @@ from django.contrib import admin
 # from .models import UserProfile, Song, Vocabulary, UserProgress
 from .models import (
     Language, Genre, UserProfile, GenreSelection, UserActivity, DaysActive,
-    Word, UserWords, Song, SongGenres, UserSongs, Playlist, PlaylistSongs, 
-    PlaylistGenres, PlaylistDaysListened
+    Word, UserWords, Song, UserSongs, Playlist, PlaylistSongs, PlaylistDaysListened
 )
 
 # Register your models here.
@@ -16,11 +15,9 @@ admin.site.register(DaysActive)
 admin.site.register(Word)
 admin.site.register(UserWords)
 admin.site.register(Song)
-admin.site.register(SongGenres)
 admin.site.register(UserSongs)
 admin.site.register(Playlist)
 admin.site.register(PlaylistSongs)
-admin.site.register(PlaylistGenres)
 admin.site.register(PlaylistDaysListened)
 
 
