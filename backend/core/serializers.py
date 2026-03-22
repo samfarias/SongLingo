@@ -37,12 +37,12 @@ class GenreSelectionSerializer(serializers.ModelSerializer):
 class UserActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserActivity
-        fields = '__all__'
+        fields = ['user_profile', 'current_streak', 'longest_streak']
 
 class DaysActiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = DaysActive
-        fields = '__all__'
+        fields = ['date']
 
 
 ########################
@@ -103,10 +103,32 @@ class PlaylistSerializer(serializers.ModelSerializer):
         model = Playlist
         fields = '__all__'
 
+class PlaylistCollectionSerializer(serializers.ModelSerializer):
+
+    last_date_played = serializers.DateField(read_only=True)
+
+    class Meta:
+        model = Playlist
+        fields = ['playlist_name', 'proficiency_level', 'last_date_played']
+
 class PlaylistSongsSerializer(serializers.ModelSerializer):
+    class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):
+        class SinglePlaylistScreenGenreSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = Genre
+                fields = ['genre_name']
+
+        primary_genre = SinglePlaylistScreenGenreSerializer(read_only=True)
+
+        class Meta:
+            model = Song
+            fields = ['title', 'artist', 'proficiency_level', 'primary_genre']
+
+    song = SinglePlaylistScreenSongSerializer(read_only=True) # This nests the Song data inside the PlaylistSongs object
+
     class Meta:
         model = PlaylistSongs
-        fields = '__all__'
+        fields = ['song']
 
 class PlaylistGenresSerializer(serializers.ModelSerializer):
     class Meta:
