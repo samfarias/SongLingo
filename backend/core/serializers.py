@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Language, Genre, UserProfile, GenreSelection, UserActivity, DaysActive,
-    Word, UserWords, Song, UserSongs, Playlist, PlaylistSongs, PlaylistDaysListened
+    Word, UserWords, Song, UserSongs, Playlist, PlaylistSongs
 )
 
 ########################
@@ -99,8 +99,6 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
 class PlaylistCollectionSerializer(serializers.ModelSerializer):
 
-    last_date_played = serializers.DateField(read_only=True)
-
     class Meta:
         model = Playlist
         fields = ['playlist_name', 'genre', 'proficiency_level', 'last_date_played']
@@ -116,8 +114,3 @@ class PlaylistSongsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaylistSongs
         fields = ['song']
-
-class PlaylistDaysListenedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PlaylistDaysListened
-        fields = '__all__'

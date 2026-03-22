@@ -25,7 +25,7 @@ class HomeScreenView(APIView):
         except UserProfile.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-        user_info = UserProfileSerializer(user_profile).data
+        user_profile_info = UserProfileSerializer(user_profile).data
 
         # user_progress
         num_words_learned = UserWords.objects.filter(user_profile=user_id).count()
@@ -44,7 +44,7 @@ class HomeScreenView(APIView):
         
         # JSON response for Swift frontend
         return Response({
-            "user_info": user_info,
+            "user_info": user_profile_info,
             "user_progress": user_progress
         })
     
@@ -94,19 +94,17 @@ class PlaylistCollectionView(APIView):
         if user_id == None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         sql_query = "SELECT " \
-        "               p.id, p.playlist_name, p.genre_id, p.proficiency_level, " \
-        "               MAX(dl.date) AS last_date_played" \
+        "               p.id, p.playlist_name, p.genre_id, p.proficiency_level, p.last_date_played " \
         "           FROM core_playlist AS p" \
-        "           JOIN core_playlistdayslistened AS dl ON p.id = dl.playlist_id" \
         "           WHERE p.user_profile_id = %s" \
-        "           GROUP BY p.id, p.playlist_name, genre_id, p.proficiency_level"
-        user_playlists = Playlist.objects.raw(sql_query, [user_id])
+        "           GROUP BY p.id, p.playlist_name, p.genre_id, p.proficiency_level" \
+        "           ORDER BY p.last_date_played DESC"
+        user_playlists = Playlist.objects.raw(sql_query, [user_id]) # all user's playlists sorted by last_played_date descending
         playlists_and_date_info = PlaylistCollectionSerializer(user_playlists, many=True).data
 
-        # NEXT: add genre for each playlist in response. And split playlists in the playlist categories
+        # NEXT: split playlists in the playlist categories
 
         return Response({"playlist_collection_data": playlists_and_date_info})
-        # recently_played_playlists = user_playlists.prefetch_related('days_listened').order_by('date')[:3]
     
     
 
