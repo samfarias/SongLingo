@@ -98,7 +98,6 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PlaylistCollectionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Playlist
         fields = ['playlist_name', 'genre', 'proficiency_level', 'last_date_played']

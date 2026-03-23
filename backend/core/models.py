@@ -134,7 +134,7 @@ class Playlist(models.Model):
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
     genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='playlist')
     description = models.TextField(blank=True)
-    last_date_played = models.DateField(null=True, default=None)
+    last_date_played = models.DateField(null=True, blank=True, default=None)
     num_days_listened = models.IntegerField(default=0)
     num_song_listens = models.IntegerField(default=0)
     creation_date = models.DateField(auto_now_add=True)

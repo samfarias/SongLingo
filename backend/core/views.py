@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from datetime import date
 from .models import (
   UserProfile, Song, UserWords, UserSongs, UserActivity, DaysActive, Playlist,
   PlaylistSongs
@@ -89,7 +90,31 @@ class UserActivityView(APIView):
 
 class PlaylistCollectionView(APIView):
     def get(self, request): # returns all data for the user's "Playlist Collection" screen
-        
+
+        # |-- helper function --|
+        def getPlaylistCollections(user_playlists: list[Playlist]) -> dict[str, list[Playlist]]:
+            playlist_collections = { # return value
+                "recently_played": [], # last played date <= 30 days, order by most recent date played, LIMIT 5
+                "new_playlists": [], # have never been listened to, last_date_played == None, LIMIT 3
+                "its_been_a_while": [] # last_played_date > 30 days, NO LIMIT
+            }
+            i = 0
+            # get new_playlists
+            while i < len(user_playlists) and user_playlists[i].last_date_played == None:
+                if len(playlist_collections["new_playlists"]) < 3:
+                    playlist_collections["new_playlists"].append(user_playlists[i])
+                i += 1
+            # get recently_played and its_been_a_while playlists
+            todays_date = date.today()
+            while i < len(user_playlists):
+                if (todays_date - user_playlists[i].last_date_played).days <= 30 and len(playlist_collections["recently_played"]) < 5:
+                    playlist_collections["recently_played"].append(user_playlists[i])
+                elif (todays_date - user_playlists[i].last_date_played).days > 30:
+                    playlist_collections["its_been_a_while"].append(user_playlists[i])
+                i += 1
+            return playlist_collections
+        # |-- end helper function --|
+
         user_id = request.query_params.get('user_id', None)
         if user_id == None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -99,12 +124,18 @@ class PlaylistCollectionView(APIView):
         "           WHERE p.user_profile_id = %s" \
         "           GROUP BY p.id, p.playlist_name, p.genre_id, p.proficiency_level" \
         "           ORDER BY p.last_date_played DESC"
-        user_playlists = Playlist.objects.raw(sql_query, [user_id]) # all user's playlists sorted by last_played_date descending
-        playlists_and_date_info = PlaylistCollectionSerializer(user_playlists, many=True).data
+        user_playlists = list(Playlist.objects.raw(sql_query, [user_id])) # all user's playlists sorted by last_played_date descending
 
-        # NEXT: split playlists in the playlist categories
+        playlist_collections = getPlaylistCollections(user_playlists=user_playlists)
+        recently_played_serialized = PlaylistCollectionSerializer(playlist_collections["recently_played"], many=True).data
+        new_playlists_serialized = PlaylistCollectionSerializer(playlist_collections["new_playlists"], many=True).data
+        its_been_a_while_serialized = PlaylistCollectionSerializer(playlist_collections["its_been_a_while"], many=True).data
 
-        return Response({"playlist_collection_data": playlists_and_date_info})
+        return Response({"playlist_collections": {
+            "recently_played": recently_played_serialized,
+            "new_playlists": new_playlists_serialized,
+            "its_been_a_while": its_been_a_while_serialized
+        }})
     
     
 
