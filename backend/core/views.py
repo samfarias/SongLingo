@@ -213,14 +213,20 @@ def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num
 
 
 @api_view(['PUT'])
-def updateUserSongNumListens(request): # increments (+1) UserSong.num_listens for the requested user
+def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR UserSong.num_lyric_challenges completed based on req_type
     user_id = request.query_params.get('user_id', None)
     song_id = request.query_params.get('song_id', None)
-    if user_id == None or song_id == None:
+    request_type = request.query_params.get('request_type', None)
+    if user_id == None or song_id == None or request_type == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
     user_song = UserSong.objects.filter(user_profile_id=user_id, song_id=song_id)
-    rows_updated = user_song.update(num_listens=F('num_listens') + 1)
+    rows_updated = 0
+    if request_type == "song_listen":
+        rows_updated = user_song.update(num_listens=F('num_listens') + 1)
+    elif request_type == "lyric_challenge":
+        rows_updated = user_song.update(num_lyric_challenges_completed=F('num_lyric_challenges_completed') + 1)
+
     return Response(
         {f"rows_updated: {rows_updated}"},
         status=status.HTTP_204_NO_CONTENT
