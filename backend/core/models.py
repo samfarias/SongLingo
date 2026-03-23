@@ -134,7 +134,8 @@ class Playlist(models.Model):
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
     genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='playlist')
     description = models.TextField(blank=True)
-    num_listens = models.IntegerField(default=0)
+    last_date_played = models.DateField(null=True, blank=True, default=None)
+    num_days_listened = models.IntegerField(default=0)
     num_song_listens = models.IntegerField(default=0)
     creation_date = models.DateField(auto_now_add=True)
     proficiency_level = models.CharField(
@@ -152,10 +153,3 @@ class PlaylistSongs(models.Model):
 
     def __str__(self):
         return f"{self.playlist} - {self.song}"
-
-class PlaylistDaysListened(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='days_listened')
-    date = models.DateField()
-
-    def __str__(self):
-        return f"{self.playlist} listened on {self.date}"
