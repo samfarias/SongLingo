@@ -207,8 +207,8 @@ def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num
     user_word = UserWord.objects.filter(user_profile_id=user_id, word_id=word_id)
     rows_updated = user_word.update(num_practices_completed=F('num_practices_completed') + 1)
     return Response(
-        {f"rows_updated: {rows_updated}"},
-        status=status.HTTP_204_NO_CONTENT
+        {"rows_updated": rows_updated},
+        status=status.HTTP_200_OK
     )
 
 
@@ -228,6 +228,32 @@ def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR U
         rows_updated = user_song.update(num_lyric_challenges_completed=F('num_lyric_challenges_completed') + 1)
 
     return Response(
-        {f"rows_updated: {rows_updated}"},
-        status=status.HTTP_204_NO_CONTENT
+        {"rows_updated": rows_updated},
+        status=status.HTTP_200_OK
     )
+
+
+@api_view(['PUT'])
+def updateUserPlaylistNumSongListens(request): # increments (+1) Playlist.num_song_listens. Updates last_date_played and num_days_played 
+    playlist_id = request.query_params.get('playlist_id', None)                                              # if it's a new day
+    if playlist_id == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    try:
+        playlist = Playlist.objects.get(pk=playlist_id)
+        update_args = {
+            "num_song_listens": F('num_song_listens') + 1
+        }
+        if playlist.last_date_played != date.today():
+            update_args['last_date_played'] = date.today()
+            update_args['num_days_listened'] = F('num_days_listened') + 1
+
+        rows_updated = Playlist.objects.filter(pk=playlist_id).update(**update_args)
+        return Response(
+            {"rows_updated": rows_updated},
+            status=status.HTTP_200_OK
+        )
+    except Playlist.DoesNotExist:
+        return Response(
+            {"error": f"playlist with playlist_id {playlist_id} does not exist"},
+            status=status.HTTP_404_NOT_FOUND
+        )
