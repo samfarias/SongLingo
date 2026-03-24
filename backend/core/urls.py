@@ -1,15 +1,17 @@
 from django.urls import path
 from .views import (HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
-                    SinglePlaylistView, getSongs, createSong, PlaylistCollectionView
+                    SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
+                    updateUserSongProgress, updateUserPlaylistNumSongListens
 )
 
 urlpatterns = [
     path('home/', HomeScreenView.as_view(), name='home'),
-    path('songs/', getSongs, name='get-songs'),
-    path('songs/create/', createSong, name='create-song'),
     path('words-learned/', WordsLearnedView.as_view(), name='words-learned'),
     path('songs-listened/', SongsListenedView.as_view(), name='songs-listened'),
     path('user-activity/', UserActivityView.as_view(), name='user-activity'),
-    path('playlist', SinglePlaylistView.as_view(), name='playlist'),
-    path('playlist-collection', PlaylistCollectionView.as_view(), name='playlist-collection')
+    path('playlist/', SinglePlaylistView.as_view(), name='playlist'),
+    path('playlist-collection/', PlaylistCollectionView.as_view(), name='playlist-collection'),
+    path('word-practices-completed', updateUserWordNumPracticesCompleted, name='word-practices-completed'),
+    path('user-song-progress', updateUserSongProgress, name='user-song-progress'),
+    path('playlist-num-song-listens', updateUserPlaylistNumSongListens, name='playlist-num-song-listens')
 ]

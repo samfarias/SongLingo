@@ -84,9 +84,9 @@ class Word(models.Model):
     def __str__(self):
         return f"{self.word_text} ({self.translation})"
 
-class UserWords(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_words')
-    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='user_words')
+class UserWord(models.Model):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_word')
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='user_word')
     num_listens = models.IntegerField(default=0)
     num_practices_completed = models.IntegerField(default=0)
     mastery_lvl = models.IntegerField(default=0)
@@ -114,8 +114,8 @@ class Song(models.Model):
     def __str__(self):
         return f"{self.title} - {self.artist}"
 
-class UserSongs(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_songs')
+class UserSong(models.Model):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_song')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_progress')
     num_listens = models.IntegerField(default=0)
     num_lyric_challenges_completed = models.IntegerField(default=0)
@@ -137,7 +137,7 @@ class Playlist(models.Model):
     last_date_played = models.DateField(null=True, blank=True, default=None)
     num_days_listened = models.IntegerField(default=0)
     num_song_listens = models.IntegerField(default=0)
-    creation_date = models.DateField(auto_now_add=True)
+    created_date = models.DateField(auto_now_add=True)
     proficiency_level = models.CharField(
         max_length=20, 
         choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Advanced', 'Advanced')],
@@ -147,8 +147,8 @@ class Playlist(models.Model):
     def __str__(self):
         return self.playlist_name
 
-class PlaylistSongs(models.Model):
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='playlist_songs')
+class PlaylistSong(models.Model):
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='playlist_song')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='playlists_contained_in')
 
     def __str__(self):
