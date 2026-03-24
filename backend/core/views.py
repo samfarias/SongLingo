@@ -14,6 +14,9 @@ from .serializers import (
     UserActivitySerializer, DaysActiveSerializer, PlaylistSerializer, PlaylistSongSerializer,
     PlaylistCollectionSerializer, SuggestedPlaylistsSerializer
 )
+from .views_helpers import (
+    updateUserActivity, updateUserPlaylistNumSongListens
+)
 
 class HomeScreenView(APIView):
     def get(self, request): # returns all data for the user's Home Screen
@@ -107,7 +110,7 @@ class UserActivityView(APIView):
         user_activity = UserActivity.objects.get(user_profile=user_id)
         user_activity_data = UserActivitySerializer(user_activity).data # contains streak info
 
-        days_active = DaysActive.objects.filter(user_profile=user_id)
+        days_active = DaysActive.objects.filter(user_profile=user_id).order_by('-date')
         days_active_data = DaysActiveSerializer(days_active, many=True).data
 
         return Response({"streak_info": user_activity_data,
@@ -185,18 +188,6 @@ class SinglePlaylistView(APIView):
 
 
 
-
-    
-# @api_view(['POST'])
-# def createSong(request):
-#     serializer = SongSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 @api_view(['PUT'])
 def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num_practices_completed for the requested user
     user_id = request.query_params.get('user_id', None)
@@ -204,8 +195,11 @@ def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num
     if user_id == None or word_id == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
+    updateUserActivity(user_id) # from views_helpers, updates streak and days active if this happened on a new day
+
     user_word = UserWord.objects.filter(user_profile_id=user_id, word_id=word_id)
     rows_updated = user_word.update(num_practices_completed=F('num_practices_completed') + 1)
+    
     return Response(
         {"rows_updated": rows_updated},
         status=status.HTTP_200_OK
@@ -217,43 +211,24 @@ def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR U
     user_id = request.query_params.get('user_id', None)
     song_id = request.query_params.get('song_id', None)
     request_type = request.query_params.get('request_type', None)
+    playlist_id = request.query_params.get('playlist_id', None)
     if user_id == None or song_id == None or request_type == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
+    updateUserActivity(user_id) # from views_helpers, updates streak and days active if this happened on a new day
+
     user_song = UserSong.objects.filter(user_profile_id=user_id, song_id=song_id)
-    rows_updated = 0
+    song_rows_updated = 0
     if request_type == "song_listen":
-        rows_updated = user_song.update(num_listens=F('num_listens') + 1)
+        song_rows_updated = user_song.update(num_listens=F('num_listens') + 1)
     elif request_type == "lyric_challenge":
-        rows_updated = user_song.update(num_lyric_challenges_completed=F('num_lyric_challenges_completed') + 1)
+        song_rows_updated = user_song.update(num_lyric_challenges_completed=F('num_lyric_challenges_completed') + 1)
+
+    # from views_helpers, updates Playlist.num_song_listens if this song came from a playlist
+    playlist_rows_updated = updateUserPlaylistNumSongListens(playlist_id) if (playlist_id and request_type == "song_listen") else 0
 
     return Response(
-        {"rows_updated": rows_updated},
+        {"song_rows_updated": song_rows_updated,
+         "playlist_rows_updated": playlist_rows_updated},
         status=status.HTTP_200_OK
     )
-
-
-@api_view(['PUT'])
-def updateUserPlaylistNumSongListens(request): # increments (+1) Playlist.num_song_listens. Updates last_date_played and num_days_played 
-    playlist_id = request.query_params.get('playlist_id', None)                                              # if it's a new day
-    if playlist_id == None:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    try:
-        playlist = Playlist.objects.get(pk=playlist_id)
-        update_args = {
-            "num_song_listens": F('num_song_listens') + 1
-        }
-        if playlist.last_date_played != date.today():
-            update_args['last_date_played'] = date.today()
-            update_args['num_days_listened'] = F('num_days_listened') + 1
-
-        rows_updated = Playlist.objects.filter(pk=playlist_id).update(**update_args)
-        return Response(
-            {"rows_updated": rows_updated},
-            status=status.HTTP_200_OK
-        )
-    except Playlist.DoesNotExist:
-        return Response(
-            {"error": f"playlist with playlist_id {playlist_id} does not exist"},
-            status=status.HTTP_404_NOT_FOUND
-        )

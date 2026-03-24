@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
                     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
-                    updateUserSongProgress, updateUserPlaylistNumSongListens
+                    updateUserSongProgress
 )
 
 urlpatterns = [
@@ -12,6 +12,5 @@ urlpatterns = [
     path('playlist/', SinglePlaylistView.as_view(), name='playlist'),
     path('playlist-collection/', PlaylistCollectionView.as_view(), name='playlist-collection'),
     path('word-practices-completed', updateUserWordNumPracticesCompleted, name='word-practices-completed'),
-    path('user-song-progress', updateUserSongProgress, name='user-song-progress'),
-    path('playlist-num-song-listens', updateUserPlaylistNumSongListens, name='playlist-num-song-listens')
+    path('user-song-progress', updateUserSongProgress, name='user-song-progress')
 ]
