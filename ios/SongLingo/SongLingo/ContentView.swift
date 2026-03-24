@@ -14,7 +14,7 @@ struct ContentView: View
         TabView
         {
             Tab(Constants.homeString, systemImage: Constants.homeIcon) {
-                Text("Empty1")
+                Dashboard()
             }
             Tab(Constants.playlistString, systemImage: Constants.playlistIcon) {
                 Text("Empy2")
