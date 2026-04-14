@@ -15,3 +15,6 @@ db.sqlite3
 
 #Environment Variables
 .env
+
+.cache
+spotify_token.txt
