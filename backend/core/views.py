@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import render
 from django.db.models import F
 from rest_framework.views import APIView
@@ -12,10 +13,10 @@ from .models import (
 from .serializers import (
     SongSerializer, UserProfileSerializer, UserWordSerializer, UserSongSerializer,
     UserActivitySerializer, DaysActiveSerializer, PlaylistSerializer, PlaylistSongSerializer,
-    PlaylistCollectionSerializer, SuggestedPlaylistsSerializer
+    PlaylistCollectionSerializer, SuggestedPlaylistsSerializer, WordCardSerializer
 )
 from .views_helpers import (
-    updateUserActivity, updateUserPlaylistNumSongListens
+    updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord
 )
 
 class HomeScreenView(APIView):
@@ -231,4 +232,46 @@ def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR U
         {"song_rows_updated": song_rows_updated,
          "playlist_rows_updated": playlist_rows_updated},
         status=status.HTTP_200_OK
+    )
+
+
+
+# PRACTICE EXERCISE ENDPOINTS
+
+@api_view(['GET'])
+def getWordCardExercise(request): # returns the user's 10 least practiced words and their relevant info
+    user_id = request.query_params.get('user_id', None)
+    if user_id == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    sql_query = "SELECT " \
+    "               w.id, w.word_text, w.translation, w.pronunciation, w.definition," \
+    "           uw.num_practices_completed, uw.mastery_lvl" \
+    "           FROM core_userword AS uw" \
+    "           JOIN core_word AS w ON w.id = uw.word_id" \
+    "           WHERE uw.user_profile_id = %s" \
+    "           GROUP BY uw.num_practices_completed, uw.mastery_lvl, w.id, w.word_text, w.translation, w.pronunciation, w.definition" \
+    "           ORDER BY uw.num_practices_completed" \
+    "           LIMIT 10"
+    
+    practice_words = list(Word.objects.raw(sql_query, [user_id]))
+    practice_words_serialized = WordCardSerializer(practice_words, many=True).data
+    return Response(
+        {"practice_words": practice_words_serialized},
+        status=status.HTTP_200_OK
+    )
+    
+
+@api_view(['GET'])
+def getCompleteTheLyricExercise(request):
+    user_id = request.query_params.get('user_id', None)
+    if user_id == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    # temporarily harcodign this one song, will need to change the below line
+    practice_song = Song.objects.get(pk=11)
+    lyric_and_word = getLyricAndMissingWord(practice_song)
+
+    return Response(
+        {"lyric": lyric_and_word[0],
+         "missing_word": lyric_and_word[1]}
     )
