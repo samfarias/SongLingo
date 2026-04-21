@@ -44,26 +44,76 @@ struct ProficiencyView: View {
                             .foregroundColor(.gray)
                     }
                     VStack(spacing: 20) {
-                        VStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: 6) {
                             Text("Beginner")
+                                .fontWeight(.semibold)
                             
                             Text("Just starting out")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .overlay (
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.black, lineWidth: 1)
+                        )
                     }
                     VStack(spacing: 20) {
-                        VStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: 6) {
                             Text("Intermediate")
+                                .fontWeight(.semibold)
                             
                             Text("Basic conversations")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .overlay (
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.black, lineWidth: 1)
+                        )
                     }
                     VStack(spacing: 20) {
-                        VStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: 6) {
                             Text("Advanced")
+                                .fontWeight(.semibold)
                             
                             Text("Fluent speaker")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .overlay (
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.black, lineWidth: 1)
+                            )
                     }
+                    HStack(spacing: 16) {
+                        Button("Back") {
+                            print("Back tapped")
+                        }
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        
+                        Button("Continue") {
+                            print("Continue tapped")
+                        }
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                    }
+                    
+                    
                 }
                 .padding(25)
                 .background(Color.white)
