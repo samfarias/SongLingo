@@ -8,6 +8,20 @@
 import SwiftUI
 
 struct GenreSelectView: View {
+    
+    let genres = [
+        "Mood", "Pop", "Country & Folk",
+        "Rock", "Jazz & Blues", "Latino"
+    ]
+    
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
+    @State private var selectedGenres: Set<String> = []
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -43,6 +57,43 @@ struct GenreSelectView: View {
                             .font(.system(size: 13))
                             .foregroundColor(.gray)
                     }
+                    
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(genres, id: \.self) { genre in
+                                                
+                            Button {
+                                if selectedGenres.contains(genre) {
+                                    selectedGenres.remove(genre)
+                                } else {
+                                    selectedGenres.insert(genre)
+                                }
+                            } label: {
+                                                    
+                                VStack(spacing: 8) {
+                                     
+                                    Image(genre)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 60)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .aspectRatio(1.4, contentMode: .fit)
+                                .padding(10)
+                                .background(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(
+                                            selectedGenres.contains(genre)
+                                            ? Color(red: 0.486, green: 0.227, blue: 0.929)
+                                            : Color.black,
+                                            lineWidth: selectedGenres.contains(genre) ? 3 : 2
+                                        )
+                                )
+                                .cornerRadius(14)
+                            }
+                        }
+                    }
+                    
                     HStack(spacing: 16) {
                         Button("Back") {
                             print("Back tapped")
