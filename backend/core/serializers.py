@@ -65,6 +65,14 @@ class UserWordSerializer(serializers.ModelSerializer):
         model = UserWord
         fields = ['word', 'num_listens', 'num_practices_completed', 'mastery_lvl']
 
+class WordCardSerializer(serializers.ModelSerializer):
+    num_practices_completed = serializers.IntegerField(read_only=True)
+    mastery_lvl = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Word
+        fields = ['word_text', 'translation', 'pronunciation', 'definition', 'num_practices_completed', 'mastery_lvl']
+
 
 ########################
 # Song Model Serializers

@@ -1,13 +1,14 @@
 import os
 import requests
 import base64
+import random
 from datetime import date
 from dotenv import load_dotenv
 from django.db.models import F
 from rest_framework.response import Response
 from rest_framework import status
 from .models import (
-    DaysActive, UserActivity, Playlist
+    DaysActive, UserActivity, Playlist, Song
 )
 
 load_dotenv()
@@ -53,6 +54,23 @@ def updateUserPlaylistNumSongListens(playlist_id: int) -> int:
         return rows_updated
     except Playlist.DoesNotExist:
         return 0
+    
+def getLyricAndMissingWord(practice_song: Song) -> tuple[str, str]:
+    lyrics = practice_song.lyrics
+    lines = lyrics.split('\n')
+    random_line = lines[random.randint(0, len(lines) - 1)][:-1] # be sure there is at least 1 line, [:-1] to remove '\r' at end
+    line_words = random_line.split(' ')
+    random_word = line_words[random.randint(0, len(line_words) - 1)]
+    blanked_out_line = ""
+    for word in line_words:
+        if word != random_word:
+            blanked_out_line += word
+        else:
+            blanked_out_line += ('_' * len(word))
+        blanked_out_line += ' '
+    blanked_out_line = blanked_out_line[:-1] # remove last space
+    return [blanked_out_line, random_word]
+
     
 #--> External API helper functions <--#
 
