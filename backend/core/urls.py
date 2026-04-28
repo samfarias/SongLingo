@@ -2,7 +2,7 @@ from django.urls import path
 from .views import GenerateWeeklyDropView
 from .views import (HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
                     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
-                    updateUserSongProgress
+                    updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise
 )
 
 urlpatterns = [
@@ -15,4 +15,6 @@ urlpatterns = [
     path('word-practices-completed', updateUserWordNumPracticesCompleted, name='word-practices-completed'),
     path('user-song-progress', updateUserSongProgress, name='user-song-progress'),
     path('generate-drop/', GenerateWeeklyDropView.as_view(), name='generate-drop')
+    path('word-card-exercise', getWordCardExercise, name='word-card-excercise'),
+    path('complete-the-lyric-exercise', getCompleteTheLyricExercise, name='complete-the-lyric-exercise')
 ]
