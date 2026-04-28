@@ -26,7 +26,7 @@ from .serializers import (
 )
 from .views_helpers import (
     updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord, getSongDistractorWords,
-    getTwoRandomSongLines
+    getTwoRandomSongLines, getPracticeExerciseSong
 )
 
 class HomeScreenView(APIView):
@@ -383,9 +383,8 @@ def getCompleteTheLyricExercise(request):
     user_id = request.query_params.get('user_id', None)
     if user_id == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-    # TEMPORARILY HARDCODING THIS ONE SONG, WILL NEED TO UPDATE
-    practice_song = Song.objects.get(pk=11)
+
+    practice_song = getPracticeExerciseSong(user_id)
     lyric_and_word = getLyricAndMissingWord(practice_song)
     distractor_words = getSongDistractorWords(practice_song, lyric_and_word[1])
 
@@ -405,7 +404,7 @@ def getLyricMatchExercise(request):
     if user_id == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    practice_song = UserSong.objects.filter(user_profile=user_id).order_by('num_lyric_challenges_completed').first().song
+    practice_song = getPracticeExerciseSong(user_id)
     two_song_lines = getTwoRandomSongLines(practice_song)
     
     return Response(
