@@ -71,6 +71,29 @@ def getLyricAndMissingWord(practice_song: Song) -> tuple[str, str]:
     blanked_out_line = blanked_out_line[:-1] # remove last space
     return [blanked_out_line, random_word]
 
+def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
+    word_set = {missing_word}
+    lyrics = practice_song.lyrics
+    lines = lyrics.split('\n')
+    attempts = 1000 # for safety, avoid an infinite loop below if something unexpected happens
+    while len(word_set) < 4 and attempts > 0:
+        random_line = lines[random.randint(0, len(lines) - 1)][:-1] # be sure there is at least 1 line, [:-1] to remove '\r' at end
+        line_words = random_line.split(' ')
+        random_word = line_words[random.randint(0, len(line_words) - 1)]
+        formatted_random_word = ""
+        for ch in random_word:
+            if ch.isalpha():
+                formatted_random_word += ch
+        if formatted_random_word not in word_set:
+            word_set.add(formatted_random_word)
+        attempts -= 1
+
+    distractor_words = []
+    for word in word_set:
+        if word != missing_word:
+            distractor_words.append(word)
+    return distractor_words
+
     
 #--> External API helper functions <--#
 

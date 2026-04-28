@@ -25,7 +25,7 @@ from .serializers import (
     PlaylistCollectionSerializer, SuggestedPlaylistsSerializer, WordCardSerializer
 )
 from .views_helpers import (
-    updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord
+    updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord, getSongDistractorWords
 )
 
 class HomeScreenView(APIView):
@@ -195,52 +195,8 @@ class SinglePlaylistView(APIView):
 
         return Response({"playlist_info": playlist_info,
                          "playlist_songs": playlist_song_data})
-
-
-
-@api_view(['PUT'])
-def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num_practices_completed for the requested user
-    user_id = request.query_params.get('user_id', None)
-    word_id = request.query_params.get('word_id', None)
-    if user_id == None or word_id == None:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    updateUserActivity(user_id) # from views_helpers, updates streak and days active if this happened on a new day
-
-    user_word = UserWord.objects.filter(user_profile_id=user_id, word_id=word_id)
-    rows_updated = user_word.update(num_practices_completed=F('num_practices_completed') + 1)
     
-    return Response(
-        {"rows_updated": rows_updated},
-        status=status.HTTP_200_OK
-    )
-
-@api_view(['PUT'])
-def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR UserSong.num_lyric_challenges completed based on req_type
-    user_id = request.query_params.get('user_id', None)
-    song_id = request.query_params.get('song_id', None)
-    request_type = request.query_params.get('request_type', None)
-    playlist_id = request.query_params.get('playlist_id', None)
-    if user_id == None or song_id == None or request_type == None:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-    updateUserActivity(user_id) # from views_helpers, updates streak and days active if this happened on a new day
-
-    user_song = UserSong.objects.filter(user_profile_id=user_id, song_id=song_id)
-    song_rows_updated = 0
-    if request_type == "song_listen":
-        song_rows_updated = user_song.update(num_listens=F('num_listens') + 1)
-    elif request_type == "lyric_challenge":
-        song_rows_updated = user_song.update(num_lyric_challenges_completed=F('num_lyric_challenges_completed') + 1)
-
-    # from views_helpers, updates Playlist.num_song_listens if this song came from a playlist
-    playlist_rows_updated = updateUserPlaylistNumSongListens(playlist_id) if (playlist_id and request_type == "song_listen") else 0
-
-    return Response(
-        {"song_rows_updated": song_rows_updated,
-         "playlist_rows_updated": playlist_rows_updated},
-        status=status.HTTP_200_OK
-    )
 class GenerateWeeklyDropView(APIView):
     def post(self, request):
         user_id = request.data.get('user_id')
@@ -340,6 +296,52 @@ class GenerateWeeklyDropView(APIView):
 
 
 
+@api_view(['PUT'])
+def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num_practices_completed for the requested user
+    user_id = request.query_params.get('user_id', None)
+    word_id = request.query_params.get('word_id', None)
+    if user_id == None or word_id == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    updateUserActivity(user_id) # from views_helpers, updates streak and days active if this happened on a new day
+
+    user_word = UserWord.objects.filter(user_profile_id=user_id, word_id=word_id)
+    rows_updated = user_word.update(num_practices_completed=F('num_practices_completed') + 1)
+    
+    return Response(
+        {"rows_updated": rows_updated},
+        status=status.HTTP_200_OK
+    )
+
+@api_view(['PUT'])
+def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR UserSong.num_lyric_challenges completed based on req_type
+    user_id = request.query_params.get('user_id', None)
+    song_id = request.query_params.get('song_id', None)
+    request_type = request.query_params.get('request_type', None)
+    playlist_id = request.query_params.get('playlist_id', None)
+    if user_id == None or song_id == None or request_type == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    updateUserActivity(user_id) # from views_helpers, updates streak and days active if this happened on a new day
+
+    user_song = UserSong.objects.filter(user_profile_id=user_id, song_id=song_id)
+    song_rows_updated = 0
+    if request_type == "song_listen":
+        song_rows_updated = user_song.update(num_listens=F('num_listens') + 1)
+    elif request_type == "lyric_challenge":
+        song_rows_updated = user_song.update(num_lyric_challenges_completed=F('num_lyric_challenges_completed') + 1)
+
+    # from views_helpers, updates Playlist.num_song_listens if this song came from a playlist
+    playlist_rows_updated = updateUserPlaylistNumSongListens(playlist_id) if (playlist_id and request_type == "song_listen") else 0
+
+    return Response(
+        {"song_rows_updated": song_rows_updated,
+         "playlist_rows_updated": playlist_rows_updated},
+        status=status.HTTP_200_OK
+    )
+
+
+
 # PRACTICE EXERCISE ENDPOINTS
 
 @api_view(['GET'])
@@ -374,8 +376,13 @@ def getCompleteTheLyricExercise(request):
     # temporarily harcodign this one song, will need to change the below line
     practice_song = Song.objects.get(pk=11)
     lyric_and_word = getLyricAndMissingWord(practice_song)
+    distractor_words = getSongDistractorWords(practice_song, lyric_and_word[1])
 
     return Response(
         {"lyric": lyric_and_word[0],
-         "missing_word": lyric_and_word[1]}
+         "missing_word": lyric_and_word[1],
+         "distractor_words": distractor_words,
+         "song_title": practice_song.title,
+         "song_artist": practice_song.artist
+        }
     )
