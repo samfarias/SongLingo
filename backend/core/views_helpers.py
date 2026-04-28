@@ -94,6 +94,14 @@ def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
             distractor_words.append(word)
     return distractor_words
 
+def getTwoRandomSongLines(practice_song: Song) -> tuple[str, str]:
+    lyrics = practice_song.lyrics
+    lines = lyrics.split('\n')
+    random_line_idx = random.randint(0, len(lines) - 2) # -2 ensures it's not the last line so we can also get the following line
+    line_one = lines[random_line_idx][:-1] # [:-1] to remove '\r' at end
+    line_two = lines[random_line_idx + 1][:-1]
+    return [line_one, line_two]
+
     
 #--> External API helper functions <--#
 

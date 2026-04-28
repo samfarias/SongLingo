@@ -25,7 +25,8 @@ from .serializers import (
     PlaylistCollectionSerializer, SuggestedPlaylistsSerializer, WordCardSerializer
 )
 from .views_helpers import (
-    updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord, getSongDistractorWords
+    updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord, getSongDistractorWords,
+    getTwoRandomSongLines
 )
 
 class HomeScreenView(APIView):
@@ -360,9 +361,19 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
     "           LIMIT 10"
     
     practice_words = list(Word.objects.raw(sql_query, [user_id]))
+
+    word_distractors = []
+    most_listened_song = UserSong.objects.filter(user_profile=user_id).order_by('-num_listens').first().song
+    if most_listened_song != None:
+        for word in practice_words:
+            distractors = getSongDistractorWords(most_listened_song, word)
+            word_distractors.append(distractors)
+
     practice_words_serialized = WordCardSerializer(practice_words, many=True).data
     return Response(
-        {"practice_words": practice_words_serialized},
+        {"practice_words": practice_words_serialized,
+         "word_distractors": word_distractors
+        },
         status=status.HTTP_200_OK
     )
     
@@ -373,7 +384,7 @@ def getCompleteTheLyricExercise(request):
     if user_id == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    # temporarily harcodign this one song, will need to change the below line
+    # TEMPORARILY HARDCODING THIS ONE SONG, WILL NEED TO UPDATE
     practice_song = Song.objects.get(pk=11)
     lyric_and_word = getLyricAndMissingWord(practice_song)
     distractor_words = getSongDistractorWords(practice_song, lyric_and_word[1])
@@ -385,4 +396,21 @@ def getCompleteTheLyricExercise(request):
          "song_title": practice_song.title,
          "song_artist": practice_song.artist
         }
+    )
+
+
+@api_view(['GET'])
+def getLyricMatchExercise(request):
+    user_id = request.query_params.get('user_id', None)
+    if user_id == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    practice_song = UserSong.objects.filter(user_profile=user_id).order_by('num_lyric_challenges_completed').first().song
+    two_song_lines = getTwoRandomSongLines(practice_song)
+    
+    return Response(
+        {"line_to_display": two_song_lines[0],
+         "line_to_match": two_song_lines[1],
+         "song_title": practice_song.title,
+         "song_artist": practice_song.artist}
     )
