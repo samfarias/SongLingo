@@ -6,6 +6,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from datetime import date
+import os
+import requests
+from dotenv import load_dotenv, find_dotenv
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from .views_helpers import search_spotify_track
+
+load_dotenv(find_dotenv())
+
 from .models import (
   UserProfile, Song, UserWord, UserSong, UserActivity, DaysActive, Playlist,
   PlaylistSong, Word
@@ -206,7 +215,6 @@ def updateUserWordNumPracticesCompleted(request): # increments (+1) UserWord.num
         status=status.HTTP_200_OK
     )
 
-
 @api_view(['PUT'])
 def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR UserSong.num_lyric_challenges completed based on req_type
     user_id = request.query_params.get('user_id', None)
@@ -233,6 +241,102 @@ def updateUserSongProgress(request): # increments (+1) UserSong.num_listens OR U
          "playlist_rows_updated": playlist_rows_updated},
         status=status.HTTP_200_OK
     )
+class GenerateWeeklyDropView(APIView):
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({"error": "missing user_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # grab exact user who triggered this
+        try:
+            user = UserProfile.objects.get(pk=user_id)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "user not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            client_id = os.getenv('SPOTIFY_CLIENT_ID')
+            client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+            redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+            scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email"
+            
+            auth_manager = SpotifyOAuth(
+                client_id=client_id,
+                client_secret=client_secret,
+                redirect_uri=redirect_uri,
+                scope=scope,
+                cache_path="spotify_token.txt"
+            )
+            sp = spotipy.Spotify(auth_manager=auth_manager)
+            access_token = auth_manager.get_cached_token()['access_token']
+            
+            # 1. create the playlist on spotify's actual servers
+            url_create = "https://api.spotify.com/v1/me/playlists"
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
+            }
+            data_create = {
+                "name": "SongLingo Weekly Drop",
+                "public": False,
+                "description": "Your curated language learning tracks for the week."
+            }
+            
+            response_create = requests.post(url_create, headers=headers, json=data_create)
+            if response_create.status_code not in [200, 201]:
+                return Response({"error": f"spotify failed: {response_create.text}"}, status=status.HTTP_502_BAD_GATEWAY)
+                
+            playlist_data = response_create.json()
+            playlist_id = playlist_data['id']
+
+            # 2. save the empty playlist to our postgres db
+            db_playlist = Playlist.objects.create(
+                user_profile=user,
+                playlist_name=playlist_data['name'],
+                language=user.target_language #grab user language to tie to playlist creation. atp only doing spanish
+            )
+
+            # 3. the curated songs
+            weekly_songs = [
+                {"title": "Despacito", "artist": "Luis Fonsi"},
+                {"title": "Bidi Bidi Bom Bom", "artist": "Selena"},
+                {"title": "Danza Kuduro", "artist": "Don Omar"},
+                {"title": "Vivir Mi Vida", "artist": "Marc Anthony"},
+                {"title": "Con Altura", "artist": "ROSALÍA"}
+            ]
+            
+            track_uris = []
+            
+            # 4. search spotify, save to postgres, and link to playlist
+            for song in weekly_songs:
+                result = search_spotify_track(song["title"], song["artist"], access_token)
+                
+                if result:
+                    track_uris.append(f"spotify:track:{result['spotify_id']}")
+                    
+                    # save song to db (get_or_create prevents duplicates)
+                    db_song, created = Song.objects.get_or_create(
+                        spotify_id=result['spotify_id'],
+                        defaults={'title': result['title'], 'artist': result['artist']}
+                    )
+                    
+                    # link song to playlist in the join table
+                    PlaylistSong.objects.create(
+                        playlist=db_playlist,
+                        song=db_song
+                    )
+
+            # 5. add found tracks to actual spotify playlist
+            if track_uris:
+                sp.playlist_add_items(playlist_id, track_uris)
+                
+            return Response({
+                "message": "weekly drop generated successfully!",
+                "playlist_id": db_playlist.id,
+                "spotify_url": playlist_data['external_urls']['spotify']
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

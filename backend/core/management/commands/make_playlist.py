@@ -5,7 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-# import your existing helper function
+# import this helper function
 from core.views_helpers import search_spotify_track
 
 load_dotenv(find_dotenv())
@@ -18,10 +18,6 @@ class Command(BaseCommand):
         client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
         redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
 
-        # nuke the cache to guarantee 100% fresh permissions
-        if os.path.exists("spotify_token.txt"):
-            os.remove("spotify_token.txt")
-
         self.stdout.write("Connecting to Spotify via OAuth...")
         scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email"
         
@@ -31,7 +27,6 @@ class Command(BaseCommand):
                 client_secret=client_secret,
                 redirect_uri=redirect_uri,
                 scope=scope,
-                show_dialog=True,  
                 cache_path="spotify_token.txt"
             )
             sp = spotipy.Spotify(auth_manager=auth_manager)
@@ -80,7 +75,7 @@ class Command(BaseCommand):
             track_uris = []
             self.stdout.write("Searching for tracks...")
             
-            # 3. loop through your curation and use your helper function
+            # 3. loop through our curation and use the helper function
             for song in weekly_songs:
                 result = search_spotify_track(song["title"], song["artist"], access_token)
                 
