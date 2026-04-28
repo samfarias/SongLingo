@@ -23,6 +23,20 @@ struct ContentView: View
                 Profile()
             }
         }
+        .onAppear {
+            // 1. target specific django endpoint
+            guard let url = URL(string: "http://127.0.0.1:8000/api/home/?user_id=1") else { return }
+            
+            // 2. fire off request in the background
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                if let data = data {
+                    // 3. print django's response straight to the xcode console
+                    print("\n=== DJANGO SAYS ===")
+                    print(String(data: data, encoding: .utf8) ?? "no data")
+                    print("===================\n")
+                }
+            }.resume()
+        }
     }
 }
 
