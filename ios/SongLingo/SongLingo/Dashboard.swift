@@ -446,6 +446,25 @@ struct Dashboard: View {
             //This works equally as well: .ignoresSafeArea()
             //.scrollBounceBehavior(.basedOnSize)
             //.ignoresSafeArea(edges: .top)
+            .task {
+                do {
+                    let homeScreenData = try await fetchHomeScreenData(userId: "1")
+                    // TESTING
+//                    print("Name: " + homeScreenData.userInfo.firstName + " " + homeScreenData.userInfo.lastName)
+//                    print("Target language: \(homeScreenData.userInfo.targetLanguage)")
+//                    print("Proficiency level: \(homeScreenData.userInfo.proficiencyLevel)")
+//                    print("numWordsLearned: \(homeScreenData.userProgress.numWordsLearned)")
+//                    print("numSongsCompleted: \(homeScreenData.userProgress.numSongsCompleted)")
+//                    print("currentStreak: \(homeScreenData.userProgress.currentStreak)")
+//                    print("Recent playlists:")
+//                    for playlist in homeScreenData.suggestedPlaylists.recentlyPlayed {
+//                        print(playlist.playlistName)
+//                    }
+
+                } catch {
+                    print("Request failed: \(error)")
+                }
+            }
         }
 
     }

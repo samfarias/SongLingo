@@ -143,6 +143,24 @@ struct MySongs: View {
             }
             .navigationTitle("My Songs")
             .background(Color.pink.opacity(0.3))
+            .task {
+                do {
+                    let mySongsData = try await fetchMySongsData(userId: "1")
+                    // TESTING
+//                    for songEntry in mySongsData.userSongData {
+//                        print(songEntry.song.title)
+//                        print(songEntry.song.artist)
+//                        print(String(songEntry.numListens))
+//                        print(String(songEntry.numLyricChallengesCompleted))
+//                        print(String(songEntry.masteryLvl))
+//                        print(" ")
+//                        print("------")
+//                        print(" ")
+//                    }
+                } catch {
+                    print("Request failed: \(error)")
+                }
+            }
         }
     }
 }
