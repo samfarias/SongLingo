@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GenreSelectView: View {
+    @Environment(\.dismiss) var dismiss
     
     let genres = [
         "Mood", "Pop", "Country & Folk",
@@ -95,8 +96,10 @@ struct GenreSelectView: View {
                     }
                     
                     HStack(spacing: 16) {
-                        Button("Back") {
-                            print("Back tapped")
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("Back")
                         }
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
@@ -105,8 +108,8 @@ struct GenreSelectView: View {
                         .foregroundColor(.white)
                         .cornerRadius(12)
                         
-                        Button("Continue") {
-                            print("Continue tapped")
+                        NavigationLink(value: OnboardingFlow.dashboard) {
+                            Text("Continue")
                         }
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)

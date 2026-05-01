@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ProficiencyView: View {
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -92,8 +94,10 @@ struct ProficiencyView: View {
                             )
                     }
                     HStack(spacing: 16) {
-                        Button("Back") {
-                            print("Back tapped")
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("Back")
                         }
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
@@ -102,8 +106,8 @@ struct ProficiencyView: View {
                         .foregroundColor(.white)
                         .cornerRadius(12)
                         
-                        Button("Continue") {
-                            print("Continue tapped")
+                        NavigationLink(value: OnboardingFlow.genreSelectView) {
+                            Text("Continue")
                         }
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)

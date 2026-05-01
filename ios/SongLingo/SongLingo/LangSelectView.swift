@@ -91,8 +91,8 @@ struct LanguageSelectionView: View {
                         }
                     }
 
-                    Button("Continue") {
-                        print("Continue tapped")
+                    NavigationLink(value: OnboardingFlow.proficiencyView) {
+                        Text("Continue")
                     }
                     .font(.system(size: 15, weight: .semibold))
                     .frame(width: 240, height: 44)

@@ -12,6 +12,8 @@ struct CreateAccView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
+    
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         ZStack {
@@ -96,8 +98,8 @@ struct CreateAccView: View {
                         }
                     }
 
-                    Button("Create Account") {
-                        print("Create account tapped")
+                    NavigationLink(value: OnboardingFlow.languageSelectionView) {
+                        Text("Create Account")
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -110,8 +112,10 @@ struct CreateAccView: View {
                         Text("Already have an account?")
                             .foregroundColor(.gray)
 
-                        Button("Sign In") {
-                            print("Sign In tapped")
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("Sign In")
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
