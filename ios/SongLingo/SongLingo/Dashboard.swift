@@ -31,6 +31,7 @@ struct Dashboard: View {
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity, minHeight: 150)
                     .background(Color.purple)
+                    
                 }
                 
                 //Handles the space between the the subtitle and Word Bank, My Songs, and Streak buttons
@@ -316,7 +317,15 @@ struct Dashboard: View {
                 .padding()
                 
             }
-            .background(Color.purple.opacity(0.2))
+            .background(LinearGradient(
+                gradient: Gradient(colors: [
+                            Color(red: 1.00, green: 0.85, blue: 0.85), // Soft Coral/Peach
+                            Color(red: 0.95, green: 0.80, blue: 0.90), // Soft Pink/Lavender
+                            Color(red: 0.85, green: 0.80, blue: 0.95)  // Soft Lilac/Purple
+                        ]),
+                startPoint: .top,
+                endPoint: .bottom
+            ))
             .edgesIgnoringSafeArea(.all)
             //This works equally as well: .ignoresSafeArea()
             //.scrollBounceBehavior(.basedOnSize)
