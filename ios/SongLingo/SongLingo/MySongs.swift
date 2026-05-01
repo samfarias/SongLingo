@@ -129,7 +129,7 @@ struct SongRow: View {
                         .frame(width: 100, height: 25)
 
                     // Map the Int mastery level back to text
-                    Text("\(Constants.masteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? "Lvl")")
+                    Text("\(Constants.songsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? "Lvl")")
                         .lineLimit(1)
                         .foregroundColor(.black)
                         .font(.system(size: 12))

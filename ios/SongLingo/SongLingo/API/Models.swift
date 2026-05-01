@@ -113,3 +113,41 @@ struct SongDetails: Codable {
         case artist
     }
 }
+
+// MARK: - LearnedWords View models
+
+struct WordBankData: Codable {
+    let userWordData: [UserWordEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case userWordData = "user_word_data"
+    }
+}
+
+struct UserWordEntry: Codable, Identifiable {
+    // Computed property to satisfy Identifiable
+    // Since word_text should be unique in a vocabulary list, it makes a good ID
+    var id: String { word.wordText }
+    
+    let word: WordDetails
+    let numListens: Int
+    let numPracticesCompleted: Int
+    let masteryLvl: Int
+
+    enum CodingKeys: String, CodingKey {
+        case word
+        case numListens = "num_listens"
+        case numPracticesCompleted = "num_practices_completed"
+        case masteryLvl = "mastery_lvl"
+    }
+}
+
+struct WordDetails: Codable {
+    let wordText: String
+    let translation: String
+
+    enum CodingKeys: String, CodingKey {
+        case wordText = "word_text"
+        case translation
+    }
+}
