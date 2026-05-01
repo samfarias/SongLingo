@@ -7,42 +7,6 @@
 
 import Foundation
 
-// MARK: - MySongs View models
-struct MySongsData: Codable {
-    let userSongData: [UserSongEntry]
-
-    enum CodingKeys: String, CodingKey {
-        case userSongData = "user_song_data"
-    }
-}
-
-struct UserSongEntry: Codable, Identifiable {
-    // This allows SwiftUI to distinguish between different song rows
-    var id: String { song.title + song.artist }
-    
-    let song: SongDetails
-    let numListens: Int
-    let numLyricChallengesCompleted: Int
-    let masteryLvl: Int
-
-    enum CodingKeys: String, CodingKey {
-        case song
-        case numListens = "num_listens"
-        case numLyricChallengesCompleted = "num_lyric_challenges_completed"
-        case masteryLvl = "mastery_lvl"
-    }
-}
-
-struct SongDetails: Codable {
-    let title: String
-    let artist: String
-
-    enum CodingKeys: String, CodingKey {
-        case title
-        case artist
-    }
-}
-
 // MARK: - HomeScreen View models
 struct HomeScreenData: Codable {
     let userInfo: UserInfo
@@ -110,5 +74,42 @@ struct Playlist: Codable {
         case lastDatePlayed = "last_date_played"
         case createdDate = "created_date"
         case proficiencyLevel = "proficiency_level"
+    }
+}
+
+
+// MARK: - MySongs View models
+struct MySongsData: Codable {
+    let userSongData: [UserSongEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case userSongData = "user_song_data"
+    }
+}
+
+struct UserSongEntry: Codable, Identifiable {
+    // This allows SwiftUI to distinguish between different song rows
+    var id: String { song.title + song.artist }
+    
+    let song: SongDetails
+    let numListens: Int
+    let numLyricChallengesCompleted: Int
+    let masteryLvl: Int
+
+    enum CodingKeys: String, CodingKey {
+        case song
+        case numListens = "num_listens"
+        case numLyricChallengesCompleted = "num_lyric_challenges_completed"
+        case masteryLvl = "mastery_lvl"
+    }
+}
+
+struct SongDetails: Codable {
+    let title: String
+    let artist: String
+
+    enum CodingKeys: String, CodingKey {
+        case title
+        case artist
     }
 }
