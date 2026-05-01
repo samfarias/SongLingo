@@ -42,3 +42,21 @@ func fetchHomeScreenData(userId: String) async throws -> HomeScreenData {
     // Decode the JSON data
     return try JSONDecoder().decode(HomeScreenData.self, from: data)
 }
+
+// MARK: - WordBankScreen data Request
+func fetchWordBankScreenData(userId: String) async throws -> WordBankData {
+    guard let url = URL(string: "http://localhost:8000/api/words-learned?user_id=\(userId)") else {
+        throw URLError(.badURL)
+    }
+    
+    // Perform the request
+    let (data, response) = try await URLSession.shared.data(from: url)
+    
+    // Check for a valid HTTP response
+    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        throw URLError(.badServerResponse)
+    }
+    
+    // Decode the JSON data
+    return try JSONDecoder().decode(WordBankData.self, from: data)
+}
