@@ -161,17 +161,19 @@ struct Dashboard: View {
                     Text("Current Playlists")
                         .font(.headline)
                     
-                    //Handles the current playlist buttons
-                    ScrollView (.horizontal) {
-                        HStack (spacing: 6) {
-                            Button(action: {
-                                // Action for specific Playlist button
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.green.opacity(0.9))
-                                    HStack {
-                                        VStack (alignment: .center) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            // Accessing the recentlyPlayed array from your SuggestedPlaylists model
+                            ForEach(homeData?.suggestedPlaylists.recentlyPlayed ?? [], id: \.playlistName) { playlist in
+                                Button(action: {
+                                    // Action for selecting this specific playlist
+                                    print("Selected: \(playlist.playlistName)")
+                                }) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.green.opacity(0.9))
+                                        
+                                        VStack(alignment: .center) {
                                             Image(systemName: "play.circle")
                                                 .foregroundColor(.black)
                                                 .font(.system(size: 20))
@@ -179,163 +181,34 @@ struct Dashboard: View {
                                                     RoundedRectangle(cornerRadius: 10)
                                                         .stroke(Color.black, lineWidth: 1)
                                                         .frame(width: 100, height: 60)
-                                                    )
+                                                )
                                                 .padding(.bottom, 20)
-                    
-                                            Text("Playlist # _ ")
+                                            
+                                            // Dynamic Title from your Playlist model
+                                            Text(playlist.playlistName)
                                                 .bold()
-                                                .lineLimit(1)
+                                                .lineLimit(nil)
                                                 .font(.system(size: 14))
                                                 .padding(.bottom, 2)
                                             
-                                            Text("Language · Genre · _ Songs")
+                                            // Dynamic Subtitle using your Constants/Enums for Language and Genre
+                                            // Note: Replace "Genre" with your actual mapping logic if available
+                                            Text("\(Constants.languageIdToName[playlist.language] ?? "Unknown") · \(Constants.genreIdToName[playlist.genre] ?? "Genre") · \(playlist.proficiencyLevel)")
                                                 .font(.system(size: 8))
-                                                .lineLimit(1)
-                                        }
-                                        .foregroundColor(.black)
-                                        //.padding(.horizontal)
-                                        .padding(.vertical, 16)
-                                    }
-                                }
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1)
-                                        .frame(width: 120, height: 150)
-                                        .padding(.vertical, 20)
-                                    )
-                            }
-                            .frame(width: 121, height: 151)
-                            
-                            //Self-Note: The horizontal ScrollView cuts off the border on the sides. This is the overall layout of the Playlist button.
-                            //FIXED
-                            
-                            Button(action: {
-                                // Action for specific Playlist button
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.green.opacity(0.9))
-                                    HStack {
-                                        VStack (alignment: .center) {
-                                            Image(systemName: "play.circle")
-                                                .foregroundColor(.black)
-                                                .font(.system(size: 20))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 10)
-                                                        .stroke(Color.black, lineWidth: 1)
-                                                        .frame(width: 100, height: 60)
-                                                    )
-                                                .padding(.bottom, 20)
-                    
-                                            Text("Playlist # _ ")
-                                                .bold()
-                                                .lineLimit(1)
-                                                .font(.system(size: 14))
-                                                .padding(.bottom, 2)
+                                                .lineLimit(nil)
                                             
-                                            Text("Language · Genre · _ Songs")
-                                                .font(.system(size: 8))
-                                                .lineLimit(1)
                                         }
                                         .foregroundColor(.black)
-                                        //.padding(.horizontal)
-                                        .padding(.vertical, 16)
+                                        .padding(.top, 10)
+                                        .padding(.horizontal, 8)
                                     }
-                                }
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1)
-                                        .frame(width: 120, height: 150)
-                                        .padding(.vertical, 20)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.black, lineWidth: 1)
                                     )
-                            }
-                            .frame(width: 121, height: 151)
-                            
-                            
-                            Button(action: {
-                                // Action for specific Playlist button
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.green.opacity(0.9))
-                                    HStack {
-                                        VStack (alignment: .center) {
-                                            Image(systemName: "play.circle")
-                                                .foregroundColor(.black)
-                                                .font(.system(size: 20))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 10)
-                                                        .stroke(Color.black, lineWidth: 1)
-                                                        .frame(width: 100, height: 60)
-                                                    )
-                                                .padding(.bottom, 20)
-                    
-                                            Text("Playlist # _ ")
-                                                .bold()
-                                                .lineLimit(1)
-                                                .font(.system(size: 14))
-                                                .padding(.bottom, 2)
-                                            
-                                            Text("Language · Genre · _ Songs")
-                                                .font(.system(size: 8))
-                                                .lineLimit(1)
-                                        }
-                                        .foregroundColor(.black)
-                                        //.padding(.horizontal)
-                                        .padding(.vertical, 16)
-                                    }
+                                    .frame(width: 120, height: 150)
                                 }
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1)
-                                        .frame(width: 120, height: 150)
-                                        .padding(.vertical, 20)
-                                    )
                             }
-                            .frame(width: 121, height: 151)
-                            
-                            Button(action: {
-                                // Action for specific Playlist button
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.green.opacity(0.9))
-                                    HStack {
-                                        VStack (alignment: .center) {
-                                            Image(systemName: "play.circle")
-                                                .foregroundColor(.black)
-                                                .font(.system(size: 20))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 10)
-                                                        .stroke(Color.black, lineWidth: 1)
-                                                        .frame(width: 100, height: 60)
-                                                    )
-                                                .padding(.bottom, 20)
-                    
-                                            Text("Playlist # _ ")
-                                                .bold()
-                                                .lineLimit(1)
-                                                .font(.system(size: 14))
-                                                .padding(.bottom, 2)
-                                            
-                                            Text("Language · Genre · _ Songs")
-                                                .font(.system(size: 8))
-                                                .lineLimit(1)
-                                        }
-                                        .foregroundColor(.black)
-                                        //.padding(.horizontal)
-                                        .padding(.vertical, 16)
-                                    }
-                                }
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1)
-                                        .frame(width: 120, height: 150)
-                                        .padding(.vertical, 20)
-                                    )
-                            }
-                            .frame(width: 121, height: 151)
-                            
                         }
                     }
                     //.background(Color.red)
