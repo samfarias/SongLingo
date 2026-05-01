@@ -145,7 +145,7 @@ struct MySongs: View {
             .background(Color.pink.opacity(0.3))
             .task {
                 do {
-                    let mySongsData = try await fetchMySongsData(userId: "1")
+                    var mySongsData = try await fetchMySongsData(userId: "1")
                     // TESTING
 //                    for songEntry in mySongsData.userSongData {
 //                        print(songEntry.song.title)

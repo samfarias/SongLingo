@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct Dashboard: View {
+    @State private var homeData: HomeScreenData?
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -15,12 +17,12 @@ struct Dashboard: View {
                     VStack {
                         Spacer()
                         
-                        Text("Welcome Back _!")
+                        Text("Welcome Back, \(homeData?.userInfo.firstName ?? "User")!")
                             .font(.title.weight(.bold))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 20)
                         
-                        Text("You're learning language_name · proficiency")
+                        Text("You're learning \(Constants.languageIdToName[homeData?.userInfo.targetLanguage ?? 0] ?? "Language name") · \(homeData?.userInfo.proficiencyLevel ?? "Proficiency Level")")
                             .font(.footnote.weight(.light))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 20)
@@ -56,7 +58,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("INT")
+                                    Text ("\(homeData?.userProgress.numWordsLearned ?? -1)")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
@@ -94,7 +96,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("INT")
+                                    Text ("\(homeData?.userProgress.numSongsCompleted ?? -1)")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
@@ -131,7 +133,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("INT")
+                                    Text ("\(homeData?.userProgress.currentStreak ?? -1) days!")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
@@ -448,18 +450,7 @@ struct Dashboard: View {
             //.ignoresSafeArea(edges: .top)
             .task {
                 do {
-                    let homeScreenData = try await fetchHomeScreenData(userId: "1")
-                    // TESTING
-//                    print("Name: " + homeScreenData.userInfo.firstName + " " + homeScreenData.userInfo.lastName)
-//                    print("Target language: \(homeScreenData.userInfo.targetLanguage)")
-//                    print("Proficiency level: \(homeScreenData.userInfo.proficiencyLevel)")
-//                    print("numWordsLearned: \(homeScreenData.userProgress.numWordsLearned)")
-//                    print("numSongsCompleted: \(homeScreenData.userProgress.numSongsCompleted)")
-//                    print("currentStreak: \(homeScreenData.userProgress.currentStreak)")
-//                    print("Recent playlists:")
-//                    for playlist in homeScreenData.suggestedPlaylists.recentlyPlayed {
-//                        print(playlist.playlistName)
-//                    }
+                    self.homeData = try await fetchHomeScreenData(userId: "1")
 
                 } catch {
                     print("Request failed: \(error)")

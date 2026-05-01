@@ -18,4 +18,7 @@ struct Constants
     static let homeIcon = "house"
     static let playlistIcon = "music.note"
     static let profileIcon = "person.crop.circle"
+    
+    // Language id -> Language name
+    static let languageIdToName: [Int: String] = [0: "Language Name", 3: "German", 4: "Spanish", 5: "English"]
 }
