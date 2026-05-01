@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct MySongs: View {
-    //Dummy info (again)
-    @State private var songDemo = SongData(sName: "Einmal um die Welt", sArtist: "CRO", sEnjoyment: "Love", totalListeningTime: 88, totalLyricPractices: 47)
+    @State private var userSongs: [UserSongEntry] = []
+    @State private var masteryLvlCounts = [0, 0, 0, 0]
     
     var body: some View {
         NavigationStack {
@@ -20,7 +20,7 @@ struct MySongs: View {
                             .fill(Color.yellow.opacity(0.5))
                         
                         HStack {
-                            Text("New (INT)")
+                            Text("New🎵 (\(masteryLvlCounts[0]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
                                 .font(.system(size: 8.5))
@@ -35,7 +35,7 @@ struct MySongs: View {
                             .fill(Color.purple.opacity(0.4))
                         
                         HStack {
-                            Text("Okay (INT)")
+                            Text("Experimenting🤔 (\(masteryLvlCounts[1]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
                                 .font(.system(size: 8.5))
@@ -49,7 +49,7 @@ struct MySongs: View {
                             .fill(Color.blue.opacity(0.4))
                         
                         HStack {
-                            Text("Like (INT)")
+                            Text("Fan🧑‍🎤 (\(masteryLvlCounts[2]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
                                 .font(.system(size: 8.5))
@@ -64,7 +64,7 @@ struct MySongs: View {
                             .fill(Color.green.opacity(0.6))
                         
                         HStack {
-                            Text("Love (INT)")
+                            Text("Your Jam🔥 (\(masteryLvlCounts[3]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
                                 .font(.system(size: 8.5))
@@ -79,84 +79,22 @@ struct MySongs: View {
                 Divider()
                     .overlay(Color.black)
                 
-                HStack {
-                    VStack (alignment: .leading) {
-                        Text(songDemo.sName)
-                            //.bold()
-                            .font(.title2)
-                            .foregroundColor(.black)
-                            //.lineLimit(1)
-                        
-                        Text("(\(songDemo.sArtist))")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal)
-
-                    
-                    VStack (alignment: .trailing) {
-                        HStack {
-                            ZStack {
-                                
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.green.opacity(0.6))
-                                    .frame(height: 25)
-                                    .frame(width: 100)
-
-                                Text(songDemo.sEnjoyment)
-                                    .lineLimit(1)
-                                    .foregroundColor(.black)
-                                    .font(.system(size: 12))
-                            }
-                        }
-                        
-                        HStack {
-                            Text("\(songDemo.totalListeningTime) Listens")
-                                .font(.system(size: 12))
-                                .foregroundColor(.black)
-                            
-                            Image(systemName: "headphones.over.ear")
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
-                            
-                            //Self-Note: Another image option is "headphones.sensor.tag.radiowaves.left.and.right" but it looks a little too much as a small icon
-                        }
-                        
-                        HStack {
-                            Text("\(songDemo.totalLyricPractices) Practices")
-                                .font(.system(size: 12))
-                                .foregroundColor(.black)
-                            
-                            Image(systemName: "square.and.pencil")
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
-                        }
-
-                    }
-                    .padding(.horizontal)
+                // Dynamic List of Songs
+                ForEach(userSongs) { entry in
+                    SongRow(entry: entry)
+                    Divider().overlay(Color.black)
                 }
-                .padding(.vertical, 10)
-                .padding(.horizontal)
-            
-                Divider()
-                    .overlay(Color.black)
             }
             .navigationTitle("My Songs")
             .background(Color.pink.opacity(0.3))
             .task {
                 do {
-                    var mySongsData = try await fetchMySongsData(userId: "1")
-                    // TESTING
-//                    for songEntry in mySongsData.userSongData {
-//                        print(songEntry.song.title)
-//                        print(songEntry.song.artist)
-//                        print(String(songEntry.numListens))
-//                        print(String(songEntry.numLyricChallengesCompleted))
-//                        print(String(songEntry.masteryLvl))
-//                        print(" ")
-//                        print("------")
-//                        print(" ")
-//                    }
+                    let mySongsData = try await fetchMySongsData(userId: "1")
+                    self.userSongs = mySongsData.userSongData
+                    for songEntry in self.userSongs {
+                        masteryLvlCounts[ calculateMasteryLvl(numActivitiesCompleted: songEntry.numListens + songEntry.numLyricChallengesCompleted)
+                        ] += 1
+                    }
                 } catch {
                     print("Request failed: \(error)")
                 }
@@ -165,12 +103,50 @@ struct MySongs: View {
     }
 }
 
-struct SongData {
-    var sName: String
-    var sArtist: String
-    let sEnjoyment: String
-    let totalListeningTime: Int
-    let totalLyricPractices: Int
+struct SongRow: View {
+    let entry: UserSongEntry
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(entry.song.title)
+                    .font(.title2)
+                    .foregroundColor(.black)
+                
+                Text("(\(entry.song.artist))")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+            }
+            .padding(.horizontal)
+            
+            Spacer()
+            
+            VStack(alignment: .trailing) {
+                // Mastery Badge
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? Color.green.opacity(0.6))
+                        .frame(width: 100, height: 25)
+
+                    // Map the Int mastery level back to text
+                    Text("\(Constants.masteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? "Lvl")")
+                        .lineLimit(1)
+                        .foregroundColor(.black)
+                        .font(.system(size: 12))
+                }
+                
+                Label("\(entry.numListens) Listens", systemImage: "headphones.over.ear")
+                    .font(.system(size: 12))
+                    .foregroundColor(.black)
+                
+                Label("\(entry.numLyricChallengesCompleted) Practices", systemImage: "square.and.pencil")
+                    .font(.system(size: 12))
+                    .foregroundColor(.black)
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 10)
+    }
 }
 
 #Preview {

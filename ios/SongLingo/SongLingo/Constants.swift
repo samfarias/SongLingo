@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct Constants
 {
@@ -21,4 +22,7 @@ struct Constants
     
     // Language id -> Language name
     static let languageIdToName: [Int: String] = [0: "Language Name", 3: "German", 4: "Spanish", 5: "English"]
+    
+    static let masteryLvlToMessage: [Int: String] = [0: "New🎵", 1: "Experimenting🤔", 2: "Fan🧑‍🎤", 3: "Your Jam🔥"]
+    static let masteryLvlToFillColor: [Int: Color] = [0: Color.yellow.opacity(0.5), 1: Color.purple.opacity(0.4), 2: Color.blue.opacity(0.4), 3: Color.green.opacity(0.6)]
 }

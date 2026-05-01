@@ -16,7 +16,10 @@ struct MySongsData: Codable {
     }
 }
 
-struct UserSongEntry: Codable {
+struct UserSongEntry: Codable, Identifiable {
+    // This allows SwiftUI to distinguish between different song rows
+    var id: String { song.title + song.artist }
+    
     let song: SongDetails
     let numListens: Int
     let numLyricChallengesCompleted: Int
