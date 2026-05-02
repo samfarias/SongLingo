@@ -33,7 +33,7 @@ struct Dashboard: View {
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [
-                                Color.black.opacity(0.3), // Top overlay color
+                                Color.black.opacity(0.2), // Top overlay color
                                 Color.clear               // Fades into the background
                             ]),
                             startPoint: .top,
@@ -285,8 +285,8 @@ struct Dashboard: View {
                                 .background(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
-                                            Color.white.opacity(0.3), // Top overlay color
-                                            Color.black.opacity(0.01)               // Fades into the background
+                                            Color.white.opacity(0.5), // Top overlay color
+                                            Color.clear           // Fades into the background
                                         ]),
                                         startPoint: .top,
                                         endPoint: .bottom
@@ -347,8 +347,8 @@ struct Dashboard: View {
                                 .background(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
-                                            Color.white.opacity(0.3), // Top overlay color
-                                            Color.black.opacity(0.01)               // Fades into the background
+                                            Color.white.opacity(0.5), // Top overlay color
+                                            Color.clear              // Fades into the background
                                         ]),
                                         startPoint: .top,
                                         endPoint: .bottom
@@ -376,15 +376,7 @@ struct Dashboard: View {
                 .padding()
                 
             }
-            .background(LinearGradient(
-                gradient: Gradient(colors: [
-                            Color(red: 1.00, green: 0.85, blue: 0.85), // Soft Coral/Peach
-                            Color(red: 0.95, green: 0.80, blue: 0.90), // Soft Pink/Lavender
-                            Color(red: 0.85, green: 0.80, blue: 0.95)  // Soft Lilac/Purple
-                        ]),
-                startPoint: .top,
-                endPoint: .bottom
-            ))
+            .background(Constants.coastal_mist)
             .edgesIgnoringSafeArea(.all)
             //This works equally as well: .ignoresSafeArea()
             //.scrollBounceBehavior(.basedOnSize)
