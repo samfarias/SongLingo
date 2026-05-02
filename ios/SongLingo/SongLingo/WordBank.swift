@@ -87,15 +87,7 @@ struct WordBank: View {
                 
             }
             .navigationTitle("Word Bank")
-            .background(LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.98, green: 0.92, blue: 0.94), // Warm Off-White / Champagne
-                    Color(red: 0.94, green: 0.92, blue: 0.99), // Very Neutral Grey-Lavender
-                    Color(red: 0.92, green: 0.88, blue: 0.99)  // Soft Periwinkle/Purple
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            ))
+            .background(Constants.amber_tide)
             .task {
                 do {
                     let wordBankData = try await fetchWordBankScreenData(userId: "1")
