@@ -23,7 +23,7 @@ struct MySongs: View {
                             Text("New🎵 (\(masteryLvlCounts[0]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.horizontal)
                     }
@@ -38,7 +38,7 @@ struct MySongs: View {
                             Text("Experimenting🤔 (\(masteryLvlCounts[1]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -52,7 +52,7 @@ struct MySongs: View {
                             Text("Fan🧑‍🎤 (\(masteryLvlCounts[2]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.horizontal)
                     }
@@ -67,7 +67,7 @@ struct MySongs: View {
                             Text("Your Jam🔥 (\(masteryLvlCounts[3]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.vertical, 10)
                     }
@@ -86,7 +86,16 @@ struct MySongs: View {
                 }
             }
             .navigationTitle("My Songs")
-            .background(Color.pink.opacity(0.3))
+            .background(LinearGradient(
+                gradient: Gradient(colors: [
+                            Color(red: 1.00, green: 0.85, blue: 0.85), // Soft Coral/Peach
+                            Color(red: 0.95, green: 0.80, blue: 0.90), // Soft Pink/Lavender
+                            Color(red: 0.85, green: 0.80, blue: 0.95)  // Soft Lilac/Purple
+                        ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea())
             .task {
                 do {
                     let mySongsData = try await fetchMySongsData(userId: "1")

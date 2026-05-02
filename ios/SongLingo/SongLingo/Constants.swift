@@ -28,4 +28,91 @@ struct Constants
     static let masteryLvlToFillColor: [Int: Color] = [0: Color.yellow.opacity(0.5), 1: Color.purple.opacity(0.4), 2: Color.blue.opacity(0.4), 3: Color.green.opacity(0.6)]
     
     static let genreIdToName: [Int: String] = [1: "Indie", 2: "Alternative", 3: "Pop", 4: "EDM", 5: "Indie/Folk", 6: "Folk", 7: "Pop/Folk", 8: "Metal", 9: "Electronic", 10: "Pop/Soundtrack", 11: "Indie/Alternative"]
+    
+    // -- MARK: ELEMENT COLORS
+    static let blue: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.64, green: 0.75, blue: 0.95), // Light Cornflower
+            Color(red: 0.50, green: 0.62, blue: 0.88)  // Medium Cornflower
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let lavender: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.80, green: 0.75, blue: 0.95), // Light Airy Lavender
+            Color(red: 0.68, green: 0.62, blue: 0.88)  // Medium Dusty Lavender
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let sunburst: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 1.00, green: 0.78, blue: 0.45), // Softened Mango
+            Color(red: 0.98, green: 0.55, blue: 0.45)  // Gentle Coral
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let orange: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 1.00, green: 0.78, blue: 0.45), // Softened Mango
+            Color(red: 0.98, green: 0.55, blue: 0.45)  // Gentle Coral
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let mint: LinearGradient = LinearGradient(
+        colors: [
+            Color(red: 0.70, green: 0.90, blue: 0.82),
+            Color(red: 0.55, green: 0.80, blue: 0.70)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let red: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.96, green: 0.67, blue: 0.67), // The Middle Petal
+            Color(red: 0.90, green: 0.50, blue: 0.54), // The Middle Coral
+            Color(red: 0.80, green: 0.38, blue: 0.42)  // The Middle Rosewood
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    // -- MARK: BACKGROUND GRADIENTS
+    static let sunset_horizon: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 1.00, green: 0.90, blue: 0.80), // Warm Cream/Mango
+            Color(red: 0.95, green: 0.75, blue: 0.80), // Dusty Rose
+            Color(red: 0.85, green: 0.70, blue: 0.85)  // Deep Muted Lavender
+        ]),
+        startPoint: .top,
+        endPoint: .bottom
+    )
+    
+    static let arctic_dawn: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.80, green: 0.95, blue: 0.90), // Pale Mint
+            Color(red: 0.70, green: 0.85, blue: 0.98), // Bright Sky
+            Color(red: 0.75, green: 0.75, blue: 0.95)  // Soft Periwinkle
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let coastal_mist: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 1.00, green: 0.88, blue: 0.85), // Peach Fuzz
+            Color(red: 0.90, green: 0.92, blue: 0.95), // Silver Mist
+            Color(red: 0.82, green: 0.95, blue: 0.92)  // Seafoam Glow
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }

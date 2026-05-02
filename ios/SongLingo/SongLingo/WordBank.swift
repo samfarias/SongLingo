@@ -23,7 +23,7 @@ struct WordBank: View {
                             Text("New🐣 (\(masteryLvlCounts[0]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.horizontal)
                     }
@@ -38,7 +38,7 @@ struct WordBank: View {
                             Text("Learning✍️ (\(masteryLvlCounts[1]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -52,7 +52,7 @@ struct WordBank: View {
                             Text("Familiar🧠 (\(masteryLvlCounts[2]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.horizontal)
                     }
@@ -67,7 +67,7 @@ struct WordBank: View {
                             Text("Mastered🔥 (\(masteryLvlCounts[3]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.vertical, 10)
                     }
@@ -87,7 +87,15 @@ struct WordBank: View {
                 
             }
             .navigationTitle("Word Bank")
-            .background(Color.pink.opacity(0.3))
+            .background(LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.98, green: 0.92, blue: 0.94), // Warm Off-White / Champagne
+                    Color(red: 0.94, green: 0.92, blue: 0.99), // Very Neutral Grey-Lavender
+                    Color(red: 0.92, green: 0.88, blue: 0.99)  // Soft Periwinkle/Purple
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            ))
             .task {
                 do {
                     let wordBankData = try await fetchWordBankScreenData(userId: "1")
