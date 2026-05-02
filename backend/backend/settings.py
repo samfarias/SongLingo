@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['69.183.31.175', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -86,8 +86,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'capstone',  # <--- Make sure you create this DB name!
         'USER': 'postgres',        # The default user for Postgres.app
-        'PASSWORD': '',            # Postgres.app usually has no password by default
-        'HOST': 'localhost',
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'password'), # Postgres.app usually has no password by default
+	'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': '5432',
     }
 }

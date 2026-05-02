@@ -4,6 +4,7 @@ from .views import (HomeScreenView, WordsLearnedView, SongsListenedView, UserAct
                     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
                     updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise, getLyricMatchExercise
 )
+from . import views
 
 urlpatterns = [
     path('home/', HomeScreenView.as_view(), name='home'),
@@ -17,5 +18,6 @@ urlpatterns = [
     path('generate-drop/', GenerateWeeklyDropView.as_view(), name='generate-drop'),
     path('word-card-exercise', getWordCardExercise, name='word-card-excercise'),
     path('complete-the-lyric-exercise', getCompleteTheLyricExercise, name='complete-the-lyric-exercise'),
-    path('lyric-match-exercise', getLyricMatchExercise, name='lyric-match-exercise')
+    path('lyric-match-exercise', getLyricMatchExercise, name='lyric-match-exercise'),
+    path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation')
 ]

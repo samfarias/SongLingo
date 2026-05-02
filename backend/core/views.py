@@ -413,3 +413,36 @@ def getLyricMatchExercise(request):
          "song_title": practice_song.title,
          "song_artist": practice_song.artist}
     )
+from django.http import JsonResponse
+from mcp.client.sse import sse_client
+from mcp.client.session import ClientSession
+import json
+
+async def get_pronunciation(request, word):
+    # "mcp" is the exact container name from our docker-compose file!
+    mcp_url = "http://mcp:8001/sse"
+    
+    try:
+        # connect to the fastmcp server
+        async with sse_client(mcp_url) as streams:
+            async with ClientSession(streams[0], streams[1]) as session:
+                await session.initialize()
+                
+                # trigger the exact python function we built earlier
+                result = await session.call_tool(
+                    "get_audio_and_phonetics",
+                    arguments={"word": word, "language_code": "es", "region_tld": "com.mx"}
+                )
+                
+                # fastmcp returns the dictionary as a json string in the text block
+                tool_response = json.loads(result.content[0].text)
+                
+                return JsonResponse({
+                    "success": True,
+                    "word": tool_response["word"],
+                    "phonetic": tool_response["phonetic"],
+                    "audio": tool_response["audio_base64"]
+                })
+                
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
