@@ -138,7 +138,7 @@ struct WordRow: View {
                 // Mastery Badge
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numPracticesCompleted)] ?? Constants.green)
+                        .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numPracticesCompleted)] ?? Color.green.opacity(0.6))
                         .frame(width: 100, height: 25)
                         .shadow(
                             color: .black.opacity(0.3), radius: 4, x: 5, y: 5

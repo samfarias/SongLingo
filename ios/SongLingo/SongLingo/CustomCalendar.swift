@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CustomCalendar: View {
     @State private var displayedMonth: Date = Date()
+    let activeDates: Set<String>
 
     var body: some View {
         NavigationStack {
@@ -50,7 +51,7 @@ struct CustomCalendar: View {
                             if let date = date {
                                 Text("\(Calendar.current.component(.day, from: date))")
                                     .frame(maxWidth: .infinity, minHeight: 40)
-                                    .background(Color.pink.opacity(0.3))
+                                    .background(Color.white.opacity(0.7))
                                     .cornerRadius(8)
                             } else {
                                 //Empty space
@@ -111,5 +112,5 @@ struct CustomCalendar: View {
 
 
 #Preview {
-    CustomCalendar()
+    CustomCalendar(activeDates: Set<String>())
 }

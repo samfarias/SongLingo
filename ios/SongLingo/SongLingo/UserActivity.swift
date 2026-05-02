@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct UserActivity: View {
-    @State private var date = Date()
+//    @State private var date = Date()
+    @State private var userActivity: UserActivityData?
 
     var body: some View {
         NavigationStack {
@@ -29,7 +30,7 @@ struct UserActivity: View {
                                 
                                 Spacer(minLength: 10)
                                 
-                                Text ("INT days")
+                                Text ("\(userActivity?.streakInfo.longestStreak ?? 0) days")
                                 
                             }
                             .padding(.vertical, 10)
@@ -50,7 +51,7 @@ struct UserActivity: View {
                                 
                                 Spacer(minLength: 10)
                                 
-                                Text ("INT days")
+                                Text ("\(userActivity?.streakInfo.currentStreak ?? 0) days")
                                 
                             }
                             .padding(.vertical, 10)
@@ -89,14 +90,21 @@ struct UserActivity: View {
                                 color: .black.opacity(1), radius: 4, x: 5, y: 5
                             )
                         
-                        CustomCalendar()
+                        CustomCalendar(activeDates: userActivity?.activeDatesSet ?? Set<String>())
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 15)
                 }
             }
             .navigationTitle("Activity")
-            .background(Constants.arctic_dawn)
+            .background(Constants.coastal_mist)
+            .task {
+                do {
+                    self.userActivity = try await fetchUserActivityScreenData(userId: "1")
+                } catch {
+                    print("Request failed: \(error)")
+                }
+            }
         }
     }
 }

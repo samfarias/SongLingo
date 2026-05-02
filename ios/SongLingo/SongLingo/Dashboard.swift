@@ -225,24 +225,9 @@ struct Dashboard: View {
                             .padding(.top, 5)
                         }
                     }
-                    // 2. The "Recessed Well" Container
-                    .background(
-                        ZStack {
-                            // The Base Fill
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white.opacity(0.2))
-                            
-                            // The Inner Shadow
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.black.opacity(0.2), lineWidth: 2)
-                                .blur(radius: 3)
-                                .offset(x: 1, y: 1)
-                                .mask(RoundedRectangle(cornerRadius: 20))
-                        }
-                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.black.opacity(0.05), lineWidth: 1) // Keeps the crisp edge
+                            .stroke(Color.black.opacity(0.05), lineWidth: 3) // Keeps the crisp edge
                     )
                     
 //                    Spacer(minLength: 20)
@@ -376,7 +361,7 @@ struct Dashboard: View {
                 .padding()
                 
             }
-            .background(Constants.coastal_mist)
+            .background(Constants.arctic_dawn)
             .edgesIgnoringSafeArea(.all)
             //This works equally as well: .ignoresSafeArea()
             //.scrollBounceBehavior(.basedOnSize)
