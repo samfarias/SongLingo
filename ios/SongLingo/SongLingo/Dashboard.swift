@@ -80,8 +80,8 @@ struct Dashboard: View {
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
+                            x: 3,                        // Shifts shadow to the right
+                            y: 3                         // Shifts shadow downwards
                         )
                         .frame(maxWidth: .infinity)
                     }
@@ -120,8 +120,8 @@ struct Dashboard: View {
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
+                            x: 3,                        // Shifts shadow to the right
+                            y: 3                        // Shifts shadow downwards
                         )
                         .frame(maxWidth: .infinity)
                     }
@@ -160,8 +160,8 @@ struct Dashboard: View {
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
+                            x: 3,                        // Shifts shadow to the right
+                            y: 3                         // Shifts shadow downwards
                         )
                         .frame(maxWidth: .infinity)
                     }
@@ -239,8 +239,8 @@ struct Dashboard: View {
                             .font(.headline)
                         
                         ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.red)
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.black.opacity(0.05))
                             HStack {
                                 VStack (alignment: .leading) {
                                     Text("_ new words waiting for you!")
@@ -286,8 +286,13 @@ struct Dashboard: View {
                             }
                             .padding()
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black.opacity(0.20), lineWidth: 2) // Keeps the crisp edge
+                        )
+                        .cornerRadius(10)
                         .shadow(
-                            color: .black.opacity(0.15), // Subtle transparency
+                            color: .black.opacity(0.10), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
                             x: 5,                        // Shifts shadow to the right
                             y: 5                         // Shifts shadow downwards
@@ -303,8 +308,8 @@ struct Dashboard: View {
                             .font(.headline)
             
                         ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.red)
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.black.opacity(0.05))
                             HStack {
                                 VStack (alignment: .leading) {
                                     Text("Ready to test your vocabulary?")
@@ -348,6 +353,11 @@ struct Dashboard: View {
                             }
                             .padding()
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black.opacity(0.20), lineWidth: 2) // Keeps the crisp edge
+                        )
+                        .cornerRadius(10)
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge

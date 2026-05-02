@@ -19,7 +19,7 @@ struct MySongs: View {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Constants.yellow)
                             .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                             )
                         
                         HStack {
@@ -37,7 +37,7 @@ struct MySongs: View {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Constants.lavender)
                             .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                             )
                         
                         HStack {
@@ -54,7 +54,7 @@ struct MySongs: View {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Constants.blue)
                             .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                             )
                         
                         HStack {
@@ -72,7 +72,7 @@ struct MySongs: View {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Constants.green)
                             .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                             )
                         
                         HStack {
@@ -140,7 +140,7 @@ struct SongRow: View {
                         .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? Color.green.opacity(0.6))
                         .frame(width: 100, height: 25)
                         .shadow(
-                            color: .black.opacity(0.3), radius: 4, x: 5, y: 5
+                            color: .black.opacity(0.3), radius: 4, x: 3, y: 3
                         )
 
                     // Map the Int mastery level back to text
