@@ -86,16 +86,7 @@ struct MySongs: View {
                 }
             }
             .navigationTitle("My Songs")
-            .background(LinearGradient(
-                gradient: Gradient(colors: [
-                            Color(red: 1.00, green: 0.85, blue: 0.85), // Soft Coral/Peach
-                            Color(red: 0.95, green: 0.80, blue: 0.90), // Soft Pink/Lavender
-                            Color(red: 0.85, green: 0.80, blue: 0.95)  // Soft Lilac/Purple
-                        ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea())
+            .background(Constants.sunset_horizon)
             .task {
                 do {
                     let mySongsData = try await fetchMySongsData(userId: "1")

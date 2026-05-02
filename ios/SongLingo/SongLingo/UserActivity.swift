@@ -18,7 +18,10 @@ struct UserActivity: View {
                         ZStack {
                             
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.pink.opacity(0.3))
+                                .fill(Color.black.opacity(0.05))
+                                .shadow(
+                                    color: .black.opacity(1), radius: 4, x: 5, y: 5
+                                )
                             
                             VStack {
                                 Text("Streak Record")
@@ -36,7 +39,10 @@ struct UserActivity: View {
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.pink.opacity(0.3))
+                                .fill(Color.black.opacity(0.05))
+                                .shadow(
+                                    color: .black.opacity(1), radius: 4, x: 5, y: 5
+                                )
                             
                             VStack {
                                 Text("Current Streak")
@@ -54,7 +60,10 @@ struct UserActivity: View {
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.pink.opacity(0.3))
+                                .fill(Color.black.opacity(0.05))
+                                .shadow(
+                                    color: .black.opacity(1), radius: 4, x: 5, y: 5
+                                )
                             
                             VStack {
                                 Text("Next Milestone")
@@ -75,7 +84,10 @@ struct UserActivity: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.pink.opacity(0.3))
+                            .fill(Color.black.opacity(0.05))
+                            .shadow(
+                                color: .black.opacity(1), radius: 4, x: 5, y: 5
+                            )
                         
                         CustomCalendar()
                     }
@@ -84,7 +96,7 @@ struct UserActivity: View {
                 }
             }
             .navigationTitle("Activity")
-            .background(Color.pink.opacity(0.5))
+            .background(Constants.arctic_dawn)
         }
     }
 }
