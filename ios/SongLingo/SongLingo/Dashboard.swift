@@ -80,8 +80,8 @@ struct Dashboard: View {
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
+                            x: 3,                        // Shifts shadow to the right
+                            y: 3                         // Shifts shadow downwards
                         )
                         .frame(maxWidth: .infinity)
                     }
@@ -120,8 +120,8 @@ struct Dashboard: View {
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
+                            x: 3,                        // Shifts shadow to the right
+                            y: 3                        // Shifts shadow downwards
                         )
                         .frame(maxWidth: .infinity)
                     }
@@ -160,8 +160,8 @@ struct Dashboard: View {
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
+                            x: 3,                        // Shifts shadow to the right
+                            y: 3                         // Shifts shadow downwards
                         )
                         .frame(maxWidth: .infinity)
                     }
@@ -225,24 +225,9 @@ struct Dashboard: View {
                             .padding(.top, 5)
                         }
                     }
-                    // 2. The "Recessed Well" Container
-                    .background(
-                        ZStack {
-                            // The Base Fill
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white.opacity(0.2))
-                            
-                            // The Inner Shadow
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.black.opacity(0.2), lineWidth: 2)
-                                .blur(radius: 3)
-                                .offset(x: 1, y: 1)
-                                .mask(RoundedRectangle(cornerRadius: 20))
-                        }
-                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.black.opacity(0.05), lineWidth: 1) // Keeps the crisp edge
+                            .stroke(Color.black.opacity(0.05), lineWidth: 3) // Keeps the crisp edge
                     )
                     
 //                    Spacer(minLength: 20)
@@ -254,8 +239,8 @@ struct Dashboard: View {
                             .font(.headline)
                         
                         ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.red)
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.black.opacity(0.05))
                             HStack {
                                 VStack (alignment: .leading) {
                                     Text("_ new words waiting for you!")
@@ -301,8 +286,13 @@ struct Dashboard: View {
                             }
                             .padding()
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black.opacity(0.20), lineWidth: 2) // Keeps the crisp edge
+                        )
+                        .cornerRadius(10)
                         .shadow(
-                            color: .black.opacity(0.15), // Subtle transparency
+                            color: .black.opacity(0.10), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
                             x: 5,                        // Shifts shadow to the right
                             y: 5                         // Shifts shadow downwards
@@ -318,8 +308,8 @@ struct Dashboard: View {
                             .font(.headline)
             
                         ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.red)
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.black.opacity(0.05))
                             HStack {
                                 VStack (alignment: .leading) {
                                     Text("Ready to test your vocabulary?")
@@ -363,6 +353,11 @@ struct Dashboard: View {
                             }
                             .padding()
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black.opacity(0.20), lineWidth: 2) // Keeps the crisp edge
+                        )
+                        .cornerRadius(10)
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
                             radius: 4,                   // Small blur for a clean edge
@@ -376,7 +371,7 @@ struct Dashboard: View {
                 .padding()
                 
             }
-            .background(Constants.coastal_mist)
+            .background(Constants.arctic_dawn)
             .edgesIgnoringSafeArea(.all)
             //This works equally as well: .ignoresSafeArea()
             //.scrollBounceBehavior(.basedOnSize)

@@ -151,3 +151,46 @@ struct WordDetails: Codable {
         case translation
     }
 }
+
+// MARK: - UserActivity View models
+
+struct UserActivityData: Codable {
+    let streakInfo: StreakInfo
+    let daysActive: [ActiveDate]
+    
+    // Computed property for easy access
+    var activeDatesSet: Set<String> {
+        var dateSet: Set<String> = []
+        for date in daysActive {
+            dateSet.insert(date.date)
+        }
+        return dateSet
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case streakInfo = "streak_info"
+        case daysActive = "days_active"
+    }
+}
+
+struct StreakInfo: Codable {
+    let userProfile: Int
+    let currentStreak: Int
+    let longestStreak: Int
+
+    enum CodingKeys: String, CodingKey {
+        case userProfile = "user_profile"
+        case currentStreak = "current_streak"
+        case longestStreak = "longest_streak"
+    }
+}
+
+struct ActiveDate: Codable, Identifiable, Hashable {
+    // Using the date string as the ID for SwiftUI list rendering
+    var id: String { date }
+    let date: String
+
+    enum CodingKeys: String, CodingKey {
+        case date
+    }
+}

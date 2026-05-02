@@ -17,7 +17,10 @@ struct WordBank: View {
                 HStack (spacing: 5) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.yellow.opacity(0.5))
+                            .fill(Constants.yellow)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
                             Text("New🐣 (\(masteryLvlCounts[0]))")
@@ -32,7 +35,10 @@ struct WordBank: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.purple.opacity(0.4))
+                            .fill(Constants.lavender)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
                             Text("Learning✍️ (\(masteryLvlCounts[1]))")
@@ -46,7 +52,10 @@ struct WordBank: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.blue.opacity(0.4))
+                            .fill(Constants.blue)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
                             Text("Familiar🧠 (\(masteryLvlCounts[2]))")
@@ -61,7 +70,10 @@ struct WordBank: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.green.opacity(0.6))
+                            .fill(Constants.green)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
                             Text("Mastered🔥 (\(masteryLvlCounts[3]))")
@@ -128,6 +140,9 @@ struct WordRow: View {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numPracticesCompleted)] ?? Color.green.opacity(0.6))
                         .frame(width: 100, height: 25)
+                        .shadow(
+                            color: .black.opacity(0.3), radius: 4, x: 3, y: 3
+                        )
 
                     // Map the Int mastery level back to text
                     Text("\(Constants.wordsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numPracticesCompleted)] ?? "Lvl")")

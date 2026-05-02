@@ -57,20 +57,29 @@ struct Constants
         endPoint: .bottomTrailing
     )
     
-    static let orange: LinearGradient = LinearGradient(
-        gradient: Gradient(colors: [
-            Color(red: 1.00, green: 0.78, blue: 0.45), // Softened Mango
-            Color(red: 0.98, green: 0.55, blue: 0.45)  // Gentle Coral
-        ]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    
     static let mint: LinearGradient = LinearGradient(
         colors: [
             Color(red: 0.70, green: 0.90, blue: 0.82),
             Color(red: 0.55, green: 0.80, blue: 0.70)
         ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let green: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.55, green: 0.85, blue: 0.65), // Lush Amazonite
+            Color(red: 0.35, green: 0.70, blue: 0.50)  // Deep Jade
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let yellow: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 1.00, green: 0.94, blue: 0.65), // Buttery Silk
+            Color(red: 0.98, green: 0.85, blue: 0.45)  // Softened Amber
+        ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
