@@ -17,7 +17,10 @@ struct MySongs: View {
                 HStack (spacing: 5) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.yellow.opacity(0.5))
+                            .fill(Constants.yellow)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                            )
                         
                         HStack {
                             Text("New🎵 (\(masteryLvlCounts[0]))")
@@ -32,7 +35,10 @@ struct MySongs: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.purple.opacity(0.4))
+                            .fill(Constants.lavender)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                            )
                         
                         HStack {
                             Text("Experimenting🤔 (\(masteryLvlCounts[1]))")
@@ -46,7 +52,10 @@ struct MySongs: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.blue.opacity(0.4))
+                            .fill(Constants.blue)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                            )
                         
                         HStack {
                             Text("Fan🧑‍🎤 (\(masteryLvlCounts[2]))")
@@ -61,7 +70,10 @@ struct MySongs: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.green.opacity(0.6))
+                            .fill(Constants.green)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 2, y: 2
+                            )
                         
                         HStack {
                             Text("Your Jam🔥 (\(masteryLvlCounts[3]))")
@@ -127,6 +139,9 @@ struct SongRow: View {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? Color.green.opacity(0.6))
                         .frame(width: 100, height: 25)
+                        .shadow(
+                            color: .black.opacity(0.3), radius: 4, x: 5, y: 5
+                        )
 
                     // Map the Int mastery level back to text
                     Text("\(Constants.songsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? "Lvl")")
