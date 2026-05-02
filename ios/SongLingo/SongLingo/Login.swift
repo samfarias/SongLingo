@@ -78,6 +78,7 @@ struct Login: View {
                         
                         Button("Create Account") {
                             print("Create account tapped")
+                            self.email = "3464343"
                         }
                         .frame(maxWidth: .infinity)
                         .padding()

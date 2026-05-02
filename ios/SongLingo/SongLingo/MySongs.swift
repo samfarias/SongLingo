@@ -137,7 +137,7 @@ struct SongRow: View {
                 // Mastery Badge
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Constants.masteryLvlToFillColor[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? Color.green.opacity(0.6))
+                        .fill(getMasteryLvlFillColor(entry))
                         .frame(width: 100, height: 25)
                         .shadow(
                             color: .black.opacity(0.3), radius: 4, x: 3, y: 3
@@ -162,6 +162,13 @@ struct SongRow: View {
         }
         .padding(.vertical, 10)
     }
+}
+
+private func getMasteryLvlFillColor(_ songEntry: UserSongEntry) -> LinearGradient {
+    let masteryLvl = calculateMasteryLvl(numActivitiesCompleted: songEntry.numListens + songEntry.numLyricChallengesCompleted)
+    let color: LinearGradient = Constants.masteryLvlToFillColor[masteryLvl] ?? Constants.green
+    return color
+    
 }
 
 #Preview {
