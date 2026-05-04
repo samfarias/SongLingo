@@ -38,7 +38,6 @@ struct ContentView: View
                 }
             }.resume()
         }
->>>>>>> Stashed changes
     }
 }
 
