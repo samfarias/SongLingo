@@ -114,8 +114,14 @@ struct Login: View {
             }
         }
     }
+    init(email: String = "", password: String = "", path: NavigationPath = NavigationPath()) {
+        self._email = State(initialValue: email)
+        self._password = State(initialValue: password)
+        self._path = State(initialValue: path)
+    }
 }
 
 #Preview {
     Login()
 }
+

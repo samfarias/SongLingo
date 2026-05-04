@@ -13,6 +13,17 @@ struct CreateAccView: View {
     @State private var password = ""
     @State private var confirmPassword = ""
     
+    // Password requirement state
+    @State private var isMinLength = false
+    @State private var hasLetter = false
+    @State private var hasUppercase = false
+    @State private var hasSpecialChar = false
+    @State private var hasNumber = false
+
+    private var meetsAllRequirements: Bool {
+        isMinLength && hasLetter && hasUppercase && hasSpecialChar && hasNumber
+    }
+    
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -84,6 +95,14 @@ struct CreateAccView: View {
                                 .padding(.horizontal, 12)
                                 .background(Color.gray.opacity(0.2))
                                 .cornerRadius(10)
+                                .onChange(of: password) { _, newValue in
+                                    let req = ValidationUtils.checkPasswordRequirements(password: newValue)
+                                    isMinLength = req.minLen
+                                    hasLetter = req.letter
+                                    hasUppercase = req.upper
+                                    hasSpecialChar = req.special
+                                    hasNumber = req.number
+                                }
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
@@ -96,6 +115,17 @@ struct CreateAccView: View {
                                 .background(Color.gray.opacity(0.2))
                                 .cornerRadius(10)
                         }
+                        
+                        // The checkmark row Jaci built
+                        VStack(alignment: .leading, spacing: 10) {
+                            RequirementRow(isMet: isMinLength, text: "At least 8 characters")
+                            RequirementRow(isMet: hasLetter, text: "Contains a letter")
+                            RequirementRow(isMet: hasUppercase, text: "Contains an uppercase letter")
+                            RequirementRow(isMet: hasSpecialChar, text: "Contains a special character")
+                            RequirementRow(isMet: hasNumber, text: "Contains a number")
+                        }
+                        .font(.footnote)
+                        .padding(.top, 4)
                     }
 
                     NavigationLink(value: OnboardingFlow.languageSelectionView) {
@@ -107,6 +137,8 @@ struct CreateAccView: View {
                     .foregroundColor(.white)
                     .cornerRadius(12)
                     .padding(.top, 8)
+                    .disabled(!(ValidationUtils.isValidEmail(email) && meetsAllRequirements && password == confirmPassword))
+                    .opacity((ValidationUtils.isValidEmail(email) && meetsAllRequirements && password == confirmPassword) ? 1.0 : 0.5)
 
                     VStack(spacing: 8) {
                         Text("Already have an account?")
