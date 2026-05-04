@@ -76,7 +76,7 @@ struct LanguageSelectionView: View {
                                         .foregroundColor(.black)
                                 }
                                 .frame(width: 130, height: 92)
-                                .background(Color.white)
+                                .background(selectedLanguage == index ? Color.blue.opacity(0.12) : Color.white)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 14)
                                         .stroke(
@@ -101,6 +101,8 @@ struct LanguageSelectionView: View {
                     .cornerRadius(12)
                     .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 3)
                     .padding(.top, 6)
+                    .opacity(selectedLanguage == nil ? 0.5 : 1.0)
+                    .disabled(selectedLanguage == nil)
                 }
                 .padding(.vertical, 26)
                 .padding(.horizontal, 22)

@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ProficiencyView: View {
+    // 1. Added selection state
+    @State private var selectedLevel: String? = nil
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -32,6 +35,7 @@ struct ProficiencyView: View {
                         .font(.system(size: 13))
                         .foregroundColor(.white.opacity(0.95))
                 }
+                
                 VStack(spacing: 20) {
                     VStack(spacing: 6) {
                         Text("What's your current level?")
@@ -43,54 +47,18 @@ struct ProficiencyView: View {
                             .font(.system(size: 13))
                             .foregroundColor(.gray)
                     }
-                    VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Beginner")
-                                .fontWeight(.semibold)
-                            
-                            Text("Just starting out")
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(14)
-                        .overlay (
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.black, lineWidth: 1)
-                        )
+                    
+                    VStack(spacing: 12) {
+                        // BEGINNER OPTION
+                        proficiencyOption(title: "Beginner", subtitle: "Just starting out")
+                        
+                        // INTERMEDIATE OPTION
+                        proficiencyOption(title: "Intermediate", subtitle: "Basic conversations")
+                        
+                        // ADVANCED OPTION
+                        proficiencyOption(title: "Advanced", subtitle: "Fluent speaker")
                     }
-                    VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Intermediate")
-                                .fontWeight(.semibold)
-                            
-                            Text("Basic conversations")
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(14)
-                        .overlay (
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.black, lineWidth: 1)
-                        )
-                    }
-                    VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Advanced")
-                                .fontWeight(.semibold)
-                            
-                            Text("Fluent speaker")
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(14)
-                        .overlay (
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.black, lineWidth: 1)
-                            )
-                    }
+                    
                     HStack(spacing: 16) {
                         Button("Back") {
                             print("Back tapped")
@@ -103,7 +71,7 @@ struct ProficiencyView: View {
                         .cornerRadius(12)
                         
                         Button("Continue") {
-                            print("Continue tapped")
+                            print("Continue tapped with level: \(selectedLevel ?? "None")")
                         }
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
@@ -111,9 +79,10 @@ struct ProficiencyView: View {
                         .background(Color(red: 0.486, green: 0.227, blue: 0.929))
                         .foregroundColor(.white)
                         .cornerRadius(12)
+                        // Optional: Disable continue if nothing is selected
+                        .opacity(selectedLevel == nil ? 0.5 : 1.0)
+                        .disabled(selectedLevel == nil)
                     }
-                    
-                    
                 }
                 .padding(25)
                 .background(Color.white)
@@ -122,6 +91,35 @@ struct ProficiencyView: View {
                 
                 Spacer()
             }
+        }
+    }
+    
+    // Helper function to create the selectable rows
+    @ViewBuilder
+    func proficiencyOption(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .fontWeight(.semibold)
+                .foregroundColor(selectedLevel == title ? .black : .primary)
+            
+            Text(subtitle)
+                .font(.system(size: 13))
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        // 2. Dynamic background color
+        .background(selectedLevel == title ? Color.blue.opacity(0.12) : Color.white)
+        .cornerRadius(20)
+        .overlay (
+            RoundedRectangle(cornerRadius: 20)
+                // 3. Dynamic stroke color and width
+                .stroke(selectedLevel == title ? Color.purple : Color.gray.opacity(0.3),
+                        lineWidth: selectedLevel == title ? 2 : 1)
+        )
+        // 4. Make it tappable
+        .onTapGesture {
+            selectedLevel = title
         }
     }
 }
