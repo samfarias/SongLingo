@@ -23,9 +23,8 @@ struct ContentView: View
                 Profile()
             }
         }
-<<<<<<< Updated upstream
-=======
-        .onAppear {
+
+          .onAppear {
             // target specific django endpoint
             guard let url = URL(string: "http://localhost:8000/api/home/?user_id=1") else { return }
             
