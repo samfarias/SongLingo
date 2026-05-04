@@ -26,13 +26,16 @@ struct Login: View {
             
             VStack(spacing: 20) {
                 
-                Text("SongLingo")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("Learn languages through the music you love")
-                    .foregroundColor(.white)
+                VStack(spacing: 6) {
+                    Text("♪ SongLingo")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+
+                    Text("Learn languages through the music you love")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                }
             
                 VStack(spacing: 20) {
             
@@ -41,6 +44,7 @@ struct Login: View {
                         .fontWeight(.bold)
                     
                 Text("Sign in to continue your journey")
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                 
                     VStack(alignment: .leading, spacing: 15) {
@@ -67,8 +71,9 @@ struct Login: View {
                         Button("Sign In") {
                             print("Sign in tapped")
                         }
+                        .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(height: 50)
                         .background(Color(red: 0.486, green: 0.227, blue: 0.929))
                         .foregroundColor(.white)
                         .cornerRadius(12)
@@ -80,8 +85,9 @@ struct Login: View {
                             print("Create account tapped")
                             self.email = "3464343"
                         }
+                        .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(height: 50)
                         .background(Color(red: 0.486, green: 0.227, blue: 0.929))
                         .foregroundColor(.white)
                         .cornerRadius(12)
