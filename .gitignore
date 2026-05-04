@@ -19,3 +19,9 @@ db.sqlite3
 .cache
 spotify_token.txt
 #testing CD, dont mind mehhhhhh
+
+xcuserdata/
+*.xcuserstate
+*/xcuserdata
+xcuserdata
+xcschememanagement.plist
