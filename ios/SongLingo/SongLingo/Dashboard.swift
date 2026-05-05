@@ -11,7 +11,6 @@ struct Dashboard: View {
     @State private var homeData: HomeScreenData?
     
     var body: some View {
-        NavigationStack {
             ScrollView {
                 ZStack (alignment: .top) {
                     VStack {
@@ -42,16 +41,6 @@ struct Dashboard: View {
                     )
                     
                 }
-                .padding(.vertical, 20)
-                .frame(maxWidth: .infinity, minHeight: 150)
-                .background(Color.purple)
-            }
-            
-            //Handles the space between the the subtitle and Word Bank, My Songs, and Streak buttons
-            Spacer(minLength: 30)
-            
-            //Handles the Word Bank, My Songs, and Streak buttons
-            HStack (spacing: 10) {
                 
                 //Handles the space between the the subtitle and Word Bank, My Songs, and Streak buttons
                 Spacer(minLength: 30)
@@ -85,7 +74,7 @@ struct Dashboard: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                         }
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
@@ -106,8 +95,11 @@ struct Dashboard: View {
                                 Image(systemName: "music.note.square.stack")
                                     .padding(4)
                                     .foregroundColor(.black)
-                                    .font(.system(size: 10))
-                                    .lineLimit(1)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(Color.black, lineWidth: 1)
+                                        )
+                                    .font(.system(size: 12))
                                 
                                 VStack (alignment: .leading) {
                                     Text("My Songs")
@@ -122,7 +114,7 @@ struct Dashboard: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                         }
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
@@ -142,8 +134,11 @@ struct Dashboard: View {
                                 Image(systemName: "flame.fill")
                                     .padding(4)
                                     .foregroundColor(.black)
-                                    .font(.system(size: 10))
-                                    .lineLimit(1)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(Color.black, lineWidth: 1)
+                                        )
+                                    .font(.system(size: 12))
                                 
                                 VStack (alignment: .leading) {
                                     Text("Streak")
@@ -158,7 +153,8 @@ struct Dashboard: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                            .padding(.vertical, 15)
                         }
                         .shadow(
                             color: .black.opacity(0.15), // Subtle transparency
@@ -168,23 +164,11 @@ struct Dashboard: View {
                         )
                         .frame(maxWidth: .infinity)
                     }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.black, lineWidth: 1)
-                        )
-                    .frame(maxWidth: .infinity)
+                    
                 }
+                .padding(.horizontal)
                 
-            }
-            .padding(.horizontal)
-            
-            Spacer(minLength: 20)
-            
-            //Handles the Current Playlists Section
-            VStack (alignment: .leading) {
-                //Handles the Current Playlists headline
-                Text("Current Playlists")
-                    .font(.headline)
+                Spacer(minLength: 20)
                 
                 VStack(alignment: .leading, spacing: 15) {
                     // MARK: - Current Playlists Section
@@ -233,17 +217,12 @@ struct Dashboard: View {
                                         // Card Shadow (Bottom-Right)
                                         .shadow(color: Color(red: 0.4, green: 0.6, blue: 0.5).opacity(0.3), radius: 5, x: 3, y: 3)
                                     }
-                                    .foregroundColor(.black)
-                                    //.padding(.horizontal)
-                                    .padding(.vertical, 16)
                                 }
                             }
                             .padding(.horizontal, 15) // Keeps cards from touching the container edges
                             .padding(.bottom, 30)     // Extra room for the card shadows
                             .padding(.top, 5)
                         }
-                        .frame(width: 121, height: 151)
-                        
                     }
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
@@ -275,7 +254,7 @@ struct Dashboard: View {
                                 }
                                 .padding(.horizontal, 10)
                                 
-                                Spacer(minLength: 1)
+                                Spacer()
                                 
                                 Button(action: {
                                     // Action for New Words button
@@ -304,9 +283,7 @@ struct Dashboard: View {
                                 .cornerRadius(5)
                                 
                             }
-                            .background(Color(.indigo.opacity(0.7)))
-                            .cornerRadius(5)
-                            
+                            .padding()
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -321,10 +298,7 @@ struct Dashboard: View {
                         )
                         
                     }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.black, lineWidth: 1)
-                        )
+                    .padding(.vertical)
                     
                     //Handles This Week's Word Cards Section
                     VStack (alignment: .leading) {
@@ -349,7 +323,7 @@ struct Dashboard: View {
                                 }
                                 .padding(.horizontal, 10)
                                 
-                                Spacer(minLength: 1)
+                                Spacer()
                                 
                                 NavigationLink(destination: PracticeGameOptions()) {
                                     Text("Practice")
@@ -376,9 +350,7 @@ struct Dashboard: View {
                                 .cornerRadius(5)
                                 
                             }
-                            .background(Color(.indigo.opacity(0.7)))
-                            .cornerRadius(5)
-                            
+                            .padding()
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -393,13 +365,10 @@ struct Dashboard: View {
                         )
                         
                     }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.black, lineWidth: 1)
-                        )
-                    
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
+                .padding()
+                
             }
             .background(Constants.arctic_dawn)
             .edgesIgnoringSafeArea(.all)
@@ -414,19 +383,12 @@ struct Dashboard: View {
                     print("Request failed: \(error)")
                 }
             }
-        }
-        .background(Color.purple.opacity(0.2))
-        .edgesIgnoringSafeArea(.all)
-        //This works equally as well: .ignoresSafeArea()
-        //.scrollBounceBehavior(.basedOnSize)
-        //.ignoresSafeArea(edges: .top)
     }
 }
 
 #Preview {
-    NavigationStack {
-        Dashboard()
-    }
+    Dashboard()
 }
+
 
 //NOTE - SCROLLVIEW IS NOW ALLOWING ME TO BYPASS THE SAFE AREA
