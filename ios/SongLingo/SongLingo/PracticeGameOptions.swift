@@ -13,20 +13,23 @@ struct PracticeGameOptions: View {
             ScrollView {
                 VStack {
                     //Sends to Word Cards Screen
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.purple.opacity(0.5))
-                        VStack (alignment: .leading) {
-                            Text("Word Cards")
-                                .foregroundStyle(Color.black)
-                                .bold()
-                                .font(.title2)
+                    NavigationLink(destination: WordCards())
+                    {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.purple.opacity(0.5))
+                            VStack (alignment: .leading) {
+                                Text("Word Cards")
+                                    .foregroundStyle(Color.black)
+                                    .bold()
+                                    .font(.title2)
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical)
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical)
+                        .padding()
+                        .padding(.bottom, 30)
                     }
-                    .padding()
-                    .padding(.bottom, 30)
                     
                     //Sends to Lyric Match Screen
                     ZStack {
@@ -45,19 +48,22 @@ struct PracticeGameOptions: View {
                     .padding(.bottom, 30)
                     
                     //Sends to Complete the Lyrics Screen
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.purple.opacity(0.5))
-                        VStack (alignment: .leading) {
-                            Text("Complete the Lyrics")
-                                .foregroundStyle(Color.black)
-                                .bold()
-                                .font(.title2)
+                    NavigationLink(destination: FinishLyrics())
+                    {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.purple.opacity(0.5))
+                            VStack (alignment: .leading) {
+                                Text("Complete the Lyrics")
+                                    .foregroundStyle(Color.black)
+                                    .bold()
+                                    .font(.title2)
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical)
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical)
+                        .padding()
                     }
-                    .padding()
                 }
                 .padding(.top, 100)
             }
