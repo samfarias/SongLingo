@@ -99,6 +99,7 @@ struct CreateAccView: View {
                     Button("Create Account") {
                         print("Create account tapped")
                     }
+                    .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(Color(red: 0.486, green: 0.227, blue: 0.929))
@@ -113,6 +114,7 @@ struct CreateAccView: View {
                         Button("Sign In") {
                             print("Sign In tapped")
                         }
+                        .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(Color(red: 0.486, green: 0.227, blue: 0.929))

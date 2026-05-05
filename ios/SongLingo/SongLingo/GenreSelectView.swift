@@ -79,14 +79,14 @@ struct GenreSelectView: View {
                                 .frame(maxWidth: .infinity)
                                 .aspectRatio(1.4, contentMode: .fit)
                                 .padding(10)
-                                .background(Color.white)
+                                .background(selectedGenres.contains(genre) ? Color.blue.opacity(0.12) : Color.white)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 14)
                                         .stroke(
                                             selectedGenres.contains(genre)
                                             ? Color(red: 0.486, green: 0.227, blue: 0.929)
-                                            : Color.black,
-                                            lineWidth: selectedGenres.contains(genre) ? 3 : 2
+                                            : Color.gray.opacity(0.35),
+                                            lineWidth: selectedGenres.contains(genre) ? 2 : 1
                                         )
                                 )
                                 .cornerRadius(14)
@@ -114,6 +114,8 @@ struct GenreSelectView: View {
                         .background(Color(red: 0.486, green: 0.227, blue: 0.929))
                         .foregroundColor(.white)
                         .cornerRadius(12)
+                        .opacity(selectedGenres.isEmpty ? 0.5 : 1.0)
+                        .disabled(selectedGenres.isEmpty)
                     }
                 }
                 .padding(25)
