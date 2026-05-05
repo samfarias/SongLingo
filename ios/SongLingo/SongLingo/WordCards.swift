@@ -98,7 +98,7 @@ struct WordCards: View {
                                 .padding()
                             
                             Button(action: {
-                                ifCorrectAnswer(index: 0)
+                                ifCorrectAnswer(index: 1)
                             }) {
                                 Text(currOptions.count > 0 ? currOptions[1] : "Option 2")
                                     .foregroundColor(.black)
@@ -112,7 +112,7 @@ struct WordCards: View {
                         }
                         HStack {
                             Button(action: {
-                                ifCorrectAnswer(index: 0)
+                                ifCorrectAnswer(index: 2)
                             }) {
                                 Text(currOptions.count > 0 ? currOptions[2] : "Option 3")
                                     .foregroundColor(.black)
@@ -125,9 +125,9 @@ struct WordCards: View {
                             .padding()
                             
                             Button(action: {
-                                ifCorrectAnswer(index: 0)
+                                ifCorrectAnswer(index: 3)
                             }) {
-                                Text(currOptions.count > 0 ? currOptions[4] : "Option 4")
+                                Text(currOptions.count > 0 ? currOptions[3] : "Option 4")
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 80)
