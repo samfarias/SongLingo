@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct WordBank: View {
-    //Dummy info (again)
-    @State private var wordDemo = WordData(word: "Testing Longer Words", translation: "Cinnamon", wordProficiency: "Learning", totalListeningTime: 12, totalPractices: 5)
+    @State private var userWords: [UserWordEntry] = []
+    @State private var masteryLvlCounts = [0, 0, 0, 0]
     
     var body: some View {
         NavigationStack {
@@ -17,13 +17,16 @@ struct WordBank: View {
                 HStack (spacing: 5) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.yellow.opacity(0.5))
+                            .fill(Constants.yellow)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
-                            Text("New (INT)")
+                            Text("New🐣 (\(masteryLvlCounts[0]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.horizontal)
                     }
@@ -32,13 +35,16 @@ struct WordBank: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.purple.opacity(0.4))
+                            .fill(Constants.lavender)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
-                            Text("Learning (INT)")
+                            Text("Learning✍️ (\(masteryLvlCounts[1]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -46,13 +52,16 @@ struct WordBank: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.blue.opacity(0.4))
+                            .fill(Constants.blue)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
-                            Text("Familiar (INT)")
+                            Text("Familiar🧠 (\(masteryLvlCounts[2]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.horizontal)
                     }
@@ -61,13 +70,16 @@ struct WordBank: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.green.opacity(0.6))
+                            .fill(Constants.green)
+                            .shadow(
+                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                            )
                         
                         HStack {
-                            Text("Mastered (INT)")
+                            Text("Mastered🔥 (\(masteryLvlCounts[3]))")
                                 .lineLimit(1)
                                 .foregroundColor(.black)
-                                .font(.system(size: 8.5))
+                                .font(.system(size: 12))
                         }
                         .padding(.vertical, 10)
                     }
@@ -79,80 +91,87 @@ struct WordBank: View {
                 Divider()
                     .overlay(Color.black)
                 
-                HStack {
-                    VStack (alignment: .leading) {
-                        Text(wordDemo.word)
-                            //.bold()
-                            .font(.title2)
-                            .foregroundColor(.black)
-                        
-                        Text("(\(wordDemo.translation))")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                        
-                    }
-                    .padding(.horizontal, 10)
-                    
-                    VStack (alignment: .trailing) {
-                        HStack {
-                            ZStack {
-                                
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.purple.opacity(0.4))
-                                    .frame(height: 25)
-                                    .frame(width: 100)
-
-                                Text(wordDemo.wordProficiency)
-                                    .lineLimit(1)
-                                    .foregroundColor(.black)
-                                    .font(.system(size: 12))
-                            }
-                        }
-                        
-                        HStack {
-                            Text("\(wordDemo.totalListeningTime) Listens")
-                                .font(.system(size: 12))
-                                .foregroundColor(.black)
-                            
-                            Image(systemName: "headphones.over.ear")
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
-                            
-                            //Self-Note: Another image option is "headphones.sensor.tag.radiowaves.left.and.right" but it looks a little too much as a small icon
-                        }
-                        
-                        HStack {
-                            Text("\(wordDemo.totalPractices) Practices")
-                                .font(.system(size: 12))
-                                .foregroundColor(.black)
-                            
-                            Image(systemName: "square.and.pencil")
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
-                        }
-
-                    }
-                    .padding(.horizontal)
+                // Dynamic List of Songs
+                ForEach(userWords) { entry in
+                    WordRow(entry: entry)
+                    Divider().overlay(Color.black)
                 }
-                .padding(.vertical, 10)
-                .padding(.horizontal)
-            
-                Divider()
-                    .overlay(Color.black)
+                
             }
             .navigationTitle("Word Bank")
-            .background(Color.pink.opacity(0.3))
+            .background(Constants.amber_tide)
+            .task {
+                do {
+                    let wordBankData = try await fetchWordBankScreenData(userId: "1")
+                    self.userWords = wordBankData.userWordData
+                    for wordEntry in self.userWords {
+                        masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: wordEntry.numListens + wordEntry.numPracticesCompleted)
+                        ] += 1
+                    }
+                } catch {
+                    print("Request failed: \(error)")
+                }
+            }
         }
     }
 }
 
-struct WordData {
-    var word: String
-    var translation: String
-    let wordProficiency: String
-    let totalListeningTime: Int
-    let totalPractices: Int
+struct WordRow: View {
+    let entry: UserWordEntry
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(entry.word.wordText)
+                    .font(.title2)
+                    .foregroundColor(.black)
+                
+                Text("(\(entry.word.translation))")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+            }
+            .padding(.horizontal)
+            
+            Spacer()
+            
+            VStack(alignment: .trailing) {
+                // Mastery Badge
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(getMasteryLvlFillColor(entry))
+                        .frame(width: 100, height: 25)
+                        .shadow(
+                            color: .black.opacity(0.3), radius: 4, x: 3, y: 3
+                        )
+
+                    // Map the Int mastery level back to text
+                    Text("\(Constants.wordsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numPracticesCompleted)] ?? "Lvl")")
+                        .lineLimit(1)
+                        .foregroundColor(.black)
+                        .font(.system(size: 12))
+                }
+                
+                Label("\(entry.numListens) Listens", systemImage: "headphones.over.ear")
+                    .font(.system(size: 12))
+                    .foregroundColor(.black)
+                
+                Label("\(entry.numPracticesCompleted) Practices", systemImage: "square.and.pencil")
+                    .font(.system(size: 12))
+                    .foregroundColor(.black)
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 10)
+    }
 }
+
+private func getMasteryLvlFillColor(_ wordEntry: UserWordEntry) -> LinearGradient {
+    let masteryLvl = calculateMasteryLvl(numActivitiesCompleted: wordEntry.numListens + wordEntry.numPracticesCompleted)
+    let color: LinearGradient = Constants.masteryLvlToFillColor[masteryLvl] ?? Constants.green
+    return color
+    
+}
+
 
 #Preview {
     WordBank()

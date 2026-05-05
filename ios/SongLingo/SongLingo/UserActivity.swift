@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct UserActivity: View {
-    @State private var date = Date()
+//    @State private var date = Date()
+    @State private var userActivity: UserActivityData?
 
     var body: some View {
         NavigationStack {
@@ -18,7 +19,10 @@ struct UserActivity: View {
                         ZStack {
                             
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.pink.opacity(0.3))
+                                .fill(Color.black.opacity(0.05))
+                                .shadow(
+                                    color: .black.opacity(1), radius: 4, x: 5, y: 5
+                                )
                             
                             VStack {
                                 Text("Streak Record")
@@ -26,7 +30,7 @@ struct UserActivity: View {
                                 
                                 Spacer(minLength: 10)
                                 
-                                Text ("INT days")
+                                Text ("\(userActivity?.streakInfo.longestStreak ?? 0) days")
                                 
                             }
                             .padding(.vertical, 10)
@@ -36,7 +40,10 @@ struct UserActivity: View {
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.pink.opacity(0.3))
+                                .fill(Color.black.opacity(0.05))
+                                .shadow(
+                                    color: .black.opacity(1), radius: 4, x: 5, y: 5
+                                )
                             
                             VStack {
                                 Text("Current Streak")
@@ -44,7 +51,7 @@ struct UserActivity: View {
                                 
                                 Spacer(minLength: 10)
                                 
-                                Text ("INT days")
+                                Text ("\(userActivity?.streakInfo.currentStreak ?? 0) days")
                                 
                             }
                             .padding(.vertical, 10)
@@ -54,7 +61,10 @@ struct UserActivity: View {
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.pink.opacity(0.3))
+                                .fill(Color.black.opacity(0.05))
+                                .shadow(
+                                    color: .black.opacity(1), radius: 4, x: 5, y: 5
+                                )
                             
                             VStack {
                                 Text("Next Milestone")
@@ -75,16 +85,26 @@ struct UserActivity: View {
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.pink.opacity(0.3))
+                            .fill(Color.black.opacity(0.05))
+                            .shadow(
+                                color: .black.opacity(1), radius: 4, x: 5, y: 5
+                            )
                         
-                        CustomCalendar()
+                        CustomCalendar(activeDates: userActivity?.activeDatesSet ?? Set<String>())
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 15)
                 }
             }
             .navigationTitle("Activity")
-            .background(Color.pink.opacity(0.5))
+            .background(Constants.coastal_mist)
+            .task {
+                do {
+                    self.userActivity = try await fetchUserActivityScreenData(userId: "1")
+                } catch {
+                    print("Request failed: \(error)")
+                }
+            }
         }
     }
 }
