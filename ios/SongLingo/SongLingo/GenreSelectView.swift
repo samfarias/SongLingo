@@ -22,109 +22,114 @@ struct GenreSelectView: View {
     
     @State private var selectedGenres: Set<String> = []
     
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.984, green: 0.443, blue: 0.522),
-                    Color(red: 0.576, green: 0.200, blue: 0.918),
-                    Color(red: 0.231, green: 0.027, blue: 0.392)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                Spacer()
+        NavigationStack {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.984, green: 0.443, blue: 0.522),
+                        Color(red: 0.576, green: 0.200, blue: 0.918),
+                        Color(red: 0.231, green: 0.027, blue: 0.392)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
                 
-                VStack(spacing: 6) {
-                    Text("♪ SongLingo")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    Text("Learn languages through the music you love")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.95))
-                }
                 VStack(spacing: 20) {
-                    VStack(spacing: 6) {
-                        Text("What music do you enjoy?")
-                            .font(.system(size: 18, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: 260)
-                        
-                        Text("Pick your favorite genres to get started")
-                            .font(.system(size: 13))
-                            .foregroundColor(.gray)
-                    }
+                    Spacer()
                     
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(genres, id: \.self) { genre in
-                                                
-                            Button {
-                                if selectedGenres.contains(genre) {
-                                    selectedGenres.remove(genre)
-                                } else {
-                                    selectedGenres.insert(genre)
-                                }
-                            } label: {
+                    VStack(spacing: 6) {
+                        Text("♪ SongLingo")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("Learn languages through the music you love")
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.95))
+                    }
+                    VStack(spacing: 20) {
+                        VStack(spacing: 6) {
+                            Text("What music do you enjoy?")
+                                .font(.system(size: 18, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: 260)
+                            
+                            Text("Pick your favorite genres to get started")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                        }
+                        
+                        LazyVGrid(columns: columns, spacing: 16) {
+                            ForEach(genres, id: \.self) { genre in
                                                     
-                                VStack(spacing: 8) {
-                                     
-                                    Image(genre)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 60)
+                                Button {
+                                    if selectedGenres.contains(genre) {
+                                        selectedGenres.remove(genre)
+                                    } else {
+                                        selectedGenres.insert(genre)
+                                    }
+                                } label: {
+                                                        
+                                    VStack(spacing: 8) {
+                                         
+                                        Image(genre)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 60)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .aspectRatio(1.4, contentMode: .fit)
+                                    .padding(10)
+                                    .background(selectedGenres.contains(genre) ? Color.blue.opacity(0.12) : Color.white)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .stroke(
+                                                selectedGenres.contains(genre)
+                                                ? Color(red: 0.486, green: 0.227, blue: 0.929)
+                                                : Color.gray.opacity(0.35),
+                                                lineWidth: selectedGenres.contains(genre) ? 2 : 1
+                                            )
+                                    )
+                                    .cornerRadius(14)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .aspectRatio(1.4, contentMode: .fit)
-                                .padding(10)
-                                .background(selectedGenres.contains(genre) ? Color.blue.opacity(0.12) : Color.white)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(
-                                            selectedGenres.contains(genre)
-                                            ? Color(red: 0.486, green: 0.227, blue: 0.929)
-                                            : Color.gray.opacity(0.35),
-                                            lineWidth: selectedGenres.contains(genre) ? 2 : 1
-                                        )
-                                )
-                                .cornerRadius(14)
                             }
                         }
-                    }
-                    
-                    HStack(spacing: 16) {
-                        Button("Back") {
-                            print("Back tapped")
-                        }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
                         
-                        Button("Continue") {
-                            print("Continue tapped")
+                        HStack(spacing: 16) {
+                            Button("Back") {
+                                dismiss()
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            
+                            NavigationLink(destination: Dashboard()) {
+                                Text("Continue")
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .opacity(selectedGenres.isEmpty ? 0.5 : 1.0)
+                            .disabled(selectedGenres.isEmpty)
                         }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .opacity(selectedGenres.isEmpty ? 0.5 : 1.0)
-                        .disabled(selectedGenres.isEmpty)
                     }
+                    .padding(25)
+                    .background(Color.white)
+                    .cornerRadius(25)
+                    .padding(.horizontal, 30)
+                    
+                    Spacer()
                 }
-                .padding(25)
-                .background(Color.white)
-                .cornerRadius(25)
-                .padding(.horizontal, 30)
-                
-                Spacer()
             }
+            
         }
     }
 }
