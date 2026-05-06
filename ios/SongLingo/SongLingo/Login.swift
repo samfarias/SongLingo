@@ -12,91 +12,93 @@ struct Login: View {
     @State private var password = ""
     
     var body: some View {
-        ZStack {
-            
-            LinearGradient(
-                colors: [
-                    Color(red: 0.984, green: 0.443, blue: 0.522),
-                    Color(red: 0.576, green: 0.200, blue: 0.918),
-                    Color(red: 0.231, green: 0.027, blue: 0.392)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
+        NavigationStack {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.984, green: 0.443, blue: 0.522),
+                        Color(red: 0.576, green: 0.200, blue: 0.918),
+                        Color(red: 0.231, green: 0.027, blue: 0.392)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
                 
-                VStack(spacing: 6) {
-                    Text("♪ SongLingo")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-
-                    Text("Learn languages through the music you love")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                }
-            
                 VStack(spacing: 20) {
-            
-                Text("Welcome Back")
-                        .font(.title2)
-                        .fontWeight(.bold)
                     
-                Text("Sign in to continue your journey")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                
-                    VStack(alignment: .leading, spacing: 15) {
-                        
-                        Text("Email")
-                            .fontWeight(.semibold)
-                        
-                        TextField("", text: $email)
-                            .padding()
-                            .background(.gray.opacity(0.2))
-                            .cornerRadius(10)
-                        
-                        Text("Password")
-                            .fontWeight(.semibold)
-                        
-                        SecureField("", text: $password)
-                            .padding()
-                            .background(.gray.opacity(0.2))
-                            .cornerRadius(10)
-                        
-                        Text("Forgot Password?")
-                            .foregroundColor(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        
-                        Button("Sign In") {
-                            print("Sign in tapped")
-                        }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        
-                        Text("Don't have an account?")
-                            .foregroundColor(.gray)
-                        
-                        Button("Create Account") {
-                            print("Create account tapped")
-                            self.email = "3464343"
-                        }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
+                    VStack(spacing: 6) {
+                        Text("♪ SongLingo")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+
+                        Text("Learn languages through the music you love")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
                     }
+                
+                    VStack(spacing: 20) {
+                
+                    Text("Welcome Back")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                    Text("Sign in to continue your journey")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    
+                        VStack(alignment: .leading, spacing: 15) {
+                            
+                            Text("Email")
+                                .fontWeight(.semibold)
+                            
+                            TextField("", text: $email)
+                                .padding()
+                                .background(.gray.opacity(0.2))
+                                .cornerRadius(10)
+                            
+                            Text("Password")
+                                .fontWeight(.semibold)
+                            
+                            SecureField("", text: $password)
+                                .padding()
+                                .background(.gray.opacity(0.2))
+                                .cornerRadius(10)
+                            
+                            // Navigate to a new Forgot Password Screen
+                            Text("Forgot Password?")
+                                .foregroundColor(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            
+                            // Before going to the Dashboard, we need to verify if the login connects to an existing user first.
+                            NavigationLink(destination: Dashboard()) {
+                                Text("Sign in")
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            
+                            Text("Don't have an account?")
+                                .foregroundColor(.gray)
+                            
+                            NavigationLink(destination: CreateAccView()) {
+                                Text("Create Account")
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding(25)
+                    .background(Color.white)
+                    .cornerRadius(25)
+                    .padding(.horizontal, 30)
                 }
-                .padding(25)
-                .background(Color.white)
-                .cornerRadius(25)
-                .padding(.horizontal, 30)
             }
         }
     }
