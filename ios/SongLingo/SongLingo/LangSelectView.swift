@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LangSelectionView: View {
     @State private var selectedLanguage: Int? = nil
+    
+    @Environment(\.dismiss) var dismiss
 
     let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -92,18 +94,29 @@ struct LangSelectionView: View {
                             }
                         }
                         
-                        NavigationLink(destination: ProficiencyView()) {
-                            Text("Continue")
+                        HStack(spacing: 16) {
+                            Button("Back") {
+                                dismiss()
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            
+                            NavigationLink(destination: ProficiencyView()) {
+                                Text("Continue")
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .opacity(selectedLanguage == nil ? 0.5 : 1.0)
+                            .disabled(selectedLanguage == nil)
                         }
-                        .font(.system(size: 15, weight: .semibold))
-                        .frame(width: 240, height: 44)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 3)
-                        .padding(.top, 6)
-                        .opacity(selectedLanguage == nil ? 0.5 : 1.0)
-                        .disabled(selectedLanguage == nil)
                     }
                     .padding(.vertical, 26)
                     .padding(.horizontal, 22)
