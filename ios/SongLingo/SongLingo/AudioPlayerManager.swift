@@ -8,7 +8,7 @@
 import Foundation
 import AVFoundation
 
-class AudioPlayerManager: ObservableObject {
+class AudioPlayerManager {
     
     // 1. The Singleton (Crucial for memory)
     static let shared = AudioPlayerManager()

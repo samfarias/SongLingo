@@ -22,6 +22,7 @@ struct WordCards: View {
     @State private var correctCards = 0
     @State private var startTime: Date? = nil
     @State private var endTime: Date? = nil
+    @State private var currentPronunciation: PronunciationResponse? = nil
     
     let totalDuration: TimeInterval = 60
     
@@ -204,10 +205,26 @@ struct WordCards: View {
     }
     
     func loadNextWord() {
-        //Dummy data:
-        self.currWord = "NEW WORD"
+        let newWord = "example" // Or wherever you pull the real word from
+        self.currWord = newWord
         self.currOptions = ["Option A", "Option B", "Option C", "Option D"]
         self.correctOptionIndex = Int.random(in: 0..<4)
+        
+        Task {
+            do {
+                // 1. Fetch from NetworkManager
+                let pronunciationData = try await NetworkManager.shared.fetchPronunciation(for: newWord)
+                
+                DispatchQueue.main.async {
+                    self.currentPronunciation = pronunciationData
+                    
+                    // 2. Play using our new AudioPlayerManager
+                    AudioPlayerManager.shared.playBase64Audio(pronunciationData.audio)
+                }
+            } catch {
+                print("Failed to fetch pronunciation: \(error)")
+            }
+        }
     }
 }
 

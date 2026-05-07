@@ -378,7 +378,7 @@ struct Dashboard: View {
             //.ignoresSafeArea(edges: .top)
             .task {
                 do {
-                    self.homeData = try await fetchHomeScreenData(userId: "1")
+                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: "1")
 
                 } catch {
                     print("Request failed: \(error)")

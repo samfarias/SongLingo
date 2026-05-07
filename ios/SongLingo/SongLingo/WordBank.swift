@@ -102,7 +102,7 @@ struct WordBank: View {
             .background(Constants.amber_tide)
             .task {
                 do {
-                    let wordBankData = try await fetchWordBankScreenData(userId: "1")
+                    let wordBankData = try await NetworkManager.shared.fetchWordBankScreenData(userId: "1")
                     self.userWords = wordBankData.userWordData
                     for wordEntry in self.userWords {
                         masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: wordEntry.numListens + wordEntry.numPracticesCompleted)

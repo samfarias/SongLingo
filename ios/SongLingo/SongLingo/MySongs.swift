@@ -101,7 +101,7 @@ struct MySongs: View {
             .background(Constants.sunset_horizon)
             .task {
                 do {
-                    let mySongsData = try await fetchMySongsData(userId: "1")
+                    let mySongsData = try await NetworkManager.shared.fetchMySongsData(userId: "1")
                     self.userSongs = mySongsData.userSongData
                     for songEntry in self.userSongs {
                         masteryLvlCounts[ calculateMasteryLvl(numActivitiesCompleted: songEntry.numListens + songEntry.numLyricChallengesCompleted)
