@@ -108,7 +108,7 @@ struct GenreSelectView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             
-                            NavigationLink(destination: Dashboard()) {
+                            NavigationLink(destination: ContentView()) {
                                 Text("Continue")
                             }
                             .fontWeight(.semibold)
