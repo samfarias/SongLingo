@@ -63,7 +63,7 @@ struct SuggestedPlaylists: Codable {
 struct Playlist: Codable {
     let playlistName: String
     let language: Int
-    let genre: Int
+    let genre: Int?
     let lastDatePlayed: String? // Optional because it can be null
     let createdDate: String
     let proficiencyLevel: String

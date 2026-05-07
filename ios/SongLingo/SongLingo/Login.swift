@@ -70,7 +70,7 @@ struct Login: View {
                                 .foregroundColor(Color(red: 0.486, green: 0.227, blue: 0.929))
                             
                             // Before going to the Dashboard, we need to verify if the login connects to an existing user first.
-                            NavigationLink(destination: Dashboard()) {
+                            NavigationLink(destination: ContentView()) {
                                 Text("Sign in")
                             }
                             .fontWeight(.semibold)

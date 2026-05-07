@@ -208,7 +208,7 @@ struct Dashboard: View {
                                                 Text("\(Constants.languageIdToName[playlist.language] ?? "ID") · \(playlist.proficiencyLevel)")
                                                     .font(.system(size: 9))
                                                 
-                                                Text("\(Constants.genreIdToName[playlist.genre] ?? "ID")")
+                                                Text("\(Constants.genreIdToName[playlist.genre ?? 0] ?? "Unknown")")
                                                     .font(.system(size: 9))
                                             }
                                             .foregroundColor(Color(red: 0.1, green: 0.3, blue: 0.2))
