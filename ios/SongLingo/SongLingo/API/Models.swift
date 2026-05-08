@@ -92,8 +92,8 @@ struct UserSongEntry: Codable, Identifiable {
     var id: String { song.title + song.artist }
     
     let song: SongDetails
-    let numListens: Int
-    let numLyricChallengesCompleted: Int
+    let numListens: Int?
+    let numLyricChallengesCompleted: Int?
     let masteryLvl: Int
 
     enum CodingKeys: String, CodingKey {
@@ -144,7 +144,7 @@ struct UserWordEntry: Codable, Identifiable {
 
 struct WordDetails: Codable {
     let wordText: String
-    let translation: String
+    let translation: String?
 
     enum CodingKeys: String, CodingKey {
         case wordText = "word_text"

@@ -101,11 +101,13 @@ struct MySongs: View {
             .background(Constants.sunset_horizon)
             .task {
                 do {
-                    let mySongsData = try await NetworkManager.shared.fetchMySongsData(userId: "1")
+                    let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                    let mySongsData = try await NetworkManager.shared.fetchMySongsData(userId: userID)
                     self.userSongs = mySongsData.userSongData
                     for songEntry in self.userSongs {
-                        masteryLvlCounts[ calculateMasteryLvl(numActivitiesCompleted: songEntry.numListens + songEntry.numLyricChallengesCompleted)
-                        ] += 1
+                        let totalActivities = (songEntry.numListens ?? 0) + (songEntry.numLyricChallengesCompleted ?? 0)
+                        
+                        masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: totalActivities)] += 1
                     }
                 } catch {
                     print("Request failed: \(error)")
@@ -144,17 +146,17 @@ struct SongRow: View {
                         )
 
                     // Map the Int mastery level back to text
-                    Text("\(Constants.songsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numLyricChallengesCompleted)] ?? "Lvl")")
+                    Text("\(Constants.songsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: (entry.numListens ?? 0) + (entry.numLyricChallengesCompleted ?? 0))] ?? "Lvl")")
                         .lineLimit(1)
                         .foregroundColor(.black)
                         .font(.system(size: 12))
                 }
                 
-                Label("\(entry.numListens) Listens", systemImage: "headphones.over.ear")
+                Label("\(entry.numListens ?? 0) Listens", systemImage: "headphones.over.ear")
                     .font(.system(size: 12))
                     .foregroundColor(.black)
                 
-                Label("\(entry.numLyricChallengesCompleted) Practices", systemImage: "square.and.pencil")
+                Label("\(entry.numLyricChallengesCompleted ?? 0) Practices", systemImage: "square.and.pencil")
                     .font(.system(size: 12))
                     .foregroundColor(.black)
             }
@@ -165,7 +167,8 @@ struct SongRow: View {
 }
 
 private func getMasteryLvlFillColor(_ songEntry: UserSongEntry) -> LinearGradient {
-    let masteryLvl = calculateMasteryLvl(numActivitiesCompleted: songEntry.numListens + songEntry.numLyricChallengesCompleted)
+    let totalActivities = (songEntry.numListens ?? 0) + (songEntry.numLyricChallengesCompleted ?? 0)
+    let masteryLvl = calculateMasteryLvl(numActivitiesCompleted: totalActivities)
     let color: LinearGradient = Constants.masteryLvlToFillColor[masteryLvl] ?? Constants.green
     return color
     
