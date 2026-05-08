@@ -102,14 +102,16 @@ struct WordBank: View {
             .background(Constants.amber_tide)
             .task {
                 do {
-                    let wordBankData = try await NetworkManager.shared.fetchWordBankScreenData(userId: "1")
+                    let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                    let wordBankData = try await NetworkManager.shared.fetchWordBankScreenData(userId: userID)
                     self.userWords = wordBankData.userWordData
+                    self.masteryLvlCounts = [0, 0, 0, 0] //rsets count so dnot double up if view reloads
                     for wordEntry in self.userWords {
                         masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: wordEntry.numListens + wordEntry.numPracticesCompleted)
                         ] += 1
                     }
                 } catch {
-                    print("Request failed: \(error)")
+                    print("WordBank Request failed: \(error)")
                 }
             }
         }
