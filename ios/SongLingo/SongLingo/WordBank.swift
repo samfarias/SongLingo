@@ -107,8 +107,8 @@ struct WordBank: View {
                     self.userWords = wordBankData.userWordData
                     self.masteryLvlCounts = [0, 0, 0, 0] //rsets count so dnot double up if view reloads
                     for wordEntry in self.userWords {
-                        masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: wordEntry.numListens + wordEntry.numPracticesCompleted)
-                        ] += 1
+                        let total = wordEntry.numListens + wordEntry.numPracticesCompleted
+                        masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: total)] += 1
                     }
                 } catch {
                     print("WordBank Request failed: \(error)")
@@ -128,7 +128,7 @@ struct WordRow: View {
                     .font(.title2)
                     .foregroundColor(.black)
                 
-                Text("(\(entry.word.translation))")
+                Text("(\(entry.word.translation ?? ""))")
                     .font(.system(size: 14))
                     .foregroundColor(.gray)
             }
@@ -154,12 +154,7 @@ struct WordRow: View {
                 }
                 
                 Label("\(entry.numListens) Listens", systemImage: "headphones.over.ear")
-                    .font(.system(size: 12))
-                    .foregroundColor(.black)
-                
                 Label("\(entry.numPracticesCompleted) Practices", systemImage: "square.and.pencil")
-                    .font(.system(size: 12))
-                    .foregroundColor(.black)
             }
             .padding(.horizontal)
         }
