@@ -134,4 +134,14 @@ struct Constants
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
+    
+    static let butterfly: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.150, green: 0.250, blue: 0.650),
+            Color(red: 0.700, green: 0.225, blue: 0.520),
+            Color(red: 0.850, green: 0.455, blue: 0.250),
+        ]),
+        startPoint: .top,
+        endPoint: .bottom
+    )
 }
