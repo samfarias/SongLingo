@@ -12,6 +12,7 @@ from dotenv import load_dotenv, find_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from .views_helpers import search_spotify_track
+from rest_framework.permissions import AllowAny
 
 load_dotenv(find_dotenv())
 
@@ -418,9 +419,11 @@ from mcp.client.sse import sse_client
 from mcp.client.session import ClientSession
 import json
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
 async def get_pronunciation(request, word):
-    # "mcp" is the exact container name from our docker-compose file!
-    mcp_url = "http://mcp:8001/sse"
+    
+    mcp_url = "http://fastmcp:8001/sse"
     
     try:
         # connect to the fastmcp server
@@ -446,3 +449,17 @@ async def get_pronunciation(request, word):
                 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+    
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        # Get the standard tokens
+        data = super().validate(attrs)
+        # Add the user_id for the iOS app
+        data['user_id'] = self.user.id
+        return data
+
+class CustomLoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

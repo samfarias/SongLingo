@@ -31,6 +31,44 @@ class NetworkManager {
     // Prevents anyone else from creating another instance
     private init() {}
     
+    
+    //-----logging in
+    // Template
+    struct LoginResponse: Codable {
+        let user_id: Int
+        let access: String
+        let refresh: String
+    }
+
+    // the lil engine
+    func login(email: String, password: String) async throws -> LoginResponse {
+        // Uses already-defined baseURL
+        guard let url = URL(string: "\(baseURL)/login/") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: String] = ["email": email, "password": password]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+        
+        // Save the JWT token so other requests work :)
+        UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+        
+        //return try JSONDecoder().decode(LoginResponse.self, from: data)
+        
+        return decodedResponse
+    }
+    
     // MARK: - Authentication Helper (The Bridge)
     
     /// Automatically attaches the JWT "VIP Wristband" to outgoing requests

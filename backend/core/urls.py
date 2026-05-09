@@ -2,9 +2,11 @@ from django.urls import path
 from .views import GenerateWeeklyDropView
 from .views import (HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
                     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
-                    updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise, getLyricMatchExercise
+                    updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise, getLyricMatchExercise,
+                    get_pronunciation, CustomLoginView
 )
 from . import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('home/', HomeScreenView.as_view(), name='home'),
@@ -19,5 +21,7 @@ urlpatterns = [
     path('word-card-exercise', getWordCardExercise, name='word-card-excercise'),
     path('complete-the-lyric-exercise', getCompleteTheLyricExercise, name='complete-the-lyric-exercise'),
     path('lyric-match-exercise', getLyricMatchExercise, name='lyric-match-exercise'),
-    path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation')
+    path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation'),
+    path('login/', CustomLoginView.as_view(), name='login'), 
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
