@@ -23,10 +23,10 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-    private let baseURL = "http://68.183.31.175:8000/api"
+//    private let baseURL = "http://68.183.31.175:8000/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-    // private let baseURL = "http://localhost:8000/api"
+     private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
@@ -157,5 +157,20 @@ class NetworkManager {
         }
         
         return try JSONDecoder().decode(UserActivityData.self, from: data)
+    }
+    
+    func fetchWordCardExerciseData(userId: String) async throws -> WordCardExerciseData {
+        guard let url = URL(string: "\(baseURL)/word-card-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(WordCardExerciseData.self, from: data)
     }
 }
