@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct WordCards: View {
+    @State private var wordCardExerciseData: WordCardExerciseData?
+    
+    // distractors[i] is the list of distractors for the word at practiceWords[i]
+    @State private var practiceWords: [PracticeWord]?
+    @State private var distractors: [[String]]?
+    @State private var wordCardIdx = 0
+    
     @State private var progress: Double = 1.0
     @State private var remainingTime: TimeInterval = 60
     @State private var timer: Timer? = nil
     
-    @State private var currWord: String = "WORD"
+    @State private var currWord: String = ""
     @State private var currOptions: [String] = ["Option 1", "Option 2", "Option 3", "Option 4"]
     @State private var correctOptionIndex: Int = 0
     
@@ -67,7 +74,7 @@ struct WordCards: View {
                             HStack {
                                 Spacer()
                             }
-                            Text(currWord)
+                            Text("\(self.practiceWords?[wordCardIdx].wordText ?? "")")
                                 .foregroundColor(.black)
                                 .bold()
                                 .lineLimit(1)
@@ -148,6 +155,17 @@ struct WordCards: View {
                     totalWordCards: totalCardsAnswered,
                     totalTime: endTime != nil && startTime != nil ? endTime!.timeIntervalSince(startTime!) : 0
                 )
+            }
+            .task {
+                do {
+                    let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                    self.wordCardExerciseData = try await NetworkManager.shared.fetchWordCardExerciseData(userId: userID)
+                    self.practiceWords = self.wordCardExerciseData?.practiceWords
+                    self.distractors = self.wordCardExerciseData?.wordDistractors
+                    
+                } catch {
+                    print("Request failed: \(error)")
+                }
             }
         }
     }

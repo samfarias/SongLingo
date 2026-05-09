@@ -194,3 +194,31 @@ struct ActiveDate: Codable, Identifiable, Hashable {
         case date
     }
 }
+
+
+// MARK: - Word Card Exercise Models
+struct WordCardExerciseData: Codable {
+    let practiceWords: [PracticeWord]
+    let wordDistractors: [[String]]
+
+    enum CodingKeys: String, CodingKey {
+        case practiceWords = "practice_words"
+        case wordDistractors = "word_distractors"
+    }
+}
+
+struct PracticeWord: Codable {
+    let wordText: String
+    let translation: String
+    let pronunciation: String
+    let definition: String
+    let numPracticesCompleted: Int
+    let masteryLvl: Int
+
+    enum CodingKeys: String, CodingKey {
+        case wordText = "word_text"
+        case translation, pronunciation, definition
+        case numPracticesCompleted = "num_practices_completed"
+        case masteryLvl = "mastery_lvl"
+    }
+}
