@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from dotenv import load_dotenv, find_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from core.models import Playlist, Song, PlaylistSong, UserProfile //to talk to our DB
 
 # import this helper function
 from core.views_helpers import search_spotify_track
