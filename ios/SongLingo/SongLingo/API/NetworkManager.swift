@@ -15,6 +15,13 @@ struct HomeDataResponse: Codable {
     let message: String?
 }
 
+struct DjangoError: Codable {
+    let detail: String?
+    let username: [String]?
+    let password: [String]?
+    let non_field_errors: [String]?
+}
+
 // MARK: - Network Manager
 
 class NetworkManager {
@@ -23,10 +30,10 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-//    private let baseURL = "http://68.183.31.175:8000/api"
+    private let baseURL = "http://68.183.31.175:8000/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-     private let baseURL = "http://localhost:8000/api"
+//     private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
@@ -42,33 +49,59 @@ class NetworkManager {
 
     // the lil engine
     func login(email: String, password: String) async throws -> LoginResponse {
-        // Uses already-defined baseURL
-        guard let url = URL(string: "\(baseURL)/login/") else {
-            throw URLError(.badURL)
-        }
+        guard let url = URL(string: "\(baseURL)email/login/") else { throw URLError(.badURL) }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body: [String: String] = ["email": email, "password": password]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        let body: [String: String] = [
+            "username": email,
+            "password": password
+        ]
         
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
         }
+
+        if !(200...299).contains(httpResponse.statusCode) {
+            let rawError = String(data: data, encoding: .utf8) ?? "No error body"
+            print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
+            print(rawError)
+            
+            var message = "Login failed. Please check your information."
+            
+            if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
+                if let detail = decoded.detail {
+                    message = detail
+                } else if let general = decoded.non_field_errors?.first {
+                    message = general
+                } else if let userErr = decoded.username?.first {
+                    message = "Username: \(userErr)"
+                }
+            }
+            
+            // message in SwiftUI Alert
+            print("User-facing message: \(message)")
+            throw URLError(.badServerResponse)
+        }
+
+        // Success
         let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-        
-        // Save the JWT token so other requests work :)
         UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
-        
-        //return try JSONDecoder().decode(LoginResponse.self, from: data)
-        
         return decodedResponse
     }
     
+    struct DjangoError: Codable {
+        let detail: String?
+        let username: [String]?
+        let password: [String]?
+        let non_field_errors: [String]?
+    }
     // MARK: - Authentication Helper (The Bridge)
     
     /// Automatically attaches the JWT "VIP Wristband" to outgoing requests
