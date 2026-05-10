@@ -40,61 +40,70 @@ class NetworkManager {
     
     
     //-----logging in
-    // Template
     struct LoginResponse: Codable {
-        let user_id: Int
-        let access: String
-        let refresh: String
-    }
+    let user_id: Int
+    let access: String
+    let refresh: String
+    let first_name: String
+    let target_language: String
+    let proficiency_level: String
+}
 
     // the lil engine
     func login(email: String, password: String) async throws -> LoginResponse {
-        guard let url = URL(string: "\(baseURL)email/login/") else { throw URLError(.badURL) }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let body: [String: String] = [
-            "username": email,
-            "password": password
-        ]
-        
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+    // Keep this line (the one from your feature branch)
+    guard let url = URL(string: "\(baseURL)/login/") else { throw URLError(.badURL) }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    let body: [String: String] = [
+        "username": email,
+        "password": password
+    ]
+    
+    request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
-        }
-
-        if !(200...299).contains(httpResponse.statusCode) {
-            let rawError = String(data: data, encoding: .utf8) ?? "No error body"
-            print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
-            print(rawError)
-            
-            var message = "Login failed. Please check your information."
-            
-            if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
-                if let detail = decoded.detail {
-                    message = detail
-                } else if let general = decoded.non_field_errors?.first {
-                    message = general
-                } else if let userErr = decoded.username?.first {
-                    message = "Username: \(userErr)"
-                }
-            }
-            
-            // message in SwiftUI Alert
-            print("User-facing message: \(message)")
-            throw URLError(.badServerResponse)
-        }
-
-        // Success
-        let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-        UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
-        return decodedResponse
+    let (data, response) = try await URLSession.shared.data(for: request)
+    
+    guard let httpResponse = response as? HTTPURLResponse else {
+        throw URLError(.badServerResponse)
     }
+
+    if !(200...299).contains(httpResponse.statusCode) {
+        let rawError = String(data: data, encoding: .utf8) ?? "No error body"
+        print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
+        print(rawError)
+            
+        var message = "Login failed. Please check your information."
+            
+        if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
+            if let detail = decoded.detail {
+                message = detail
+             } else if let general = decoded.non_field_errors?.first {
+                message = general
+             } else if let userErr = decoded.username?.first {
+                message = "Username: \(userErr)"
+             }
+        }
+            
+        // message in SwiftUI Alert
+        print("User-facing message: \(message)")
+        throw URLError(.badServerResponse)
+    }
+
+    // --- Success Path ---
+    let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+    
+    // Save tokens and identity for the dashboard
+    UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+    UserDefaults.standard.set(decodedResponse.first_name, forKey: "user_first_name")
+    UserDefaults.standard.set(decodedResponse.target_language, forKey: "user_language")
+    UserDefaults.standard.set(decodedResponse.proficiency_level, forKey: "user_level")
+    
+    return decodedResponse
+}
     
     struct DjangoError: Codable {
         let detail: String?
