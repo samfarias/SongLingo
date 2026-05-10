@@ -3,6 +3,9 @@ from .models import (
     Language, Genre, UserProfile, GenreSelection, UserActivity, DaysActive,
     Word, UserWord, Song, UserSong, Playlist, PlaylistSong
 )
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .models import UserProfile # cite: models.py
 
 ########################
 # Supporting Model Serializers
@@ -126,3 +129,62 @@ class SuggestedPlaylistsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = ['playlist_name', 'language', 'genre', 'last_date_played', 'created_date', 'proficiency_level']
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Pack the extra data into the JSON response
+        data['first_name'] = self.user.first_name
+        data['target_language'] = self.user.profile.target_language
+        data['proficiency_level'] = self.user.profile.proficiency_level
+        return data
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        profile = getattr(self.user, 'userprofile', None)
+        
+        data['user_id'] = self.user.id
+        
+        if profile:
+            data['first_name'] = profile.first_name or "User"
+            
+            if profile.target_language:
+                data['target_language'] = profile.target_language.language_name
+            else:
+                data['target_language'] = "None"
+                
+            data['proficiency_level'] = profile.proficiency_level
+        else:
+            data['first_name'] = "User"
+            data['target_language'] = "None"
+            data['proficiency_level'] = "Beginner"
+            
+        return data
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        profile = getattr(self.user, 'userprofile', None)
+        
+        data['user_id'] = self.user.id
+        
+        if profile:
+            data['first_name'] = profile.first_name or "User"
+            
+            if profile.target_language:
+                data['target_language'] = profile.target_language.language_name
+            else:
+                data['target_language'] = "Language"
+                
+            data['proficiency_level'] = profile.proficiency_level
+        else:
+            data['first_name'] = "User"
+            data['target_language'] = "Language"
+            data['proficiency_level'] = "Beginner"
+            
+        return data
+class CustomLoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
