@@ -244,4 +244,19 @@ class NetworkManager {
         
         return try JSONDecoder().decode(WordCardExerciseData.self, from: data)
     }
+    
+    func fetchCompleteTheLyricExerciseData(userId: String) async throws -> LyricChallengeData {
+        guard let url = URL(string: "\(baseURL)/complete-the-lyric-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(LyricChallengeData.self, from: data)
+    }
 }

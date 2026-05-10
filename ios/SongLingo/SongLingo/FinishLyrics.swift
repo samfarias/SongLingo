@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FinishLyrics: View {
+    @State private var lyricChallengeData: LyricChallengeData?
     
     struct Lyric {
         let text: String
@@ -69,6 +70,14 @@ struct FinishLyrics: View {
             .onAppear {
                 startTime = Date()
                 loadNewLyric()
+            }
+            .task {
+                do {
+                    let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                    self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData(userId: userID)
+                } catch {
+                    print("Request failed: \(error)")
+                }
             }
         }
     }

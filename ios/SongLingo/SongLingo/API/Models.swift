@@ -222,3 +222,24 @@ struct PracticeWord: Codable {
         case masteryLvl = "mastery_lvl"
     }
 }
+
+// MARK: - Complete the Lyric Exercise Models
+struct LyricChallengeData: Codable {
+    let lyric: String
+    let missingWord: String
+    let distractorWords: [String]
+    let songTitle: String
+    let songArtist: String
+    
+    var buttonOptions: [String] {
+        (distractorWords + [missingWord]).shuffled()
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case lyric
+        case missingWord = "missing_word"
+        case distractorWords = "distractor_words"
+        case songTitle = "song_title"
+        case songArtist = "song_artist"
+    }
+}

@@ -13,6 +13,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from .views_helpers import search_spotify_track
 from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 
 load_dotenv(find_dotenv())
 

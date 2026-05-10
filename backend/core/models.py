@@ -133,7 +133,7 @@ class Playlist(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
     playlist_name = models.CharField(max_length=200)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
-    genre = models.ForeignKey(Genre, null=False, on_delete=models.SET_NULL, related_name='playlist')
+    genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, blank=True, related_name='playlist')
     description = models.TextField(blank=True)
     last_date_played = models.DateField(null=True, blank=True, default=None)
     num_days_listened = models.IntegerField(default=0)
