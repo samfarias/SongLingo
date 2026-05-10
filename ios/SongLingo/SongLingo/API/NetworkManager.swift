@@ -40,16 +40,18 @@ class NetworkManager {
     
     
     //-----logging in
-    // Template
     struct LoginResponse: Codable {
-        let user_id: Int
-        let access: String
-        let refresh: String
-    }
+    let user_id: Int
+    let access: String
+    let refresh: String
+    let first_name: String
+    let target_language: String
+    let proficiency_level: String
+}
 
     // the lil engine
     func login(email: String, password: String) async throws -> LoginResponse {
-        guard let url = URL(string: "\(baseURL)email/login/") else { throw URLError(.badURL) }
+        guard let url = URL(string: "\(baseURL)/login/") else { throw URLError(.badURL) }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -93,6 +95,9 @@ class NetworkManager {
         // Success
         let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
         UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+        UserDefaults.standard.set(decodedResponse.first_name, forKey: "user_first_name")
+        UserDefaults.standard.set(decodedResponse.target_language, forKey: "user_language")
+        UserDefaults.standard.set(decodedResponse.proficiency_level, forKey: "user_level")
         return decodedResponse
     }
     
@@ -243,5 +248,20 @@ class NetworkManager {
         }
         
         return try JSONDecoder().decode(WordCardExerciseData.self, from: data)
+    }
+    
+    func fetchCompleteTheLyricExerciseData(userId: String) async throws -> LyricChallengeData {
+        guard let url = URL(string: "\(baseURL)/complete-the-lyric-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(LyricChallengeData.self, from: data)
     }
 }
