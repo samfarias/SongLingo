@@ -41,13 +41,13 @@ class NetworkManager {
     
     //-----logging in
     struct LoginResponse: Codable {
-    let user_id: Int
-    let access: String
-    let refresh: String
-    let first_name: String
-    let target_language: String
-    let proficiency_level: String
-}
+        let user_id: Int
+        let access: String
+        let refresh: String
+        let first_name: String
+        let target_language: String
+        let proficiency_level: String
+    }
 
     // the lil engine
     func login(email: String, password: String) async throws -> LoginResponse {
@@ -74,9 +74,9 @@ class NetworkManager {
             let rawError = String(data: data, encoding: .utf8) ?? "No error body"
             print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
             print(rawError)
-            
+                
             var message = "Login failed. Please check your information."
-            
+                
             if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
                 if let detail = decoded.detail {
                     message = detail
@@ -86,27 +86,24 @@ class NetworkManager {
                     message = "Username: \(userErr)"
                 }
             }
-            
+                
             // message in SwiftUI Alert
             print("User-facing message: \(message)")
             throw URLError(.badServerResponse)
         }
 
-        // Success
+        // --- Success Path ---
         let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+        
+        // Save tokens and identity for the dashboard
         UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
         UserDefaults.standard.set(decodedResponse.first_name, forKey: "user_first_name")
         UserDefaults.standard.set(decodedResponse.target_language, forKey: "user_language")
         UserDefaults.standard.set(decodedResponse.proficiency_level, forKey: "user_level")
+        
         return decodedResponse
     }
     
-    struct DjangoError: Codable {
-        let detail: String?
-        let username: [String]?
-        let password: [String]?
-        let non_field_errors: [String]?
-    }
     // MARK: - Authentication Helper (The Bridge)
     
     /// Automatically attaches the JWT "VIP Wristband" to outgoing requests
@@ -170,98 +167,5 @@ class NetworkManager {
         
         // decode the JSON
         return try JSONDecoder().decode(HomeDataResponse.self, from: data)
-    }
-    
-    // MARK: - Austin's Migrated Request Methods
-    
-    func fetchMySongsData(userId: String) async throws -> MySongsData {
-        guard let url = URL(string: "\(baseURL)/songs-listened?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        // uses our JWT Auth Helper
-        let request = createAuthenticatedRequest(url: url)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return try JSONDecoder().decode(MySongsData.self, from: data)
-    }
-    
-    func fetchHomeScreenData(userId: String) async throws -> HomeScreenData {
-        guard let url = URL(string: "\(baseURL)/home?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        let request = createAuthenticatedRequest(url: url)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return try JSONDecoder().decode(HomeScreenData.self, from: data)
-    }
-    
-    func fetchWordBankScreenData(userId: String) async throws -> WordBankData {
-        guard let url = URL(string: "\(baseURL)/words-learned?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        let request = createAuthenticatedRequest(url: url)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return try JSONDecoder().decode(WordBankData.self, from: data)
-    }
-    
-    func fetchUserActivityScreenData(userId: String) async throws -> UserActivityData {
-        guard let url = URL(string: "\(baseURL)/user-activity?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        let request = createAuthenticatedRequest(url: url)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return try JSONDecoder().decode(UserActivityData.self, from: data)
-    }
-    
-    func fetchWordCardExerciseData(userId: String) async throws -> WordCardExerciseData {
-        guard let url = URL(string: "\(baseURL)/word-card-exercise?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        let request = createAuthenticatedRequest(url: url)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return try JSONDecoder().decode(WordCardExerciseData.self, from: data)
-    }
-    
-    func fetchCompleteTheLyricExerciseData(userId: String) async throws -> LyricChallengeData {
-        guard let url = URL(string: "\(baseURL)/complete-the-lyric-exercise?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        let request = createAuthenticatedRequest(url: url)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return try JSONDecoder().decode(LyricChallengeData.self, from: data)
     }
 }
