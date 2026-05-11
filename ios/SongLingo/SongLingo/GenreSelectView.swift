@@ -7,11 +7,13 @@
 
 import SwiftUI
 
-struct GenreSelectView: View {
+struct GenreSelectionView: View {
+    var selectedLanguage: String
+    var selectedProficiency: String
     
     let genres = [
         "Mood", "Pop", "Country & Folk",
-        "Rock", "Jazz & Blues", "Latino"
+        "Rock", "Jazz & Blues", "Reggaeton"
     ]
     
     let columns = [
@@ -135,5 +137,5 @@ struct GenreSelectView: View {
 }
 
 #Preview {
-    GenreSelectView()
+    GenreSelectionView(selectedLanguage: "Spanish", selectedProficiency: "Beginner")
 }

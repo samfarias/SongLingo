@@ -48,15 +48,15 @@ class NetworkManager {
     }
 
     // the lil engine
-    func login(email: String, password: String) async throws -> LoginResponse {
-        guard let url = URL(string: "\(baseURL)email/login/") else { throw URLError(.badURL) }
+    func login(username: String, password: String) async throws -> LoginResponse {
+        guard let url = URL(string: "\(baseURL)/login/") else { throw URLError(.badURL) }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body: [String: String] = [
-            "username": email,
+            "username": username,
             "password": password
         ]
         
@@ -69,31 +69,34 @@ class NetworkManager {
         }
 
         if !(200...299).contains(httpResponse.statusCode) {
-            let rawError = String(data: data, encoding: .utf8) ?? "No error body"
-            print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
-            print(rawError)
-            
-            var message = "Login failed. Please check your information."
-            
+                    
+            var errorMessage = "Login failed. Please check your information."
+                    
             if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
                 if let detail = decoded.detail {
-                    message = detail
+                        errorMessage = detail
                 } else if let general = decoded.non_field_errors?.first {
-                    message = general
+                        errorMessage = general
                 } else if let userErr = decoded.username?.first {
-                    message = "Username: \(userErr)"
+                        errorMessage = "Username: \(userErr)"
                 }
             }
-            
-            // message in SwiftUI Alert
-            print("User-facing message: \(message)")
+                    
+            print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
+            print("User-facing message: \(errorMessage)")
+                    
             throw URLError(.badServerResponse)
         }
 
-        // Success
+        // SUCCESS
         let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+                
         UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+                
+        UserDefaults.standard.set(String(decodedResponse.user_id), forKey: "user_id")
+                
         return decodedResponse
+
     }
     
     struct DjangoError: Codable {
@@ -102,6 +105,52 @@ class NetworkManager {
         let password: [String]?
         let non_field_errors: [String]?
     }
+    
+    func register(username: String, password: String) async throws -> LoginResponse {
+            guard let url = URL(string: "\(baseURL)/register/") else { throw URLError(.badURL) }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let body: [String: String] = [
+                "username": username,
+                "password": password
+            ]
+            
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
+
+            // ERROR HANDLING
+            if !(200...299).contains(httpResponse.statusCode) {
+                var errorMessage = "Registration failed. Please try again."
+                
+                if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
+                    if let userErr = decoded.username?.first {
+                        errorMessage = "Username: \(userErr)" // e.g., "A user with that username already exists."
+                    } else if let passErr = decoded.password?.first {
+                        errorMessage = "Password: \(passErr)"
+                    }
+                }
+                
+                print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
+                print("User-facing message: \(errorMessage)")
+                throw URLError(.badServerResponse)
+            }
+
+            // SUCCESS: Save tokens and user info, just like login!
+            let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+            UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+            UserDefaults.standard.set(String(decodedResponse.user_id), forKey: "user_id")
+            
+            return decodedResponse
+        }
+    
     // MARK: - Authentication Helper (The Bridge)
     
     /// Automatically attaches the JWT "VIP Wristband" to outgoing requests
@@ -120,6 +169,38 @@ class NetworkManager {
     }
     
     // MARK: - API Calls
+    
+    func updateProfile(proficiency: String, language: String, genres: [String]) async throws {
+        guard let url = URL(string: "\(baseURL)/update-profile/") else { throw URLError(.badURL) }
+        
+        guard let savedToken = UserDefaults.standard.string(forKey: "authToken") else {
+            print("DEBUG: No token found in UserDefaults")
+            throw URLError(.userAuthenticationRequired)
+        }
+        
+        let body: [String: Any] = [
+            "proficiency_level": proficiency,
+            "target_language": language,
+            "genres": genres
+        ]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.addValue("Bearer \(savedToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("DEBUG: Update Profile Status: \(httpResponse.statusCode)")
+            if httpResponse.statusCode != 200 {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("DEBUG: Server error message: \(errorMsg)")
+            }
+        }
+    }
     
     /// Jaci's Word Card FastMCP Fetcher
     func fetchPronunciation(for word: String) async throws -> PronunciationResponse {
@@ -151,7 +232,7 @@ class NetworkManager {
             throw URLError(.badURL)
         }
         
-        // build the request using your Auth Helper
+        // build the request using our Auth Helper
         let request = createAuthenticatedRequest(url: url)
         
         // make the call
@@ -193,7 +274,14 @@ class NetworkManager {
         let request = createAuthenticatedRequest(url: url)
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            let rawError = String(data: data, encoding: .utf8) ?? "No error body"
+            print("--- DASHBOARD REJECTION: \(httpResponse.statusCode) ---")
+            print(rawError)
             throw URLError(.badServerResponse)
         }
         
