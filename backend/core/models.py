@@ -24,8 +24,8 @@ class Genre(models.Model):
 ########################
 
 class UserProfile(models.Model):
-    # # Links this profile to the built-in Django Auth system
-    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    # Links this profile to the built-in Django Auth system
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
     first_name = models.CharField(max_length=100, null=True)
     last_name = models.CharField(max_length=100, null=True)
@@ -107,7 +107,7 @@ class Song(models.Model):
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(
-        max_length=20, 
+        max_length=20,
         choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Advanced', 'Advanced')],
         default='Beginner'
     )
@@ -116,6 +116,7 @@ class Song(models.Model):
         return f"{self.title} - {self.artist}"
 
 class UserSong(models.Model):
+
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_song')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_progress')
     num_listens = models.IntegerField(default=0)
@@ -140,7 +141,7 @@ class Playlist(models.Model):
     num_song_listens = models.IntegerField(default=0)
     created_date = models.DateField(auto_now_add=True)
     proficiency_level = models.CharField(
-        max_length=20, 
+        max_length=20,
         choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Advanced', 'Advanced')],
         default='Beginner'
     )
@@ -154,3 +155,28 @@ class PlaylistSong(models.Model):
 
     def __str__(self):
         return f"{self.playlist} - {self.song}"
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from .models import UserProfile, UserActivity, Language
+
+# This listens for any time a new User is created
+@receiver(post_save, sender=User)
+def create_user_data(sender, instance, created, **kwargs):
+    if created:
+        spanish_lang, _ = Language.objects.get_or_create(language_name="Spanish")
+        profile = UserProfile.objects.create(
+        user=instance,
+        first_name=instance.username,
+        last_name="",
+        target_language=spanish_lang,
+        proficiency_level="Beginner"
+        )
+
+        #  instantiate the Streak by linking it to the profile we just created!
+        UserActivity.objects.create(
+            user_profile=profile,
+            current_streak=1,
+            longest_streak=1
+        )
