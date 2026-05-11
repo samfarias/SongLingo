@@ -30,10 +30,10 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-    private let baseURL = "http://68.183.31.175:8000/api"
+//    private let baseURL = "http://68.183.31.175:8000/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-//     private let baseURL = "http://localhost:8000/api"
+     private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
@@ -145,28 +145,6 @@ class NetworkManager {
         return try JSONDecoder().decode(PronunciationResponse.self, from: data)
     }
     
-    /// Austin's Home Screen Data Fetcher
-    func fetchHomeScreenData(userId: String) async throws -> HomeDataResponse {
-        guard let url = URL(string: "\(baseURL)/home/?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        // build the request using your Auth Helper
-        let request = createAuthenticatedRequest(url: url)
-        
-        // make the call
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        // check for a 200 OK from Django
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            print("Server error while fetching home data.")
-            throw URLError(.badServerResponse)
-        }
-        
-        // decode the JSON
-        return try JSONDecoder().decode(HomeDataResponse.self, from: data)
-    }
-    
     // MARK: - Austin's Migrated Request Methods
     
     func fetchMySongsData(userId: String) async throws -> MySongsData {
@@ -258,5 +236,20 @@ class NetworkManager {
         }
         
         return try JSONDecoder().decode(LyricChallengeData.self, from: data)
+    }
+    
+    func fetchPlaylistCollectionData(userId: String) async throws -> PlaylistCollectionData {
+        guard let url = URL(string: "\(baseURL)/playlist-collection?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(PlaylistCollectionData.self, from: data)
     }
 }

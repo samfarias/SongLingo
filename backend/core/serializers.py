@@ -111,7 +111,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
 class PlaylistCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = ['playlist_name', 'genre', 'proficiency_level', 'last_date_played']
+        fields = '__all__'
 
 class PlaylistSongSerializer(serializers.ModelSerializer):
     class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):

@@ -378,7 +378,6 @@ struct Dashboard: View {
                 .padding()
                 
             }
-            //.background(Constants.butterfly)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [
