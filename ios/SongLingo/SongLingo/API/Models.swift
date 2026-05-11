@@ -60,7 +60,10 @@ struct SuggestedPlaylists: Codable {
     }
 }
 
-struct Playlist: Codable {
+struct Playlist: Codable, Identifiable {
+    // SwiftUI specifically looks for a property named 'id'
+    var id: String { playlistName }
+    
     let playlistName: String
     let language: Int
     let genre: Int?
@@ -241,5 +244,27 @@ struct LyricChallengeData: Codable {
         case distractorWords = "distractor_words"
         case songTitle = "song_title"
         case songArtist = "song_artist"
+    }
+}
+
+// MARK: - Playlist Collection View models
+
+struct PlaylistCollectionData: Codable {
+    let playlistCollections: PlaylistCollections
+
+    enum CodingKeys: String, CodingKey {
+        case playlistCollections = "playlist_collections"
+    }
+}
+
+struct PlaylistCollections: Codable {
+    let recentlyPlayed: [Playlist]
+    let newPlaylists: [Playlist]
+    let itsBeenAWhile: [Playlist]
+
+    enum CodingKeys: String, CodingKey {
+        case recentlyPlayed = "recently_played"
+        case newPlaylists = "new_playlists"
+        case itsBeenAWhile = "its_been_a_while"
     }
 }

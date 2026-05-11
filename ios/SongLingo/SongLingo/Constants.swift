@@ -144,4 +144,14 @@ struct Constants
         startPoint: .top,
         endPoint: .bottom
     )
+    
+    static let twilight_synth: LinearGradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.450, green: 0.380, blue: 0.650),
+            Color(red: 0.300, green: 0.500, blue: 0.700),
+            Color(red: 0.250, green: 0.550, blue: 0.450)
+        ]),
+        startPoint: .top,
+        endPoint: .bottom
+    )
 }
