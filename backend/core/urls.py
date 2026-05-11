@@ -3,7 +3,7 @@ from .views import (
     HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
     updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise,
-    getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, 
+    getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, UpdateProfileView,
     GenerateWeeklyDropView
 )
 from . import views
