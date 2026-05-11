@@ -1,10 +1,3 @@
-//
-//  Login.swift
-//  SongLingo
-//
-//  Created by Derek Huang on 3/30/26.
-//
-
 import SwiftUI
 
 struct LangSelectionView: View {
@@ -105,10 +98,10 @@ struct LangSelectionView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             
-                            NavigationLink(destination: ProficiencyView()) {
+                            // NOTE: Still a NavigationLink! We will change this to a Button + Task when we build the PUT request next.
+                            NavigationLink(destination: ProficiencyView(selectedLanguage: languages[selectedLanguage ?? 0].name)) {
                                 Text("Continue")
-                            }
-                            .fontWeight(.semibold)
+                            }                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(Color(red: 0.486, green: 0.227, blue: 0.929))
@@ -121,6 +114,7 @@ struct LangSelectionView: View {
                     .padding(.vertical, 26)
                     .padding(.horizontal, 22)
                     .background(Color.white.opacity(0.95))
+                    .foregroundColor(.black) // <-- THE FIX
                     .cornerRadius(28)
                     .padding(.horizontal, 34)
 

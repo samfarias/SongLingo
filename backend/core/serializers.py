@@ -1,11 +1,11 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import (
     Language, Genre, UserProfile, GenreSelection, UserActivity, DaysActive,
     Word, UserWord, Song, UserSong, Playlist, PlaylistSong
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import UserProfile # cite: models.py
 
 ########################
 # Supporting Model Serializers
@@ -46,6 +46,21 @@ class DaysActiveSerializer(serializers.ModelSerializer):
         model = DaysActive
         fields = ['date']
 
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    # write_only ensures the password is never accidentally sent back in a response
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+    def create(self, validated_data):
+        # create_user automatically handles the secure password hashing
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
+        return user
 
 ########################
 # Word Model Serializers

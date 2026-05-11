@@ -111,7 +111,7 @@ struct Login: View {
         Task {
             do {
                 // 1. Tell the server who is trying to log in
-                let response = try await NetworkManager.shared.login(email: email, password: password)
+                let response = try await NetworkManager.shared.login(username: email, password: password)
                 
                 // 2. SAVE the real ID to the backpack!
                 // We use String() because your Dashboard is looking for a string.
