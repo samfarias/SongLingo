@@ -21,7 +21,7 @@ load_dotenv(find_dotenv())
 
 from .models import (
   UserProfile, Song, UserWord, UserSong, UserActivity, DaysActive, Playlist,
-  PlaylistSong, Word, Language, Genre, Genre Selection
+  PlaylistSong, Word, Language, Genre, GenreSelection
 )
 from .serializers import (
     SongSerializer, UserProfileSerializer, UserWordSerializer, UserSongSerializer,
