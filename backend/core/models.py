@@ -107,7 +107,7 @@ class Song(models.Model):
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(
-        max_length=20, 
+        max_length=20,
         choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Advanced', 'Advanced')],
         default='Beginner'
     )
@@ -141,7 +141,7 @@ class Playlist(models.Model):
     num_song_listens = models.IntegerField(default=0)
     created_date = models.DateField(auto_now_add=True)
     proficiency_level = models.CharField(
-        max_length=20, 
+        max_length=20,
         choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Advanced', 'Advanced')],
         default='Beginner'
     )
@@ -165,15 +165,15 @@ from .models import UserProfile, UserActivity, Language
 @receiver(post_save, sender=User)
 def create_user_data(sender, instance, created, **kwargs):
     if created:
-	spanish_lang, _ = Language.objects.get_or_create(language_name="Spanish")       
+        spanish_lang, _ = Language.objects.get_or_create(language_name="Spanish")
         profile = UserProfile.objects.create(
-            user=instance,
-            first_name=instance.username,
-            last_name="",
-	    target_language=spanish_lang,
-            proficiency_level="Beginner" 
+        user=instance,
+        first_name=instance.username,
+        last_name="",
+        target_language=spanish_lang,
+        proficiency_level="Beginner"
         )
-        
+
         #  instantiate the Streak by linking it to the profile we just created!
         UserActivity.objects.create(
             user_profile=profile,
