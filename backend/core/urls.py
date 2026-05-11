@@ -25,5 +25,6 @@ urlpatterns = [
     path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterView.as_view(), name='register'), 
+    path('register/', RegisterView.as_view(), name='register'),
+    path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
 ]

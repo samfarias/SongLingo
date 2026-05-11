@@ -15,12 +15,13 @@ from .views_helpers import search_spotify_track
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 load_dotenv(find_dotenv())
 
 from .models import (
   UserProfile, Song, UserWord, UserSong, UserActivity, DaysActive, Playlist,
-  PlaylistSong, Word
+  PlaylistSong, Word, Language, Genre, Genre Selection
 )
 from .serializers import (
     SongSerializer, UserProfileSerializer, UserWordSerializer, UserSongSerializer,
@@ -91,7 +92,31 @@ class HomeScreenView(APIView):
                 "new_playlist": new_playlist_serialized
             }
         })
-    
+
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        profile = user.userprofile
+        data = request.data
+
+        if 'proficiency_level' in data:
+            profile.proficiency_level = data['proficiency_level']
+        
+        if 'target_language' in data:
+            lang, _ = Language.objects.get_or_create(language_name=data['target_language'])
+            profile.target_language = lang
+            
+        profile.save()
+
+        if 'genres' in data:
+            GenreSelection.objects.filter(user_profile=profile).delete()
+            for genre_name in data['genres']:
+                genre, _ = Genre.objects.get_or_create(name=genre_name)
+                GenreSelection.objects.create(user_profile=profile, genre=genre)
+
+        return Response({"message": "Profile updated successfully"})
 
 class WordsLearnedView(APIView):
     def get(self, request): # returns all data for the user's "Words Learned" screen
