@@ -355,4 +355,19 @@ class NetworkManager {
         
         return try JSONDecoder().decode(LyricMatchingData.self, from: data)
     }
+    
+    func fetchSinglePlaylistData(playlistId: String) async throws -> SinglePlaylistData {
+        guard let url = URL(string: "\(baseURL)/playlist?playlist_id=\(playlistId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(SinglePlaylistData.self, from: data)
+    }
 }

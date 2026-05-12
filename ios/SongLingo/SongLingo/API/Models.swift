@@ -284,3 +284,61 @@ struct LyricMatchingData: Codable {
         case songArtist = "song_artist"
     }
 }
+
+// MARK: - SinglePlaylist View models
+
+struct SinglePlaylistData: Codable {
+    let playlistInfo: DetailedPlaylistInfo
+    let playlistSongs: [PlaylistSongEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case playlistInfo = "playlist_info"
+        case playlistSongs = "playlist_songs"
+    }
+}
+
+struct DetailedPlaylistInfo: Codable {
+    let id: Int
+    let playlistName: String
+    let description: String
+    let lastDatePlayed: String?
+    let numDaysListened: Int
+    let numSongListens: Int
+    let createdDate: String
+    let proficiencyLevel: String
+    let userProfile: Int
+    let language: Int
+    let genre: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case playlistName = "playlist_name"
+        case description
+        case lastDatePlayed = "last_date_played"
+        case numDaysListened = "num_days_listened"
+        case numSongListens = "num_song_listens"
+        case createdDate = "created_date"
+        case proficiencyLevel = "proficiency_level"
+        case userProfile = "user_profile"
+        case language, genre
+    }
+}
+
+struct PlaylistSongEntry: Codable, Identifiable {
+    // Unique ID for SwiftUI rendering
+    var id: String { song.title + song.artist }
+    
+    let song: DetailedSong
+}
+
+struct DetailedSong: Codable {
+    let title: String
+    let artist: String
+    let proficiencyLevel: String
+    let genre: Int
+
+    enum CodingKeys: String, CodingKey {
+        case title, artist, genre
+        case proficiencyLevel = "proficiency_level"
+    }
+}
