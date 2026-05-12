@@ -15,10 +15,10 @@ struct WordCardsResult: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.yellow.opacity(0.65),
-                    Color.purple.opacity(0.8),
-                ]),
+                colors: [
+                    Color(red: 0.050, green: 0.120, blue: 0.150),
+                    Color(red: 0.110, green: 0.440, blue: 0.450),
+                    Color(red: 0.376, green: 0.450, blue: 0.450)],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -27,20 +27,23 @@ struct WordCardsResult: View {
             VStack {
                 ZStack {
                     PixelHeart()
-                        .fill(Color.black.opacity(0.25))
+                        .fill(Color.white.opacity(0.15))
                         .frame(width: 420, height: 420)
                         .shadow(radius: 4)
                         .overlay(
                             PixelHeart()
-                                .stroke(Color.black, lineWidth: 2)
+                                .stroke(Color.white.opacity(0.8), lineWidth: 2)
                             )
 
                     VStack(spacing: 10) {
                         Text("Game Over!")
+                            .foregroundColor(.white)
                             .font(.largeTitle)
                             .bold()
                         Text("Correct: \(wordCardsCorrect) / \(totalWordCards)")
+                            .foregroundColor(.white)
                         Text(String(format: "Total Time: %.1f seconds", totalTime))
+                            .foregroundColor(.white)
                     }
                     .padding(.bottom, 40)
                     .frame(width: 250, height: 300)
@@ -51,32 +54,32 @@ struct WordCardsResult: View {
                     NavigationLink(destination: PracticeGameOptions()) {
                         ZStack {
                             Rectangle()
-                                .fill(Color.black.opacity(0.15))
+                                .fill(Color.white.opacity(0.15))
                                 .frame(width: 100, height: 60)
                                 .overlay(
                                     Rectangle()
-                                        .stroke(Color.black, lineWidth: 4)
+                                        .stroke(Color.white, lineWidth: 4)
                                 )
                                 .cornerRadius(5)
 
                             Image(systemName: "arrow.uturn.backward")
-                                .foregroundColor(.black)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                     }
 
                     NavigationLink(destination: Dashboard()) {
                         ZStack {
                             Rectangle()
-                                .fill(Color.black.opacity(0.15))
+                                .fill(Color.white.opacity(0.15))
                                 .frame(width: 100, height: 60)
                                 .overlay(
                                     Rectangle()
-                                        .stroke(Color.black, lineWidth: 4)
+                                        .stroke(Color.white, lineWidth: 4)
                                 )
                                 .cornerRadius(5)
 
                             Image(systemName: "house.fill")
-                                .foregroundColor(.black)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                     }
                 }

@@ -25,66 +25,81 @@ struct FinishLyricsResults: View {
     }
 
     var body: some View {
-        VStack {
-            Spacer()
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.050, green: 0.120, blue: 0.150),
+                    Color(red: 0.110, green: 0.440, blue: 0.450),
+                    Color(red: 0.376, green: 0.450, blue: 0.450)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             
-            VStack(spacing: 20) {
-                Text(performanceMessage)
-                    .font(.title2)
-                    .bold()
-                    .multilineTextAlignment(.center)
-                    .padding()
+            VStack {
+                Spacer()
                 
-                Text("Time Spent: \(String(format: "%.2f", totalTime)) seconds")
-                Text("Correct Answers: \(correctAnswers) / \(totalQuestions)")
-                Text("")
-            }
-            .padding()
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.black, lineWidth: 4)
-                )
-            .background(Color.blue.opacity(0.5))
-            .cornerRadius(10)
-            .padding(.horizontal, 20)
+                VStack(spacing: 20) {
+                    Text(performanceMessage)
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                    
+                    Text("Time Spent: \(String(format: "%.2f", totalTime)) seconds")
+                        .foregroundColor(.white)
+                    Text("Correct Answers: \(correctAnswers) / \(totalQuestions)")
+                        .foregroundColor(.white)
+                    Text("")
+                }
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.white, lineWidth: 4)
+                    )
+                .background(Color.white.opacity(0.15))
+                .cornerRadius(10)
+                .padding(.horizontal, 20)
 
-            
-            HStack(spacing: 20) {
-                NavigationLink(destination: PracticeGameOptions()) {
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.blue.opacity(0.5))
-                            .frame(width: 100, height: 60)
-                            .overlay(
-                                Rectangle()
-                                    .stroke(Color.black, lineWidth: 4)
-                            )
-                            .cornerRadius(5)
+                
+                HStack(spacing: 20) {
+                    NavigationLink(destination: PracticeGameOptions()) {
+                        ZStack {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.15))
+                                .frame(width: 100, height: 60)
+                                .overlay(
+                                    Rectangle()
+                                        .stroke(Color.white, lineWidth: 4)
+                                )
+                                .cornerRadius(5)
 
-                        Image(systemName: "arrow.uturn.backward")
-                            .foregroundColor(.black)
+                            Image(systemName: "arrow.uturn.backward")
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                    }
+
+                    NavigationLink(destination: Dashboard()) {
+                        ZStack {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.15))
+                                .frame(width: 100, height: 60)
+                                .overlay(
+                                    Rectangle()
+                                        .stroke(Color.white, lineWidth: 4)
+                                )
+                                .cornerRadius(5)
+
+                            Image(systemName: "house.fill")
+                                .foregroundColor(.white.opacity(0.9))
+                        }
                     }
                 }
-
-                NavigationLink(destination: Dashboard()) {
-                    ZStack {
-                        Rectangle()
-                            .fill(Color.blue.opacity(0.5))
-                            .frame(width: 100, height: 60)
-                            .overlay(
-                                Rectangle()
-                                    .stroke(Color.black, lineWidth: 4)
-                            )
-                            .cornerRadius(5)
-
-                        Image(systemName: "house.fill")
-                            .foregroundColor(.black)
-                    }
-                }
+                .padding(.top, 30)
+                
+                Spacer()
             }
-            .padding(.top, 30)
-            
-            Spacer()
         }
     }
 }
