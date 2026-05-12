@@ -181,25 +181,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        
         profile = getattr(self.user, 'userprofile', None)
         
-        data['user_id'] = self.user.id
-        
         if profile:
+            # FIX: Send the profile ID
+            data['user_id'] = profile.id 
             data['first_name'] = profile.first_name or "User"
-            
-            if profile.target_language:
-                data['target_language'] = profile.target_language.language_name
-            else:
-                data['target_language'] = "Language"
-                
+            data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
             data['proficiency_level'] = profile.proficiency_level
         else:
+            data['user_id'] = self.user.id
             data['first_name'] = "User"
             data['target_language'] = "Language"
             data['proficiency_level'] = "Beginner"
             
         return data
-class CustomLoginView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
