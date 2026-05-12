@@ -39,20 +39,30 @@ struct PracticeGameOptions: View {
                         
                     }
                     
+                    
                     //Sends to Lyric Match Screen
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.2))
-                        VStack (alignment: .leading) {
-                            Text("Lyric Match")
-                                .foregroundStyle(Color.white.opacity(0.8))
-                                .bold()
-                                .font(.title2)
+                    NavigationLink(destination: LyricMatchView())
+                    {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.2))
+                                .shadow(
+                                    color: .black.opacity(0.25), radius: 3, x: 3, y: 3
+                                )
+                            VStack (alignment: .leading) {
+                                Text("Lyric Match")
+                                    .foregroundStyle(Color.white.opacity(0.8))
+                                    .bold()
+                                    .font(.title2)
+                                    .shadow(radius: 3, x: 3, y: 3)
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical)
                         }
                         .padding()
                         .padding(.bottom, 30)
                     }
-                    
+
                     //Sends to Complete the Lyrics Screen
                     NavigationLink(destination: FinishLyrics())
                     {
