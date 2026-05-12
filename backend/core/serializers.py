@@ -1,8 +1,11 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import (
     Language, Genre, UserProfile, GenreSelection, UserActivity, DaysActive,
     Word, UserWord, Song, UserSong, Playlist, PlaylistSong
 )
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 ########################
 # Supporting Model Serializers
@@ -43,6 +46,21 @@ class DaysActiveSerializer(serializers.ModelSerializer):
         model = DaysActive
         fields = ['date']
 
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    # write_only ensures the password is never accidentally sent back in a response
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+    def create(self, validated_data):
+        # create_user automatically handles the secure password hashing
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
+        return user
 
 ########################
 # Word Model Serializers
@@ -108,7 +126,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
 class PlaylistCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = ['playlist_name', 'genre', 'proficiency_level', 'last_date_played']
+        fields = '__all__'
 
 class PlaylistSongSerializer(serializers.ModelSerializer):
     class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):
@@ -126,3 +144,55 @@ class SuggestedPlaylistsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = ['playlist_name', 'language', 'genre', 'last_date_played', 'created_date', 'proficiency_level']
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Pack the extra data into the JSON response
+        data['first_name'] = self.user.first_name
+        data['target_language'] = self.user.profile.target_language
+        data['proficiency_level'] = self.user.profile.proficiency_level
+        return data
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        profile = getattr(self.user, 'userprofile', None)
+        
+        data['user_id'] = self.user.id
+        
+        if profile:
+            data['first_name'] = profile.first_name or "User"
+            
+            if profile.target_language:
+                data['target_language'] = profile.target_language.language_name
+            else:
+                data['target_language'] = "None"
+                
+            data['proficiency_level'] = profile.proficiency_level
+        else:
+            data['first_name'] = "User"
+            data['target_language'] = "None"
+            data['proficiency_level'] = "Beginner"
+            
+        return data
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        profile = getattr(self.user, 'userprofile', None)
+        
+        if profile:
+            # FIX: Send the profile ID
+            data['user_id'] = profile.id 
+            data['first_name'] = profile.first_name or "User"
+            data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
+            data['proficiency_level'] = profile.proficiency_level
+        else:
+            data['user_id'] = self.user.id
+            data['first_name'] = "User"
+            data['target_language'] = "Language"
+            data['proficiency_level'] = "Beginner"
+            
+        return data

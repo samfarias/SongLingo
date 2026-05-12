@@ -29,12 +29,14 @@ struct PracticeGameOptions: View {
                                     .foregroundStyle(Color.white.opacity(0.8))
                                     .bold()
                                     .font(.title2)
+                                    .shadow(radius: 3, x: 3, y: 3)
                             }
                             .padding(.horizontal)
                             .padding(.vertical)
                         }
                         .padding()
                         .padding(.bottom, 30)
+                        
                     }
                     
                     //Sends to Lyric Match Screen
@@ -47,11 +49,9 @@ struct PracticeGameOptions: View {
                                 .bold()
                                 .font(.title2)
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical)
+                        .padding()
+                        .padding(.bottom, 30)
                     }
-                    .padding()
-                    .padding(.bottom, 30)
                     
                     //Sends to Complete the Lyrics Screen
                     NavigationLink(destination: FinishLyrics())
@@ -64,6 +64,7 @@ struct PracticeGameOptions: View {
                                     .foregroundStyle(Color.white.opacity(0.8))
                                     .bold()
                                     .font(.title2)
+                                    .shadow(radius: 3, x: 3, y: 3)
                             }
                             .padding(.horizontal)
                             .padding(.vertical)

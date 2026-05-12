@@ -10,6 +10,7 @@ import SwiftUI
 struct Login: View {
     @State private var email = ""
     @State private var password = ""
+    @State private var navigateToHome = false
     
     var body: some View {
         NavigationStack {
@@ -48,7 +49,6 @@ struct Login: View {
                             .foregroundColor(.gray)
                     
                         VStack(alignment: .leading, spacing: 15) {
-                            
                             Text("Email")
                                 .fontWeight(.semibold)
                             
@@ -56,6 +56,7 @@ struct Login: View {
                                 .padding()
                                 .background(.gray.opacity(0.2))
                                 .cornerRadius(10)
+                                .autocapitalization(.none)
                             
                             Text("Password")
                                 .fontWeight(.semibold)
@@ -65,33 +66,33 @@ struct Login: View {
                                 .background(.gray.opacity(0.2))
                                 .cornerRadius(10)
                             
-                            // Navigate to a new Forgot Password Screen
                             Text("Forgot Password?")
                                 .foregroundColor(Color(red: 0.486, green: 0.227, blue: 0.929))
                             
-                            // Before going to the Dashboard, we need to verify if the login connects to an existing user first.
-                            NavigationLink(destination: ContentView()) {
+                            Button(action: handleLogin) {
                                 Text("Sign in")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 50)
+                                    .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
                             }
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
                             
                             Text("Don't have an account?")
                                 .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.top, 10)
                             
                             NavigationLink(destination: CreateAccView()) {
                                 Text("Create Account")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 50)
+                                    .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
                             }
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
                         }
                     }
                     .padding(25)
@@ -99,6 +100,31 @@ struct Login: View {
                     .cornerRadius(25)
                     .padding(.horizontal, 30)
                 }
+            }
+            //this listens for navigateToHome to become true, then slides to ContentView
+            .navigationDestination(isPresented: $navigateToHome) {
+                ContentView()
+                }
+        }
+    }
+    func handleLogin() {
+        Task {
+            do {
+                // 1. Tell the server who is trying to log in
+                let response = try await NetworkManager.shared.login(username: email, password: password)
+                
+                // 2. SAVE the real ID to the backpack!
+                // We use String() because your Dashboard is looking for a string.
+                UserDefaults.standard.set(String(response.user_id), forKey: "user_id")
+                
+                print("DEBUG: Successfully saved User ID: \(response.user_id)")
+                
+                // doorway to dashboard
+                navigateToHome = true
+                
+            } catch {
+                print("DEBUG: Login failed: \(error)")
+                // You could add an alert here later!
             }
         }
     }

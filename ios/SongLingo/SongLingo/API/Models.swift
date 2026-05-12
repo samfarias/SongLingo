@@ -60,7 +60,10 @@ struct SuggestedPlaylists: Codable {
     }
 }
 
-struct Playlist: Codable {
+struct Playlist: Codable, Identifiable {
+    // SwiftUI specifically looks for a property named 'id'
+    var id: String { playlistName }
+    
     let playlistName: String
     let language: Int
     let genre: Int?
@@ -192,5 +195,150 @@ struct ActiveDate: Codable, Identifiable, Hashable {
 
     enum CodingKeys: String, CodingKey {
         case date
+    }
+}
+
+
+// MARK: - Word Card Exercise Models
+struct WordCardExerciseData: Codable {
+    let practiceWords: [PracticeWord]
+    let wordDistractors: [[String]]
+
+    enum CodingKeys: String, CodingKey {
+        case practiceWords = "practice_words"
+        case wordDistractors = "word_distractors"
+    }
+}
+
+struct PracticeWord: Codable {
+    let wordText: String
+    let translation: String
+    let pronunciation: String
+    let definition: String
+    let numPracticesCompleted: Int
+    let masteryLvl: Int
+
+    enum CodingKeys: String, CodingKey {
+        case wordText = "word_text"
+        case translation, pronunciation, definition
+        case numPracticesCompleted = "num_practices_completed"
+        case masteryLvl = "mastery_lvl"
+    }
+}
+
+// MARK: - Complete the Lyric Exercise Models
+struct LyricChallengeData: Codable {
+    let lyric: String
+    let missingWord: String
+    let distractorWords: [String]
+    let songTitle: String
+    let songArtist: String
+    
+    var buttonOptions: [String] {
+        (distractorWords + [missingWord]).shuffled()
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case lyric
+        case missingWord = "missing_word"
+        case distractorWords = "distractor_words"
+        case songTitle = "song_title"
+        case songArtist = "song_artist"
+    }
+}
+
+// MARK: - Playlist Collection View models
+
+struct PlaylistCollectionData: Codable {
+    let playlistCollections: PlaylistCollections
+
+    enum CodingKeys: String, CodingKey {
+        case playlistCollections = "playlist_collections"
+    }
+}
+
+struct PlaylistCollections: Codable {
+    let recentlyPlayed: [Playlist]
+    let newPlaylists: [Playlist]
+    let itsBeenAWhile: [Playlist]
+
+    enum CodingKeys: String, CodingKey {
+        case recentlyPlayed = "recently_played"
+        case newPlaylists = "new_playlists"
+        case itsBeenAWhile = "its_been_a_while"
+    }
+}
+
+// MARK: - Lyric Matching Exercise Models
+
+struct LyricMatchingData: Codable {
+    let lineToDisplay: String
+    let lineToMatch: String
+    let songTitle: String
+    let songArtist: String
+
+    enum CodingKeys: String, CodingKey {
+        case lineToDisplay = "line_to_display"
+        case lineToMatch = "line_to_match"
+        case songTitle = "song_title"
+        case songArtist = "song_artist"
+    }
+}
+
+// MARK: - SinglePlaylist View models
+
+struct SinglePlaylistData: Codable {
+    let playlistInfo: DetailedPlaylistInfo
+    let playlistSongs: [PlaylistSongEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case playlistInfo = "playlist_info"
+        case playlistSongs = "playlist_songs"
+    }
+}
+
+struct DetailedPlaylistInfo: Codable {
+    let id: Int
+    let playlistName: String
+    let description: String
+    let lastDatePlayed: String?
+    let numDaysListened: Int
+    let numSongListens: Int
+    let createdDate: String
+    let proficiencyLevel: String
+    let userProfile: Int
+    let language: Int
+    let genre: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case playlistName = "playlist_name"
+        case description
+        case lastDatePlayed = "last_date_played"
+        case numDaysListened = "num_days_listened"
+        case numSongListens = "num_song_listens"
+        case createdDate = "created_date"
+        case proficiencyLevel = "proficiency_level"
+        case userProfile = "user_profile"
+        case language, genre
+    }
+}
+
+struct PlaylistSongEntry: Codable, Identifiable {
+    // Unique ID for SwiftUI rendering
+    var id: String { song.title + song.artist }
+    
+    let song: DetailedSong
+}
+
+struct DetailedSong: Codable {
+    let title: String
+    let artist: String
+    let proficiencyLevel: String
+    let genre: Int
+
+    enum CodingKeys: String, CodingKey {
+        case title, artist, genre
+        case proficiencyLevel = "proficiency_level"
     }
 }

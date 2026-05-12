@@ -1,10 +1,3 @@
-//
-//  CreateAccView.swift
-//  SongLingo
-//
-//  Created by Derek Huang on 3/21/26.
-//
-
 import SwiftUI
 
 struct CreateAccView: View {
@@ -13,12 +6,36 @@ struct CreateAccView: View {
     @State private var password = ""
     @State private var confirmPassword = ""
     
-    @State private var isUsernameValid = false
-    @State private var isEmailValid = false
-    @State private var isPasswordValid = false
-    @State private var isConfirmPasswordValid = false
+    @State private var navigateToOnboarding = false
 
     @Environment(\.dismiss) var dismiss
+    
+    // MARK: - Computed Validation Properties
+    // These calculate in real-time instantly, no .onChange needed!
+    
+    private var isUsernameValid: Bool {
+        !username.isEmpty && username.count >= 3
+    }
+    
+    private var isEmailValid: Bool {
+        let emailConditions = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        return NSPredicate(format: "SELF MATCHES %@", emailConditions).evaluate(with: email) && !email.isEmpty
+    }
+    
+    private var isPasswordValid: Bool {
+        let passwordConditions = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$@!%&*?])[A-Za-z\\d#$@!%&*?]{8,}$"
+        return NSPredicate(format: "SELF MATCHES %@", passwordConditions).evaluate(with: password) && !password.isEmpty
+    }
+    
+    private var isConfirmPasswordValid: Bool {
+        password == confirmPassword && !confirmPassword.isEmpty
+    }
+    
+    private var isFormValid: Bool {
+        isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid
+    }
+    
+    // MARK: - View Body
     
     var body: some View {
         NavigationStack {
@@ -66,69 +83,60 @@ struct CreateAccView: View {
                                         .fontWeight(.semibold)
                                     
                                     TextField("", text: $username)
-                                        .onChange(of: username) {
-                                            validateUsername()
-                                        }
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color.gray.opacity(0.2))
                                         .cornerRadius(10)
+                                        .autocapitalization(.none) // Helpful for usernames
                                     
                                     if !isUsernameValid && !username.isEmpty {
-                                        Text("Username must be at least 3 character")
+                                        Text("Username must be at least 3 characters")
                                             .foregroundColor(.red)
                                             .font(.caption)
                                     }
                                 }
-                                
+                               
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("Email")
                                         .fontWeight(.semibold)
                                     
                                     TextField("", text: $email)
-                                        .onChange(of: email) {
-                                            validateEmail()
-                                        }
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color.gray.opacity(0.2))
                                         .cornerRadius(10)
+                                        .keyboardType(.emailAddress) // Helps mobile users
+                                        .autocapitalization(.none)
                                     
                                     if !isEmailValid && !email.isEmpty {
-                                        Text ("Enter a valid email")
+                                        Text("Enter a valid email")
                                             .foregroundColor(.red)
                                             .font(.caption)
                                     }
                                 }
-                                
+                               
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("Password")
                                         .fontWeight(.semibold)
                                     
                                     SecureField("", text: $password)
-                                        .onChange(of: password) {
-                                            validatePassword()
-                                        }
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color.gray.opacity(0.2))
                                         .cornerRadius(10)
                                     
                                     if !isPasswordValid && !password.isEmpty {
-                                        Text ("Password does not match")
+                                        Text("Need 8+ chars, Uppercase, Number, & Symbol")
                                             .foregroundColor(.red)
                                             .font(.caption)
                                     }
                                 }
-                                
+                               
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("Confirm Password")
                                         .fontWeight(.semibold)
                                     
                                     SecureField("", text: $confirmPassword)
-                                        .onChange(of: confirmPassword) {
-                                            validateConfirmPassword()
-                                        }
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
                                         .background(Color.gray.opacity(0.2))
@@ -143,16 +151,24 @@ struct CreateAccView: View {
                             }
                         }
 
-                        
-                        NavigationLink(destination: LangSelectionView()) {
+                        Button {
+                            Task {
+                                do {
+                                    let _ = try await NetworkManager.shared.register(username: username, password: password)
+                                    navigateToOnboarding = true
+                                } catch {
+                                    print("Registration failed: \(error)")
+                                }
+                            }
+                        } label: {
                             Text("Create Account")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
                         }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
                         .padding(.top, 10)
                         .opacity(isFormValid ? 1.0 : 0.5)
                         .disabled(!isFormValid)
@@ -161,7 +177,6 @@ struct CreateAccView: View {
                             Text("Already have an account?")
                                 .foregroundColor(.gray)
                                 .padding(5)
-
 
                             Button("Sign In") {
                                 dismiss()
@@ -178,37 +193,17 @@ struct CreateAccView: View {
                     }
                     .padding(20)
                     .background(Color.white)
+                    .foregroundColor(.black)
                     .cornerRadius(25)
                     .padding(.horizontal, 40)
 
                     Spacer()
                 }
             }
-
+            .navigationDestination(isPresented: $navigateToOnboarding) {
+                LangSelectionView()
+            }
         }
-    }
-    
-    private var isFormValid: Bool {
-        return isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid
-    }
-    
-    private func validateUsername() {
-        isUsernameValid = !username.isEmpty && username.count >= 3
-    }
-    
-    private func validateEmail() {
-        let emailConditions = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
-        isEmailValid = NSPredicate(format: "SELF MATCHES %@", emailConditions).evaluate(with: email) && !email.isEmpty
-    }
-    
-    private func validatePassword() {
-        let passwordConditions = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$@!%&*?])[A-Za-z\\d#$@!%&*?]{8,}$"
-        isPasswordValid = NSPredicate(format: "SELF MATCHES %@", passwordConditions).evaluate(with: password) && !password.isEmpty
-        validateConfirmPassword()
-    }
-    
-    private func validateConfirmPassword() {
-        isConfirmPasswordValid = (password == confirmPassword && !confirmPassword.isEmpty)
     }
 }
 

@@ -15,6 +15,13 @@ struct HomeDataResponse: Codable {
     let message: String?
 }
 
+struct DjangoError: Codable {
+    let detail: String?
+    let username: [String]?
+    let password: [String]?
+    let non_field_errors: [String]?
+}
+
 // MARK: - Network Manager
 
 class NetworkManager {
@@ -23,13 +30,126 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-    private let baseURL = "http://68.183.31.175:8000/api"
+//    private let baseURL = "http://68.183.31.175:8000/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-    // private let baseURL = "http://localhost:8000/api"
+     private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
+    
+    
+    //-----logging in
+    // Template
+    struct LoginResponse: Codable {
+        let user_id: Int
+        let access: String
+        let refresh: String
+    }
+
+    // the lil engine
+    func login(username: String, password: String) async throws -> LoginResponse {
+        guard let url = URL(string: "\(baseURL)/login/") else { throw URLError(.badURL) }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: String] = [
+            "username": username,
+            "password": password
+        ]
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        if !(200...299).contains(httpResponse.statusCode) {
+                    
+            var errorMessage = "Login failed. Please check your information."
+                    
+            if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
+                if let detail = decoded.detail {
+                        errorMessage = detail
+                } else if let general = decoded.non_field_errors?.first {
+                        errorMessage = general
+                } else if let userErr = decoded.username?.first {
+                        errorMessage = "Username: \(userErr)"
+                }
+            }
+                    
+            print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
+            print("User-facing message: \(errorMessage)")
+                    
+            throw URLError(.badServerResponse)
+        }
+
+        // SUCCESS
+        let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+                
+        UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+                
+        UserDefaults.standard.set(String(decodedResponse.user_id), forKey: "user_id")
+                
+        return decodedResponse
+
+    }
+    
+    struct DjangoError: Codable {
+        let detail: String?
+        let username: [String]?
+        let password: [String]?
+        let non_field_errors: [String]?
+    }
+    
+    func register(username: String, password: String) async throws -> LoginResponse {
+            guard let url = URL(string: "\(baseURL)/register/") else { throw URLError(.badURL) }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let body: [String: String] = [
+                "username": username,
+                "password": password
+            ]
+            
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
+
+            // ERROR HANDLING
+            if !(200...299).contains(httpResponse.statusCode) {
+                var errorMessage = "Registration failed. Please try again."
+                
+                if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
+                    if let userErr = decoded.username?.first {
+                        errorMessage = "Username: \(userErr)" // e.g., "A user with that username already exists."
+                    } else if let passErr = decoded.password?.first {
+                        errorMessage = "Password: \(passErr)"
+                    }
+                }
+                
+                print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
+                print("User-facing message: \(errorMessage)")
+                throw URLError(.badServerResponse)
+            }
+
+            // SUCCESS: Save tokens and user info, just like login!
+            let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+            UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
+            UserDefaults.standard.set(String(decodedResponse.user_id), forKey: "user_id")
+            
+            return decodedResponse
+        }
     
     // MARK: - Authentication Helper (The Bridge)
     
@@ -49,6 +169,38 @@ class NetworkManager {
     }
     
     // MARK: - API Calls
+    
+    func updateProfile(proficiency: String, language: String, genres: [String]) async throws {
+        guard let url = URL(string: "\(baseURL)/update-profile/") else { throw URLError(.badURL) }
+        
+        guard let savedToken = UserDefaults.standard.string(forKey: "authToken") else {
+            print("DEBUG: No token found in UserDefaults")
+            throw URLError(.userAuthenticationRequired)
+        }
+        
+        let body: [String: Any] = [
+            "proficiency_level": proficiency,
+            "target_language": language,
+            "genres": genres
+        ]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.addValue("Bearer \(savedToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("DEBUG: Update Profile Status: \(httpResponse.statusCode)")
+            if httpResponse.statusCode != 200 {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("DEBUG: Server error message: \(errorMsg)")
+            }
+        }
+    }
     
     /// Jaci's Word Card FastMCP Fetcher
     func fetchPronunciation(for word: String) async throws -> PronunciationResponse {
@@ -72,28 +224,6 @@ class NetworkManager {
         
         // decode the JSON into Jaci's Struct
         return try JSONDecoder().decode(PronunciationResponse.self, from: data)
-    }
-    
-    /// Austin's Home Screen Data Fetcher
-    func fetchHomeScreenData(userId: String) async throws -> HomeDataResponse {
-        guard let url = URL(string: "\(baseURL)/home/?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        // build the request using your Auth Helper
-        let request = createAuthenticatedRequest(url: url)
-        
-        // make the call
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        // check for a 200 OK from Django
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            print("Server error while fetching home data.")
-            throw URLError(.badServerResponse)
-        }
-        
-        // decode the JSON
-        return try JSONDecoder().decode(HomeDataResponse.self, from: data)
     }
     
     // MARK: - Austin's Migrated Request Methods
@@ -122,7 +252,14 @@ class NetworkManager {
         let request = createAuthenticatedRequest(url: url)
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            let rawError = String(data: data, encoding: .utf8) ?? "No error body"
+            print("--- DASHBOARD REJECTION: \(httpResponse.statusCode) ---")
+            print(rawError)
             throw URLError(.badServerResponse)
         }
         
@@ -157,5 +294,80 @@ class NetworkManager {
         }
         
         return try JSONDecoder().decode(UserActivityData.self, from: data)
+    }
+    
+    func fetchWordCardExerciseData(userId: String) async throws -> WordCardExerciseData {
+        guard let url = URL(string: "\(baseURL)/word-card-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(WordCardExerciseData.self, from: data)
+    }
+    
+    func fetchCompleteTheLyricExerciseData(userId: String) async throws -> LyricChallengeData {
+        guard let url = URL(string: "\(baseURL)/complete-the-lyric-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(LyricChallengeData.self, from: data)
+    }
+    
+    func fetchPlaylistCollectionData(userId: String) async throws -> PlaylistCollectionData {
+        guard let url = URL(string: "\(baseURL)/playlist-collection?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(PlaylistCollectionData.self, from: data)
+    }
+    
+    func fetchLyricMatchExerciseData(userId: String) async throws -> LyricMatchingData {
+        guard let url = URL(string: "\(baseURL)/lyric-match-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(LyricMatchingData.self, from: data)
+    }
+    
+    func fetchSinglePlaylistData(playlistId: String) async throws -> SinglePlaylistData {
+        guard let url = URL(string: "\(baseURL)/playlist?playlist_id=\(playlistId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(SinglePlaylistData.self, from: data)
     }
 }
