@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct Profile: View {
-    //Dummy info
+    //Dummy/ fallback info
     @State private var demo = UserData(username: "JohnDoe", email: "bob@gmail.com", password: "Password1@", genrePreference: "Rock", languagePreference: "Spanish", languageProficiency: "Beginner", joinDate: "March 2026")
+    
+    @State private var homeData: HomeScreenData?
     
     var body: some View {
         NavigationStack {
@@ -20,40 +22,43 @@ struct Profile: View {
                         //Creates gradient circle
                         Circle()
                             .fill(LinearGradient(
-                                gradient: Gradient(colors: [.purple.opacity(0.5), .purple.opacity(0.75),.purple, .indigo]), startPoint: .topLeading, endPoint: .bottomTrailing
+                                gradient: Gradient(colors: [.white.opacity(0.4), .white.opacity(0.1), .indigo.opacity(0.6)]), startPoint: .topLeading, endPoint: .bottomTrailing
                             ))
                             .frame(width: 150, height: 100)
                             .overlay(Circle()
-                                .stroke(Color.purple.opacity(0.8), lineWidth: 3))
+                                .stroke(Color.white.opacity(0.15), lineWidth: 3))
                         
-                        Text(demo.username.first!.uppercased())
+                        Text(String((homeData?.userInfo.firstName ?? demo.username).first!).uppercased())
                             .font(.system(size: 40, weight: .bold, design: .rounded))
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.white.opacity(0.8))
                     }
                     .padding(.top, 1)
                     
                     // Sets up name under icon w/ join date
                     VStack(spacing: 5) {
                         // Displays user's first and last name
-                        Text(demo.username)
+                        Text(homeData?.userInfo.firstName ?? demo.username)
                             .font(.title2)
                             .bold(true)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white.opacity(0.8))
                         
                         // Displays the join date under name
+                        // Text("Joined · " + (homeData?.userInfo.joinDate ?? demo.joinDate))
                         Text("Joined · " + demo.joinDate)
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color.purple.opacity(0.8))
+                            .foregroundColor(Color.white.opacity(0.8))
                             .padding(.vertical, 3)
                             .padding(.horizontal, 14)
-                            .background(Color.purple.opacity(0.3))
+                            .background(Color.white.opacity(0.2))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .padding(.horizontal)
                     
+                    
                     LazyVStack(alignment: .leading, spacing: 10) {
                         Text("Preference")
                             .font(.headline)
+                            .foregroundColor(Color.white.opacity(0.8))
                         
                         VStack(spacing: 0) {
                             
@@ -61,15 +66,18 @@ struct Profile: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Genre")
-                                        .foregroundStyle(Color.gray)
+                                        .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
+                                    //Needs to be changed!!
                                     Text(demo.genrePreference)
                                         .font(.callout)
+                                        .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.white.opacity(0.25))
                             
                             Divider()
                             
@@ -77,15 +85,17 @@ struct Profile: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Language")
-                                        .foregroundStyle(Color.gray)
+                                        .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
-                                    Text(demo.languagePreference)
+                                    Text(Constants.languageIdToName[homeData?.userInfo.targetLanguage ?? 0] ?? demo.languagePreference)
                                         .font(.callout)
+                                        .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.white.opacity(0.25))
                             
                             Divider() // line separator
                             
@@ -93,15 +103,17 @@ struct Profile: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Proficiency")
-                                        .foregroundStyle(Color.gray)
+                                        .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
-                                    Text(demo.languageProficiency)
+                                    Text(homeData?.userInfo.proficiencyLevel ?? demo.languageProficiency)
                                         .font(.callout)
+                                        .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.white.opacity(0.25))
                         }
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(20)
@@ -110,25 +122,31 @@ struct Profile: View {
                         Spacer()
                         Text("Personal Information")
                             .font(.headline)
+                            .foregroundStyle(Color.white.opacity(0.8))
                         
                         VStack(spacing: 0) {
                             HStack {
                                 // Displays Email information
                                 VStack(alignment: .leading) {
                                     Text("Email")
-                                        .foregroundStyle(Color.gray)
+                                        .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
+                                    //Needs changing
                                     Text(demo.email)
                                         .font(.callout)
+                                        .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
+                                
                                 NavigationLink(destination: UpdateUserInfo(value: $demo.email, title: "Email", currentPass: demo.password)) {
                                     Image(systemName: "chevron.right")
-                                        .foregroundColor(.gray)
+                                        .foregroundStyle(Color.white.opacity(0.9))
                                 }
+                                
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.white.opacity(0.2))
                             
                             Divider()
                             
@@ -136,21 +154,24 @@ struct Profile: View {
                                 // Displays Password information
                                 VStack(alignment: .leading) {
                                     Text("Password")
-                                        .foregroundStyle(Color.gray)
+                                        .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
                                     // Text(demo.password)
                                     // The following is to obscure the password
                                     Text(String(repeating: "*", count: demo.password.count))
                                         .font(.callout)
+                                        .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
+                                
                                 NavigationLink(destination: UpdateUserInfo(value: $demo.password, title: "Password", currentPass: demo.password)) {
                                     Image(systemName: "chevron.right")
-                                        .foregroundColor(.gray)
+                                        .foregroundStyle(Color.white.opacity(0.9))
                                 }
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color.white.opacity(0.2))
                         }
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(20)
@@ -158,11 +179,36 @@ struct Profile: View {
                     }
                     .padding()
                 }
-                // .background(Color(UIColor.systemBackground))
-                .navigationTitle("Profile")
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("Profile")
+                            .foregroundColor(Color.white.opacity(0.8))
+                            .font(.headline)
+                    }
+                }
             }
+            
             // This coverrs the background to the whole screen
-            .background(Color(.purple).opacity(0.2))
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.750, green: 0.355, blue: 0.550),
+                        Color(red: 0.576, green: 0.400, blue: 0.918),
+                        Color(red: 0.231, green: 0.027, blue: 0.592)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
+            .task {
+                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                
+                do {
+                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
+                } catch {
+                    print("DEBUG: Profile fetch failed with error: \(error)")
+                }
+            }
         }
     }
 }

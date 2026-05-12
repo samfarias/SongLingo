@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct PracticeGameOptions: View {
+    init() {
+        UINavigationBar.appearance().largeTitleTextAttributes = [
+            .foregroundColor: UIColor(white: 1, alpha: 0.8)
+        ]
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -17,20 +23,10 @@ struct PracticeGameOptions: View {
                     {
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(red: 0.850, green: 0.550, blue: 0.650),
-                                        Color(red: 0.750, green: 0.450, blue: 0.550)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ))
-                                .shadow(
-                                    color: .black.opacity(0.25), radius: 3, x: 3, y: 3
-                                )
+                                .fill(Color.white.opacity(0.2))
                             VStack (alignment: .leading) {
                                 Text("Word Cards")
-                                    .foregroundStyle(Color.white)
+                                    .foregroundStyle(Color.white.opacity(0.8))
                                     .bold()
                                     .font(.title2)
                                     .shadow(radius: 3, x: 3, y: 3)
@@ -44,30 +40,14 @@ struct PracticeGameOptions: View {
                     }
                     
                     //Sends to Lyric Match Screen
-                    NavigationLink(destination: LyricMatchView())
-                    {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(red: 0.400, green: 0.800, blue: 0.650),
-                                        Color(red: 0.250, green: 0.650, blue: 0.550)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ))
-                                .shadow(
-                                    color: .black.opacity(0.25), radius: 3, x: 3, y: 3
-                                )
-                            VStack (alignment: .leading) {
-                                Text("Lyric Match")
-                                    .foregroundStyle(Color.white)
-                                    .bold()
-                                    .font(.title2)
-                                    .shadow(radius: 3, x: 3, y: 3)
-                            }
-                            .padding(.horizontal)
-                            .padding(.vertical)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.2))
+                        VStack (alignment: .leading) {
+                            Text("Lyric Match")
+                                .foregroundStyle(Color.white.opacity(0.8))
+                                .bold()
+                                .font(.title2)
                         }
                         .padding()
                         .padding(.bottom, 30)
@@ -78,20 +58,10 @@ struct PracticeGameOptions: View {
                     {
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(red: 0.600, green: 0.650, blue: 0.900),
-                                        Color(red: 0.450, green: 0.500, blue: 0.800)
-                                    ]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ))
-                                .shadow(
-                                    color: .black.opacity(0.25), radius: 3, x: 3, y: 3
-                                )
+                                .fill(Color.white.opacity(0.2))
                             VStack (alignment: .leading) {
                                 Text("Complete the Lyrics")
-                                    .foregroundStyle(Color.white)
+                                    .foregroundStyle(Color.white.opacity(0.8))
                                     .bold()
                                     .font(.title2)
                                     .shadow(radius: 3, x: 3, y: 3)
@@ -104,16 +74,19 @@ struct PracticeGameOptions: View {
                 }
                 .padding(.top, 100)
             }
+            .foregroundStyle(Color.white.opacity(0.8))
             .navigationTitle("Practice New Words!")
-            .background(LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.450, green: 0.380, blue: 0.650), // Soft Amethyst
-                    Color(red: 0.300, green: 0.500, blue: 0.700), // Sky Blue Gray
-                    Color(red: 0.250, green: 0.550, blue: 0.450)  // Muted Sage
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            ))
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.190, green: 0.135, blue: 0.450),
+                        Color(red: 0.576, green: 0.150, blue: 0.805),
+                        Color(red: 0.920, green: 0.527, blue: 0.590)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
         }
     }
 }
