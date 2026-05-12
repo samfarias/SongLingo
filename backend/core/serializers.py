@@ -27,9 +27,19 @@ class GenreSerializer(serializers.ModelSerializer):
 ########################
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    join_date = serializers.DateTimeField(source='user.date_joined', format="%B %Y", read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = '__all__'
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'target_language',
+            'proficiency_level',
+            'user_level',
+            'join_date'
+        ]
 
 class GenreSelectionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -126,7 +136,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
 class PlaylistCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = ['playlist_name', 'genre', 'proficiency_level', 'last_date_played']
+        fields = '__all__'
 
 class PlaylistSongSerializer(serializers.ModelSerializer):
     class SinglePlaylistScreenSongSerializer(serializers.ModelSerializer):
@@ -181,25 +191,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        
         profile = getattr(self.user, 'userprofile', None)
         
-        data['user_id'] = self.user.id
-        
         if profile:
+            # FIX: Send the profile ID
+            data['user_id'] = profile.id 
             data['first_name'] = profile.first_name or "User"
-            
-            if profile.target_language:
-                data['target_language'] = profile.target_language.language_name
-            else:
-                data['target_language'] = "Language"
-                
+            data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
             data['proficiency_level'] = profile.proficiency_level
         else:
+            data['user_id'] = self.user.id
             data['first_name'] = "User"
             data['target_language'] = "Language"
             data['proficiency_level'] = "Beginner"
             
         return data
-class CustomLoginView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
