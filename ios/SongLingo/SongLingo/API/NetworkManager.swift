@@ -340,4 +340,19 @@ class NetworkManager {
         
         return try JSONDecoder().decode(PlaylistCollectionData.self, from: data)
     }
+    
+    func fetchLyricMatchExerciseData(userId: String) async throws -> LyricMatchingData {
+        guard let url = URL(string: "\(baseURL)/lyric-match-exercise?user_id=\(userId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(LyricMatchingData.self, from: data)
+    }
 }

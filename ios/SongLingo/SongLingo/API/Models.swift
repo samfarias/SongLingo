@@ -268,3 +268,19 @@ struct PlaylistCollections: Codable {
         case itsBeenAWhile = "its_been_a_while"
     }
 }
+
+// MARK: - Lyric Matching Exercise Models
+
+struct LyricMatchingData: Codable {
+    let lineToDisplay: String
+    let lineToMatch: String
+    let songTitle: String
+    let songArtist: String
+
+    enum CodingKeys: String, CodingKey {
+        case lineToDisplay = "line_to_display"
+        case lineToMatch = "line_to_match"
+        case songTitle = "song_title"
+        case songArtist = "song_artist"
+    }
+}
