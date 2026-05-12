@@ -24,6 +24,9 @@ struct GenreSelectionView: View {
     
     @State private var selectedGenres: Set<String> = []
     
+    // state variable to trigger the navigation to the Home screen
+    @State private var navigateToHome = false
+    
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -110,15 +113,35 @@ struct GenreSelectionView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             
-                            NavigationLink(destination: ContentView()) {
+                            // swapped NavigationLink for a Button to trigger the API Call
+                            Button(action: {
+                                Task {
+                                    do {
+                                        // convert the Set of genres into an Array of Strings
+                                        let genresArray = Array(selectedGenres)
+                                        
+                                        // 2. Fire the PATCH request to the backend
+                                        try await NetworkManager.shared.updateProfile(
+                                            proficiency: selectedProficiency,
+                                            language: selectedLanguage,
+                                            genres: genresArray
+                                        )
+                                        
+                                        // 3. Success! Slide to the home screen
+                                        navigateToHome = true
+                                    } catch {
+                                        print("Failed to save profile: \(error)")
+                                    }
+                                }
+                            }) {
                                 Text("Continue")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 50)
+                                    .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
                             }
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
                             .opacity(selectedGenres.isEmpty ? 0.5 : 1.0)
                             .disabled(selectedGenres.isEmpty)
                         }
@@ -131,7 +154,10 @@ struct GenreSelectionView: View {
                     Spacer()
                 }
             }
-            
+            // NEW: Listens for navigateToHome to become true, then slides to ContentView
+            .navigationDestination(isPresented: $navigateToHome) {
+                ContentView()
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ struct UserInfo: Codable {
     let proficiencyLevel: String
     let userLevel: Int
     let targetLanguage: Int
+    let joinDate: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -35,6 +36,7 @@ struct UserInfo: Codable {
         case proficiencyLevel = "proficiency_level"
         case userLevel = "user_level"
         case targetLanguage = "target_language"
+        case joinDate = "join_date"
     }
 }
 

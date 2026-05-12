@@ -173,7 +173,7 @@ class NetworkManager {
     func updateProfile(proficiency: String, language: String, genres: [String]) async throws {
         guard let url = URL(string: "\(baseURL)/update-profile/") else { throw URLError(.badURL) }
         
-        guard let savedToken = UserDefaults.standard.string(forKey: "authToken") else {
+        guard let savedToken = UserDefaults.standard.string(forKey: "jwt_access_token") else {
             print("DEBUG: No token found in UserDefaults")
             throw URLError(.userAuthenticationRequired)
         }
