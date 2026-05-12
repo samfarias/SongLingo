@@ -27,9 +27,19 @@ class GenreSerializer(serializers.ModelSerializer):
 ########################
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    join_date = serializers.DateTimeField(source='user.date_joined', format="%B %Y", read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = '__all__'
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'target_language',
+            'proficiency_level',
+            'user_level',
+            'join_date'
+        ]
 
 class GenreSelectionSerializer(serializers.ModelSerializer):
     class Meta:
