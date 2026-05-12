@@ -389,16 +389,16 @@ struct Dashboard: View {
             )
             .ignoresSafeArea()
             .task {
-                            let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                            do {
-                                self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
-                            } catch {
-                                print("DEBUG: Dashboard fetch failed with error: \(error)")
-                            }
-                        }
-                    }
+                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                do {
+                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
+                } catch {
+                    print("DEBUG: Dashboard fetch failed with error: \(error)")
                 }
             }
+        }
+    }
+}
 
 #Preview {
     Dashboard()

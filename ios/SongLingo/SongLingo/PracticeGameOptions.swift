@@ -89,9 +89,9 @@ struct PracticeGameOptions: View {
             .background(
                 LinearGradient(
                     colors: [
-                        Color(red: 0.190, green: 0.135, blue: 0.450),
-                        Color(red: 0.576, green: 0.150, blue: 0.805),
-                        Color(red: 0.920, green: 0.527, blue: 0.590)],
+                        Color(red: 0.050, green: 0.120, blue: 0.150),
+                        Color(red: 0.110, green: 0.440, blue: 0.450),
+                        Color(red: 0.376, green: 0.450, blue: 0.450)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
