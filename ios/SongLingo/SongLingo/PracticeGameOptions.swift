@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct PracticeGameOptions: View {
+    init() {
+        UINavigationBar.appearance().largeTitleTextAttributes = [
+            .foregroundColor: UIColor(white: 1, alpha: 0.8)
+        ]
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -17,10 +23,10 @@ struct PracticeGameOptions: View {
                     {
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.purple.opacity(0.5))
+                                .fill(Color.white.opacity(0.2))
                             VStack (alignment: .leading) {
                                 Text("Word Cards")
-                                    .foregroundStyle(Color.black)
+                                    .foregroundStyle(Color.white.opacity(0.8))
                                     .bold()
                                     .font(.title2)
                             }
@@ -34,10 +40,10 @@ struct PracticeGameOptions: View {
                     //Sends to Lyric Match Screen
                     ZStack {
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.purple.opacity(0.5))
+                            .fill(Color.white.opacity(0.2))
                         VStack (alignment: .leading) {
                             Text("Lyric Match")
-                                .foregroundStyle(Color.black)
+                                .foregroundStyle(Color.white.opacity(0.8))
                                 .bold()
                                 .font(.title2)
                         }
@@ -52,10 +58,10 @@ struct PracticeGameOptions: View {
                     {
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.purple.opacity(0.5))
+                                .fill(Color.white.opacity(0.2))
                             VStack (alignment: .leading) {
                                 Text("Complete the Lyrics")
-                                    .foregroundStyle(Color.black)
+                                    .foregroundStyle(Color.white.opacity(0.8))
                                     .bold()
                                     .font(.title2)
                             }
@@ -67,8 +73,19 @@ struct PracticeGameOptions: View {
                 }
                 .padding(.top, 100)
             }
+            .foregroundStyle(Color.white.opacity(0.8))
             .navigationTitle("Practice New Words!")
-            .background(Color.purple.opacity(0.2))
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.190, green: 0.135, blue: 0.450),
+                        Color(red: 0.576, green: 0.150, blue: 0.805),
+                        Color(red: 0.920, green: 0.527, blue: 0.590)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
         }
     }
 }
