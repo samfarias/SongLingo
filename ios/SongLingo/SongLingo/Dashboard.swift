@@ -261,9 +261,7 @@ struct Dashboard: View {
                                 
                                 Spacer()
                                 
-                                Button(action: {
-                                    // Action for New Words button
-                                }) {
+                                NavigationLink(destination: NewWordsView()) {
                                     Text("Begin")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 12))
@@ -378,7 +376,6 @@ struct Dashboard: View {
                 .padding()
                 
             }
-            //.background(Constants.butterfly)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [
@@ -392,16 +389,16 @@ struct Dashboard: View {
             )
             .ignoresSafeArea()
             .task {
-                            let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                            do {
-                                self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
-                            } catch {
-                                print("DEBUG: Dashboard fetch failed with error: \(error)")
-                            }
-                        }
-                    }
+                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                do {
+                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
+                } catch {
+                    print("DEBUG: Dashboard fetch failed with error: \(error)")
                 }
             }
+        }
+    }
+}
 
 #Preview {
     Dashboard()

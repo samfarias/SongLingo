@@ -53,6 +53,7 @@ struct Profile: View {
                     }
                     .padding(.horizontal)
                     
+                    
                     LazyVStack(alignment: .leading, spacing: 10) {
                         Text("Preference")
                             .font(.headline)
@@ -64,10 +65,12 @@ struct Profile: View {
                                     Text("Genre")
                                         .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
+                                    //Needs to be changed!!
                                     Text(demo.genrePreference)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
                             }
                             .padding()
@@ -85,6 +88,7 @@ struct Profile: View {
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
                             }
                             .padding()
@@ -102,6 +106,7 @@ struct Profile: View {
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
                             }
                             .padding()
@@ -122,15 +127,19 @@ struct Profile: View {
                                     Text("Email")
                                         .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
+                                    //Needs changing
                                     Text(demo.email)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
+                                
                                 NavigationLink(destination: UpdateUserInfo(value: $demo.email, title: "Email", currentPass: demo.password)) {
                                     Image(systemName: "chevron.right")
                                         .foregroundStyle(Color.white.opacity(0.9))
                                 }
+                                
                             }
                             .padding()
                             .background(Color.white.opacity(0.2))
@@ -146,7 +155,9 @@ struct Profile: View {
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
                                 }
+                                
                                 Spacer()
+                                
                                 NavigationLink(destination: UpdateUserInfo(value: $demo.password, title: "Password", currentPass: demo.password)) {
                                     Image(systemName: "chevron.right")
                                         .foregroundStyle(Color.white.opacity(0.9))
@@ -169,6 +180,8 @@ struct Profile: View {
                     }
                 }
             }
+            
+            // This coverrs the background to the whole screen
             .background(
                 LinearGradient(
                     colors: [
@@ -180,9 +193,9 @@ struct Profile: View {
                 )
                 .ignoresSafeArea()
             )
-            // LIVE: Fetching the data when the screen appears
             .task {
                 let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                
                 do {
                     self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
                 } catch {

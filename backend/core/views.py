@@ -15,12 +15,13 @@ from .views_helpers import search_spotify_track
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 load_dotenv(find_dotenv())
 
 from .models import (
   UserProfile, Song, UserWord, UserSong, UserActivity, DaysActive, Playlist,
-  PlaylistSong, Word
+  PlaylistSong, Word, Language, Genre, GenreSelection
 )
 from .serializers import (
     SongSerializer, UserProfileSerializer, UserWordSerializer, UserSongSerializer,
@@ -91,7 +92,31 @@ class HomeScreenView(APIView):
                 "new_playlist": new_playlist_serialized
             }
         })
-    
+
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        profile = user.userprofile
+        data = request.data
+
+        if 'proficiency_level' in data:
+            profile.proficiency_level = data['proficiency_level']
+        
+        if 'target_language' in data:
+            lang, _ = Language.objects.get_or_create(language_name=data['target_language'])
+            profile.target_language = lang
+            
+        profile.save()
+
+        if 'genres' in data:
+            GenreSelection.objects.filter(user_profile=profile).delete()
+            for genre_name in data['genres']:
+                genre, _ = Genre.objects.get_or_create(name=genre_name)
+                GenreSelection.objects.create(user_profile=profile, genre=genre)
+
+        return Response({"message": "Profile updated successfully"})
 
 class WordsLearnedView(APIView):
     def get(self, request): # returns all data for the user's "Words Learned" screen
@@ -512,7 +537,85 @@ class RegisterView(APIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'user_id': user.id
+                'user_id': user.profile.id
             }, status=status.HTTP_201_CREATED)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.permissions import IsAuthenticated
+from .models import Language, Genre, GenreSelection
+
+class UpdateProfileView(APIView):
+    # only logged-in users with a token can hit this
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user_profile = request.user.profile
+        
+        # save Proficiency Level
+        proficiency = request.data.get('proficiency_level')
+        if proficiency:
+            user_profile.proficiency_level = proficiency
+            
+        # link the Target Language
+        language_name = request.data.get('target_language')
+        if language_name:
+            # get_or_create prevents database duplication errors
+            lang_obj, _ = Language.objects.get_or_create(language_name=language_name)
+            user_profile.target_language = lang_obj
+            
+        user_profile.save()
+
+        # link the Genres
+        genres_list = request.data.get('genres', [])
+        if genres_list:
+            # clear old selections so we don't double-count if they edit their profile later
+            GenreSelection.objects.filter(user_profile=user_profile).delete()
+            
+            for genre_name in genres_list:
+                genre_obj, _ = Genre.objects.get_or_create(genre_name=genre_name)
+                GenreSelection.objects.create(
+                    user_profile=user_profile,
+                    genre=genre_obj
+                )
+
+        return Response({"message": "Profile updated successfully!"}, status=status.HTTP_200_OK)
+
+from rest_framework.permissions import IsAuthenticated
+from .models import Language, Genre, GenreSelection
+
+class UpdateProfileView(APIView):
+    # only logged-in users with a token can hit this
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user_profile = request.user.profile
+        
+        # save Proficiency Level
+        proficiency = request.data.get('proficiency_level')
+        if proficiency:
+            user_profile.proficiency_level = proficiency
+            
+        # link the Target Language
+        language_name = request.data.get('target_language')
+        if language_name:
+            # get_or_create prevents database duplication errors
+            lang_obj, _ = Language.objects.get_or_create(language_name=language_name)
+            user_profile.target_language = lang_obj
+            
+        user_profile.save()
+
+        # link the Genres
+        genres_list = request.data.get('genres', [])
+        if genres_list:
+            # clear old selections so we don't double-count if they edit their profile later
+            GenreSelection.objects.filter(user_profile=user_profile).delete()
+            
+            for genre_name in genres_list:
+                genre_obj, _ = Genre.objects.get_or_create(genre_name=genre_name)
+                GenreSelection.objects.create(
+                    user_profile=user_profile,
+                    genre=genre_obj
+                )
+
+        return Response({"message": "Profile updated successfully!"}, status=status.HTTP_200_OK)
