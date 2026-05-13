@@ -3,8 +3,8 @@ from .views import (
     HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
     updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise,
-    getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, UpdateProfileView,
-    GenerateWeeklyDropView
+    getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, 
+    GenerateWeeklyDropView, UpdateProfileView
 )
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -25,6 +25,8 @@ urlpatterns = [
     path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterView.as_view(), name='register'),
+    path('register/', RegisterView.as_view(), name='register'), 
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
+    path('exercises/word-cards/<str:user_id>/', views.fetch_word_cards, name='word-cards'),
+    path('playlists/generate/<str:user_id>/', views.generate_weekly_playlist, name='generate-playlist'),
 ]

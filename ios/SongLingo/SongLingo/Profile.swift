@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct Profile: View {
-    //Dummy/ fallback info
+    // Dummy info fallback
     @State private var demo = UserData(username: "JohnDoe", email: "bob@gmail.com", password: "Password1@", genrePreference: "Rock", languagePreference: "Spanish", languageProficiency: "Beginner", joinDate: "March 2026")
     
+    // NEW: Live backend data holder
     @State private var homeData: HomeScreenData?
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    //Sets up icon w/ initials
+                    // Sets up icon w/ initials
                     ZStack {
-                        //Creates gradient circle
                         Circle()
                             .fill(LinearGradient(
                                 gradient: Gradient(colors: [.white.opacity(0.4), .white.opacity(0.1), .indigo.opacity(0.6)]), startPoint: .topLeading, endPoint: .bottomTrailing
@@ -28,23 +28,22 @@ struct Profile: View {
                             .overlay(Circle()
                                 .stroke(Color.white.opacity(0.15), lineWidth: 3))
                         
+                        // LIVE: Pulls the first letter of the live first name
                         Text(String((homeData?.userInfo.firstName ?? demo.username).first!).uppercased())
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .foregroundColor(Color.white.opacity(0.8))
                     }
                     .padding(.top, 1)
                     
-                    // Sets up name under icon w/ join date
                     VStack(spacing: 5) {
-                        // Displays user's first and last name
+                        // LIVE: Displays live first name
                         Text(homeData?.userInfo.firstName ?? demo.username)
                             .font(.title2)
                             .bold(true)
                             .foregroundColor(.white.opacity(0.8))
                         
-                        // Displays the join date under name
-                        // Text("Joined · " + (homeData?.userInfo.joinDate ?? demo.joinDate))
-                        Text("Joined · " + demo.joinDate)
+                        // LIVE: Displays the real join date from Django
+                        Text("Joined · " + (homeData?.userInfo.joinDate ?? demo.joinDate))
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(Color.white.opacity(0.8))
                             .padding(.vertical, 3)
@@ -61,8 +60,6 @@ struct Profile: View {
                             .foregroundColor(Color.white.opacity(0.8))
                         
                         VStack(spacing: 0) {
-                            
-                            // Genre Preference information
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Genre")
@@ -81,12 +78,12 @@ struct Profile: View {
                             
                             Divider()
                             
-                            // Language Preference information
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Language")
                                         .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
+                                    // LIVE: Mapped Language ID to Name
                                     Text(Constants.languageIdToName[homeData?.userInfo.targetLanguage ?? 0] ?? demo.languagePreference)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
@@ -97,14 +94,14 @@ struct Profile: View {
                             .padding()
                             .background(Color.white.opacity(0.25))
                             
-                            Divider() // line separator
+                            Divider()
                             
-                            // Language Proficiency row
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Proficiency")
                                         .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
+                                    // LIVE: Real Proficiency Level
                                     Text(homeData?.userInfo.proficiencyLevel ?? demo.languageProficiency)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
@@ -126,7 +123,6 @@ struct Profile: View {
                         
                         VStack(spacing: 0) {
                             HStack {
-                                // Displays Email information
                                 VStack(alignment: .leading) {
                                     Text("Email")
                                         .foregroundStyle(Color.white.opacity(0.5))
@@ -151,13 +147,10 @@ struct Profile: View {
                             Divider()
                             
                             HStack {
-                                // Displays Password information
                                 VStack(alignment: .leading) {
                                     Text("Password")
                                         .foregroundStyle(Color.white.opacity(0.5))
                                         .font(.subheadline)
-                                    // Text(demo.password)
-                                    // The following is to obscure the password
                                     Text(String(repeating: "*", count: demo.password.count))
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
@@ -212,7 +205,6 @@ struct Profile: View {
         }
     }
 }
-
 struct UserData {
     var username: String
     var email: String
@@ -221,9 +213,4 @@ struct UserData {
     let languagePreference: String
     let languageProficiency: String
     let joinDate: String
-}
-
-
-#Preview {
-    Profile()
 }

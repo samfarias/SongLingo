@@ -30,10 +30,10 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-//    private let baseURL = "http://68.183.31.175:8000/api"
+    private let baseURL = "http://68.183.31.175/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-     private let baseURL = "http://localhost:8000/api"
+//     private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
@@ -173,7 +173,7 @@ class NetworkManager {
     func updateProfile(proficiency: String, language: String, genres: [String]) async throws {
         guard let url = URL(string: "\(baseURL)/update-profile/") else { throw URLError(.badURL) }
         
-        guard let savedToken = UserDefaults.standard.string(forKey: "authToken") else {
+        guard let savedToken = UserDefaults.standard.string(forKey: "jwt_access_token") else {
             print("DEBUG: No token found in UserDefaults")
             throw URLError(.userAuthenticationRequired)
         }
