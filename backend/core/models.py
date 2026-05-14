@@ -25,7 +25,7 @@ class Genre(models.Model):
 
 class UserProfile(models.Model):
     # Links this profile to the built-in Django Auth system
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', null=True, blank=True)
 
     first_name = models.CharField(max_length=100, null=True)
     last_name = models.CharField(max_length=100, null=True)
@@ -104,6 +104,7 @@ class Song(models.Model):
     spotify_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     language = models.ForeignKey(Language, null=True, on_delete=models.CASCADE, related_name='song')
     genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='song')
+    vocabulary_json = models.JSONField(default=list, blank=True)
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(
