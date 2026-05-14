@@ -4,11 +4,7 @@ from .views import (
     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
     updateUserSongProgress, fetch_word_cards, getCompleteTheLyricExercise,
     getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, 
-<<<<<<< Updated upstream
-    GenerateWeeklyDropView, UpdateProfileView
-=======
     GenerateWeeklyDropView, UpdateProfileView, generate_weekly_playlist
->>>>>>> Stashed changes
 )
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -39,9 +35,4 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterView.as_view(), name='register'), 
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
-<<<<<<< Updated upstream
-    path('exercises/word-cards/<str:user_id>/', views.fetch_word_cards, name='word-cards'),
-    path('playlists/generate/<str:user_id>/', views.generate_weekly_playlist, name='generate-playlist'),
-=======
->>>>>>> Stashed changes
 ]
