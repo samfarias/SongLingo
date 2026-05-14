@@ -181,34 +181,40 @@ def create_user_data(sender, instance, created, **kwargs):
             current_streak=1,
             longest_streak=1
         )
+
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 import random
 
-# This listens for any time a User is saved to the database
 @receiver(post_save, sender=User)
 def build_new_user_starter_pack(sender, instance, created, **kwargs):
-    # 'created' is a boolean. If True, this is a brand new signup!
     if created:
-        # 1. Create their Welcome Playlist
-        # Note: adjust 'user=instance' if your Playlist model is linked to UserProfile instead of User
-        welcome_playlist = Playlist.objects.create(
-            user=instance, 
-            title="Welcome to SongLingo! 🎵",
-            description="A hand-picked starter pack of easy songs to get you practicing immediately."
-        )
-
-        # 2. Grab a mix of Beginner songs from the database
-        # We'll try to grab 5 random songs so they have immediate vocabulary to practice
         try:
+            # 1. Safely grab or create the UserProfile for this new user
+            profile, _ = UserProfile.objects.get_or_create(user=instance)
+
+            # 2. Safely grab or create a default language (assuming Spanish for now!)
+            # Adjust 'Spanish' if your Language model uses language codes like 'es' instead
+            default_language, _ = Language.objects.get_or_create(name='Spanish')
+
+            # 3. Create the playlist using your exact model field names
+            welcome_playlist = Playlist.objects.create(
+                user_profile=profile, 
+                playlist_name="Welcome to SongLingo! 🎵",
+                language=default_language,
+                description="A hand-picked starter pack of easy songs to get you practicing immediately."
+            )
+
+            # 4. Attach the Beginner songs
             beginner_songs = list(Song.objects.filter(proficiency_level="Beginner"))
             
             if beginner_songs:
-                # Shuffle and pick up to 5 songs
                 starter_selection = random.sample(beginner_songs, min(len(beginner_songs), 5))
-                
-                # 3. Attach these songs to the new playlist
+                # Assuming your related_name for songs on the Playlist model is 'songs'
                 welcome_playlist.songs.set(starter_selection)
+                
         except Exception as e:
-            print(f"Could not generate starter pack: {e}")
+            # This ensures if anything fails, it prints to Docker logs but DOES NOT block the user from signing up
+            print(f"CRITICAL: Could not generate starter pack for {instance.username}: {e}")
