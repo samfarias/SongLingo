@@ -93,7 +93,7 @@ class UpdateProfileView(APIView):
             GenreSelection.objects.filter(user_profile=user_profile).delete()
             for genre_name in data['genres']:
                 # Fallback to name=genre_name as defined in models
-                genre_obj, _ = Genre.objects.get_or_create(name=genre_name)
+                genre_obj, _ = Genre.objects.get_or_create(genre_name=genre_name)
                 GenreSelection.objects.create(user_profile=user_profile, genre=genre_obj)
 
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
@@ -332,7 +332,7 @@ class GenerateWeeklyDropView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class RegisterView(APIView):
-    # Allow anyone to hit this endpoint so they can actually sign up!
+    # Allow anyone to hit this endpoint so they can actually sign up
     permission_classes = [AllowAny] 
     
     def post(self, request):
