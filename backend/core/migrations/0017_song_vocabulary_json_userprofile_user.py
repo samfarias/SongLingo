@@ -18,9 +18,4 @@ class Migration(migrations.Migration):
             name='vocabulary_json',
             field=models.JSONField(blank=True, default=list),
         ),
-        migrations.AddField(
-            model_name='userprofile',
-            name='user',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL),
-        ),
     ]
