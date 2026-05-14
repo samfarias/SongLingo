@@ -62,7 +62,10 @@ struct SuggestedPlaylists: Codable {
     }
 }
 
-struct Playlist: Codable {
+struct Playlist: Codable, Identifiable {
+    // SwiftUI specifically looks for a property named 'id'
+    var id: String { playlistName }
+    
     let playlistName: String
     let language: Int
     let genre: Int?
@@ -246,20 +249,98 @@ struct LyricChallengeData: Codable {
     }
 }
 
-// MARK: - NEW: Placeholder Models for Jaci's New Endpoints
-// These prevent the "Cannot find type in scope" crash
+// MARK: - Playlist Collection View models
 
 struct PlaylistCollectionData: Codable {
-    // Placeholder: Add exact variables once Django endpoint is built
-    let message: String?
+    let playlistCollections: PlaylistCollections
+
+    enum CodingKeys: String, CodingKey {
+        case playlistCollections = "playlist_collections"
+    }
 }
+
+struct PlaylistCollections: Codable {
+    let recentlyPlayed: [Playlist]
+    let newPlaylists: [Playlist]
+    let itsBeenAWhile: [Playlist]
+
+    enum CodingKeys: String, CodingKey {
+        case recentlyPlayed = "recently_played"
+        case newPlaylists = "new_playlists"
+        case itsBeenAWhile = "its_been_a_while"
+    }
+}
+
+// MARK: - Lyric Matching Exercise Models
 
 struct LyricMatchingData: Codable {
-    // Placeholder: Add exact variables once Django endpoint is built
-    let message: String?
+    let lineToDisplay: String
+    let lineToMatch: String
+    let songTitle: String
+    let songArtist: String
+
+    enum CodingKeys: String, CodingKey {
+        case lineToDisplay = "line_to_display"
+        case lineToMatch = "line_to_match"
+        case songTitle = "song_title"
+        case songArtist = "song_artist"
+    }
 }
 
+// MARK: - SinglePlaylist View models
+
 struct SinglePlaylistData: Codable {
-    // Placeholder: Add exact variables once Django endpoint is built
-    let message: String?
+    let playlistInfo: DetailedPlaylistInfo
+    let playlistSongs: [PlaylistSongEntry]
+
+    enum CodingKeys: String, CodingKey {
+        case playlistInfo = "playlist_info"
+        case playlistSongs = "playlist_songs"
+    }
+}
+
+struct DetailedPlaylistInfo: Codable {
+    let id: Int
+    let playlistName: String
+    let description: String
+    let lastDatePlayed: String?
+    let numDaysListened: Int
+    let numSongListens: Int
+    let createdDate: String
+    let proficiencyLevel: String
+    let userProfile: Int
+    let language: Int
+    let genre: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case playlistName = "playlist_name"
+        case description
+        case lastDatePlayed = "last_date_played"
+        case numDaysListened = "num_days_listened"
+        case numSongListens = "num_song_listens"
+        case createdDate = "created_date"
+        case proficiencyLevel = "proficiency_level"
+        case userProfile = "user_profile"
+        case language, genre
+    }
+}
+
+struct PlaylistSongEntry: Codable, Identifiable {
+    // Unique ID for SwiftUI rendering
+    var id: String { song.title + song.artist }
+    
+    let song: DetailedSong
+}
+
+struct DetailedSong: Codable {
+    let title: String
+    let artist: String
+    let proficiencyLevel: String
+    let genre: Int
+
+    enum CodingKeys: String, CodingKey {
+        case title, artist, genre
+        case proficiencyLevel = "proficiency_level"
+    }
 }

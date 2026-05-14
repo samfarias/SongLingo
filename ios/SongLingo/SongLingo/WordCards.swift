@@ -145,7 +145,6 @@ struct WordCards: View {
     
     func fetchData() async {
         do {
-            // FIX: Removed userID and updated the NetworkManager call
             let data = try await NetworkManager.shared.fetchWordCardExerciseData()
             
             await MainActor.run {

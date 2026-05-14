@@ -11,15 +11,13 @@ struct FinishLyrics: View {
     @State private var lyricChallengeData: LyricChallengeData?
     
     struct Lyric {
+        let id = UUID()
         let text: String
         let options: [String]
         let correctOption: String
     }
-
-    // Dummy data
-    @State private var lyrics: [Lyric] = [
-        Lyric(text: "Don't stop ___", options: ["believing", "crying", "running", "flying"], correctOption: "believing"),
-    ]
+    
+    @State private var isLoading = true
     @State private var currentLyric: Lyric = Lyric(text: "", options: [], correctOption: "")
     @State private var optionColors: [String: Color] = [:]
     @State private var questionCount: Int = 0
@@ -32,31 +30,66 @@ struct FinishLyrics: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Text("Fill in the NAME's lyrics")
-                    .font(.title)
-                    .bold()
-                    .padding()
-
-                Text(currentLyric.text)
-                    .font(.title2)
-                    .italic()
-                    .bold()
-                    .padding(.top, 20)
-                    .padding(.bottom, 50)
-
-                ForEach(currentLyric.options, id: \.self) { option in
-                    Button(action: {
-                        handleAnswer(selected: option)
-                    }) {
-                        Text(option)
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.050, green: 0.120, blue: 0.150),
+                        Color(red: 0.110, green: 0.440, blue: 0.450),
+                        Color(red: 0.376, green: 0.450, blue: 0.450)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    if isLoading {
+                        ProgressView("Loading Lyrics...")
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .foregroundColor(.white)
+                    } else if currentLyric.text.isEmpty {
+                        VStack {
+                            Text("No songs found!")
+                                .foregroundColor(.white)
+                            Button("Retry") {
+                                loadGameData()
+                            }
+                            .foregroundColor(.white)
                             .padding()
-                            .background(optionColors[option] ?? Color.blue.opacity(0.3))
-                            .cornerRadius(10)
+                            .background(Color.white.opacity(0.15))
+                            .cornerRadius(12)
+                        }
+                    } else {
+                        Text("Fill in the lyrics:")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .bold()
+                            .padding()
+                        
+                        Text(currentLyric.text)
+                            .font(.title2)
+                            .italic()
+                            .bold()
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                            .padding(.top, 20)
+                            .padding(.bottom, 50)
+
+                        ForEach(currentLyric.options, id: \.self) { option in
+                            Button(action: {
+                                handleAnswer(selected: option)
+                            }) {
+                                Text(option)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(optionColors[option] ?? Color.white.opacity(0.15))
+                                    .cornerRadius(10)
+                            }
+                            .padding(.horizontal)
+                            .disabled(optionColors.values.contains(Color.green))
+                        }
                     }
-                    .padding(.horizontal)
                 }
             }
             .navigationDestination(isPresented: $navigateToLyricResults) {
@@ -81,38 +114,57 @@ struct FinishLyrics: View {
         }
     }
 
-    func handleAnswer(selected: String) {
-        if selected == currentLyric.correctOption {
-            correctAnswers += 1
-            optionColors[selected] = Color.green
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                loadNewLyric()
-            }
-        } else {
-            optionColors[selected] = Color.red
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                loadNewLyric()
+    func loadGameData() {
+        // Only show the big spinner for the very first load
+        if questionCount == 0 {
+            isLoading = true
+        }
+        
+        Task {
+            do {
+                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                let challenge = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData(userId: userID)
+                
+                await MainActor.run {
+                    self.currentLyric = Lyric(
+                        text: challenge.lyric,
+                        options: challenge.buttonOptions,
+                        correctOption: challenge.missingWord
+                    )
+                    
+                    optionColors = Dictionary(uniqueKeysWithValues: currentLyric.options.map { ($0, Color.blue.opacity(0.3)) })
+                    
+                    self.isLoading = false
+                }
+            } catch {
+                print("Connection Error: \(error)")
+                await MainActor.run {
+                    self.isLoading = false
+                }
             }
         }
     }
-
-    func loadNewLyric() {
-        if questionCount >= maxQuestions {
-            totalTime = Date().timeIntervalSince(startTime)
-            self.navigateToLyricResults = true
-            return
-        }
-
-        guard !lyrics.isEmpty else { return }
-
-        var newLyric: Lyric
-        repeat {
-            newLyric = lyrics.randomElement()!
-        } while newLyric.text == currentLyric.text && lyrics.count > 1
-
-        currentLyric = newLyric
-        optionColors = Dictionary(uniqueKeysWithValues: currentLyric.options.map { ($0, Color.blue.opacity(0.3)) })
+    
+    func handleAnswer(selected: String) {
         questionCount += 1
+        
+        if selected == currentLyric.correctOption {
+            correctAnswers += 1
+            optionColors[selected] = Color.green
+        } else {
+            optionColors[selected] = Color.red
+            optionColors[currentLyric.correctOption] = Color.green
+        }
+        
+        // Wait about a second so they see if they were right/wrong
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    if questionCount < maxQuestions {
+                        loadGameData()
+                    } else {
+                        totalTime = Date().timeIntervalSince(startTime)
+                        self.navigateToLyricResults = true
+                    }
+                }
     }
 }
 

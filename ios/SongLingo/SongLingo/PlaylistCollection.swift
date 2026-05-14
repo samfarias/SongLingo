@@ -9,65 +9,126 @@ import SwiftUI
 
 struct PlaylistCollection: View {
     
-    @State private var homeData: HomeScreenData?
-    
+    @State private var playlistCollectionData: PlaylistCollectionData?
     
     var body: some View {
-        ScrollView {
-            Spacer(minLength: 50)
-            
-            Text("Your Playlists")
-                .font(.title)
-                .bold()
-                .padding(.bottom, 20)
-            
-            HStack {
-                Text("Recently Played")
-                    .font(.headline)
-                    .padding(.leading)
-                Spacer()
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 25) {
+                    Spacer(minLength: 20)
+                    
+                    Text("Your Playlists")
+                        .font(.title)
+                        .bold()
+                        .foregroundColor(.white)
+                    
+                    Spacer().frame(height: 20)
+                    
+                    // --- Recently Played Section ---
+                    renderSection(
+                        title: "Recently Played",
+                        playlists: playlistCollectionData?.playlistCollections.recentlyPlayed ?? []
+                    )
+                    
+                    // --- New For You Section ---
+                    renderSection(
+                        title: "New For You",
+                        playlists: playlistCollectionData?.playlistCollections.newPlaylists ?? []
+                    )
+                    
+                    // --- A Trip Down Memory Lane Section ---
+                    renderSection(
+                        title: "A Trip Down Memory Lane",
+                        playlists: playlistCollectionData?.playlistCollections.itsBeenAWhile ?? []
+                    )
+                }
             }
-            .padding(.top)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .background(Constants.twilight_synth
+                .ignoresSafeArea()
+            )
+            .task {
+                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
+                do {
+                    self.playlistCollectionData = try await NetworkManager.shared.fetchPlaylistCollectionData(userId: userID)
+                } catch {
+                    print("Unable to retrieve playlist collection: \(error)")
+                }
+            }
+        }
+    }
+    
+    // Helper to render each horizontal category
+    @ViewBuilder
+    private func renderSection(title: String, playlists: [Playlist]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(.leading)
             
             Divider()
-                .frame(height: 1)
-                .background(Color.black)
+                .background(Color.white.opacity(0.5))
                 .padding(.horizontal)
-                .padding(.top, 5)
             
-            //PLAYLISTS HERE
-            
-            HStack {
-                Text("New For You")
-                    .font(.headline)
+            if playlists.isEmpty {
+                Text("No playlists found")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
                     .padding(.leading)
-                Spacer()
+                    .padding(.vertical, 20)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 15) {
+                        ForEach(playlists, id: \.playlistName) { playlist in
+                            PlaylistCard(playlist: playlist)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
             }
-            .padding(.top)
-            
-            Divider()
-                .frame(height: 1)
-                .background(Color.black)
-                .padding(.horizontal)
-                .padding(.top, 5)
-            
-            //PLAYLISTS HERE
-            
-            HStack {
-                Text("A Trip Cown Memory Lane")
-                    .font(.headline)
-                    .padding(.leading)
-                Spacer()
+        }
+    }
+}
+
+// Subview for the individual playlist buttons
+struct PlaylistCard: View {
+    let playlist: Playlist
+    
+    var body: some View {
+        Button(action: {
+            // Action to play playlist
+        }) {
+            VStack(alignment: .leading) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color(red: 0.600, green: 0.650, blue: 0.900),
+                                Color(red: 0.450, green: 0.500, blue: 0.800)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 140, height: 140)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 2, y: 2)
+                    
+                    Image(systemName: "music.note.list")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                
+                Text(playlist.playlistName)
+                    .font(.subheadline)
+                    .bold()
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                
+                Text(playlist.proficiencyLevel)
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.8))
             }
-            .padding(.top)
-            
-            Divider()
-                .frame(height: 1)
-                .background(Color.black)
-                .padding(.horizontal)
-                .padding(.top, 5)
-            
-            //PLAYLISTS HERE/
+            .frame(width: 140)
         }
     }
 }
