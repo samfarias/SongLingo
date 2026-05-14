@@ -181,3 +181,34 @@ def create_user_data(sender, instance, created, **kwargs):
             current_streak=1,
             longest_streak=1
         )
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+import random
+
+# This listens for any time a User is saved to the database
+@receiver(post_save, sender=User)
+def build_new_user_starter_pack(sender, instance, created, **kwargs):
+    # 'created' is a boolean. If True, this is a brand new signup!
+    if created:
+        # 1. Create their Welcome Playlist
+        # Note: adjust 'user=instance' if your Playlist model is linked to UserProfile instead of User
+        welcome_playlist = Playlist.objects.create(
+            user=instance, 
+            title="Welcome to SongLingo! 🎵",
+            description="A hand-picked starter pack of easy songs to get you practicing immediately."
+        )
+
+        # 2. Grab a mix of Beginner songs from the database
+        # We'll try to grab 5 random songs so they have immediate vocabulary to practice
+        try:
+            beginner_songs = list(Song.objects.filter(proficiency_level="Beginner"))
+            
+            if beginner_songs:
+                # Shuffle and pick up to 5 songs
+                starter_selection = random.sample(beginner_songs, min(len(beginner_songs), 5))
+                
+                # 3. Attach these songs to the new playlist
+                welcome_playlist.songs.set(starter_selection)
+        except Exception as e:
+            print(f"Could not generate starter pack: {e}")
