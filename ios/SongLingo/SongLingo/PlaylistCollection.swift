@@ -48,7 +48,6 @@ struct PlaylistCollection: View {
                 .ignoresSafeArea()
             )
             .task {
-                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
                 do {
                     self.playlistCollectionData = try await NetworkManager.shared.fetchPlaylistCollectionData()
                 } catch {

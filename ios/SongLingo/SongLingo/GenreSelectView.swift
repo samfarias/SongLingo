@@ -12,9 +12,9 @@ struct GenreSelectionView: View {
     var selectedProficiency: String
     
     let genres = [
-        "Mood", "Pop", "Country & Folk",
-        "Rock", "Jazz & Blues", "Reggaeton"
-    ]
+            "Pop", "Reggaeton-Urbano", "Regional-Mexican",
+            "Indie-Alternative", "Tropical", "Rock"
+        ]
     
     let columns = [
         GridItem(.flexible()),
@@ -79,7 +79,7 @@ struct GenreSelectionView: View {
                                                         
                                     VStack(spacing: 8) {
                                          
-                                        Image(genre)
+                                        Image(genre.replacingOccurrences(of: "/", with: "-"))
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 60)

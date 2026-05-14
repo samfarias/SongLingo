@@ -27,7 +27,14 @@ struct Constants
     static let wordsMasteryLvlToMessage: [Int: String] = [0: "New🐣", 1: "Learning✍️", 2: "Familiar🧠", 3: "Mastered🔥"]
     static let masteryLvlToFillColor: [Int: LinearGradient] = [0: yellow, 1: lavender, 2: blue, 3: green]
     
-    static let genreIdToName: [Int: String] = [1: "Indie", 2: "Alternative", 3: "Pop", 4: "EDM", 5: "Indie/Folk", 6: "Folk", 7: "Pop/Folk", 8: "Metal", 9: "Electronic", 10: "Pop/Soundtrack", 11: "Indie/Alternative"]
+    static let genreIdToName: [Int: String] = [
+            1: "Pop",
+            2: "Reggaeton/Urbano",
+            3: "Regional Mexican",
+            4: "Indie Alternative",
+            5: "Tropical",
+            6: "Rock"
+        ]
     
     // -- MARK: ELEMENT COLORS
     static let blue: LinearGradient = LinearGradient(
