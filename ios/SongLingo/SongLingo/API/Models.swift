@@ -214,7 +214,7 @@ struct WordCardExerciseData: Codable {
 
 struct PracticeWord: Codable {
     let wordText: String
-    let translation: String
+    let translation: String?
     let pronunciation: String
     let definition: String
     let numPracticesCompleted: Int
