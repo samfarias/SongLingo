@@ -102,7 +102,7 @@ struct FinishLyrics: View {
             .padding()
             .onAppear {
                 startTime = Date()
-                loadNewLyric()
+                loadGameData()
             }
             .task {
                             do {
@@ -122,8 +122,7 @@ struct FinishLyrics: View {
         
         Task {
             do {
-                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                let challenge = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData(userId: userID)
+                let challenge = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData()
                 
                 await MainActor.run {
                     self.currentLyric = Lyric(

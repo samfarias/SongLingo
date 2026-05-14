@@ -60,6 +60,7 @@ class RegisterView(APIView):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            UserProfile.objects.create(user=user)
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
@@ -76,7 +77,7 @@ class UpdateProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
-        user_profile = request.user.userprofile
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
         data = request.data
 
         if 'proficiency_level' in data:
@@ -101,7 +102,7 @@ class HomeScreenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        profile = request.user.userprofile
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
         user_profile_info = UserProfileSerializer(profile).data
 
         # user_progress
@@ -361,7 +362,7 @@ SPANISH_DICTIONARY = {
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def fetch_word_cards(request):
-    profile = request.user.userprofile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     user_playlists = Playlist.objects.filter(user_profile=profile)
     saved_songs = PlaylistSong.objects.filter(playlist__in=user_playlists).select_related('song')
@@ -404,7 +405,7 @@ def fetch_word_cards(request):
 @permission_classes([IsAuthenticated])
 def generate_weekly_playlist(request):
     try:
-        profile = request.user.userprofile
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
         
         user_level = getattr(profile, 'proficiency_level', 'Beginner') 
 

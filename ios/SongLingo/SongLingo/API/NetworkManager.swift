@@ -30,7 +30,7 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-    private let baseURL = "http://68.183.31.175/api"
+    private let baseURL = "http://68.183.31.175:8000/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
     // private let baseURL = "http://localhost:8000/api"
@@ -357,4 +357,29 @@ class NetworkManager {
         
         return try JSONDecoder().decode(SinglePlaylistData.self, from: data)
     }
+    
+    func generateWeeklyPlaylist() async throws -> SinglePlaylistData {
+            // Points directly to the secure, ID-free URL we just built
+            guard let url = URL(string: "\(baseURL)/playlists/generate/") else {
+                throw URLError(.badURL)
+            }
+            
+            // Uses the Auth helper to securely pass the JWT token and sets it as a POST request
+            let request = createAuthenticatedRequest(url: url, method: "POST")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                let rawError = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("--- GENERATOR REJECTION: \(httpResponse.statusCode) ---")
+                print(rawError)
+                throw URLError(.badServerResponse)
+            }
+            
+            // Decodes the returned playlist into Austin's existing SinglePlaylistData model
+            return try JSONDecoder().decode(SinglePlaylistData.self, from: data)
+        }
 }

@@ -50,7 +50,7 @@ struct PlaylistCollection: View {
             .task {
                 let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
                 do {
-                    self.playlistCollectionData = try await NetworkManager.shared.fetchPlaylistCollectionData(userId: userID)
+                    self.playlistCollectionData = try await NetworkManager.shared.fetchPlaylistCollectionData()
                 } catch {
                     print("Unable to retrieve playlist collection: \(error)")
                 }

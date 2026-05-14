@@ -174,8 +174,7 @@ struct LyricMatchView: View {
         .animation(.spring(duration: 0.3), value: sentence)
         .task {
             do {
-                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                self.lyricMatchData = try await NetworkManager.shared.fetchLyricMatchExerciseData(userId: userID)
+                self.lyricMatchData = try await NetworkManager.shared.fetchLyricMatchExerciseData()
                 if let data = self.lyricMatchData {
                     print(data.lineToDisplay)
                     print(data.lineToMatch)
