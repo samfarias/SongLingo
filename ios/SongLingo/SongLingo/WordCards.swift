@@ -145,8 +145,7 @@ struct WordCards: View {
     
     func fetchData() async {
         do {
-            let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-            let data = try await NetworkManager.shared.fetchWordCardExerciseData(userId: userID)
+            let data = try await NetworkManager.shared.fetchWordCardExerciseData()
             
             await MainActor.run {
                 self.wordCardExerciseData = data

@@ -91,21 +91,26 @@ struct FinishLyrics: View {
                         }
                     }
                 }
-                .navigationDestination(isPresented: $navigateToLyricResults) {
-                    FinishLyricsResults(
-                        totalTime: totalTime,
-                        correctAnswers: correctAnswers,
-                        totalQuestions: maxQuestions
-                    )
-                }
-                .padding()
-                .onAppear {
-                    if questionCount == 0 {
-                        startTime = Date()
-                        loadGameData()
-                    }
-                }
             }
+            .navigationDestination(isPresented: $navigateToLyricResults) {
+                FinishLyricsResults(
+                    totalTime: totalTime,
+                    correctAnswers: correctAnswers,
+                    totalQuestions: questionCount
+                )
+            }
+            .padding()
+            .onAppear {
+                startTime = Date()
+                loadNewLyric()
+            }
+            .task {
+                            do {
+                                self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData()
+                            } catch {
+                                print("Request failed: \(error)")
+                            }
+                        }
         }
     }
 
