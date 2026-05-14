@@ -33,11 +33,10 @@ class NetworkManager {
     private let baseURL = "http://68.183.31.175/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-//     private let baseURL = "http://localhost:8000/api"
+    // private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
-    
     
     //-----logging in
     // Template
@@ -88,7 +87,6 @@ class NetworkManager {
             throw URLError(.badServerResponse)
         }
 
-        // SUCCESS
         let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
                 
         UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
@@ -96,14 +94,6 @@ class NetworkManager {
         UserDefaults.standard.set(String(decodedResponse.user_id), forKey: "user_id")
                 
         return decodedResponse
-
-    }
-    
-    struct DjangoError: Codable {
-        let detail: String?
-        let username: [String]?
-        let password: [String]?
-        let non_field_errors: [String]?
     }
     
     func register(username: String, password: String) async throws -> LoginResponse {
@@ -126,7 +116,6 @@ class NetworkManager {
                 throw URLError(.badServerResponse)
             }
 
-            // ERROR HANDLING
             if !(200...299).contains(httpResponse.statusCode) {
                 var errorMessage = "Registration failed. Please try again."
                 
@@ -143,7 +132,6 @@ class NetworkManager {
                 throw URLError(.badServerResponse)
             }
 
-            // SUCCESS: Save tokens and user info, just like login!
             let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
             UserDefaults.standard.set(decodedResponse.access, forKey: "jwt_access_token")
             UserDefaults.standard.set(String(decodedResponse.user_id), forKey: "user_id")
@@ -204,7 +192,6 @@ class NetworkManager {
     
     /// Jaci's Word Card FastMCP Fetcher
     func fetchPronunciation(for word: String) async throws -> PronunciationResponse {
-        // Safely encode the URL in case the word has spaces or weird characters
         guard let safeWord = word.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
               let url = URL(string: "\(baseURL)/pronunciation/\(safeWord)/") else {
             throw URLError(.badURL)
@@ -226,32 +213,10 @@ class NetworkManager {
         return try JSONDecoder().decode(PronunciationResponse.self, from: data)
     }
     
-    /// Austin's Home Screen Data Fetcher
-    func fetchHomeScreenData(userId: String) async throws -> HomeDataResponse {
-        guard let url = URL(string: "\(baseURL)/home/?user_id=\(userId)") else {
-            throw URLError(.badURL)
-        }
-        
-        // build the request using our Auth Helper
-        let request = createAuthenticatedRequest(url: url)
-        
-        // make the call
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        // check for a 200 OK from Django
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            print("Server error while fetching home data.")
-            throw URLError(.badServerResponse)
-        }
-        
-        // decode the JSON
-        return try JSONDecoder().decode(HomeDataResponse.self, from: data)
-    }
-    
     // MARK: - Austin's Migrated Request Methods
     
-    func fetchMySongsData(userId: String) async throws -> MySongsData {
-        guard let url = URL(string: "\(baseURL)/songs-listened?user_id=\(userId)") else {
+    func fetchMySongsData() async throws -> MySongsData {
+        guard let url = URL(string: "\(baseURL)/songs-listened/") else {
             throw URLError(.badURL)
         }
         
@@ -266,8 +231,8 @@ class NetworkManager {
         return try JSONDecoder().decode(MySongsData.self, from: data)
     }
     
-    func fetchHomeScreenData(userId: String) async throws -> HomeScreenData {
-        guard let url = URL(string: "\(baseURL)/home?user_id=\(userId)") else {
+    func fetchHomeScreenData() async throws -> HomeScreenData {
+        guard let url = URL(string: "\(baseURL)/home/") else {
             throw URLError(.badURL)
         }
         
@@ -288,8 +253,8 @@ class NetworkManager {
         return try JSONDecoder().decode(HomeScreenData.self, from: data)
     }
     
-    func fetchWordBankScreenData(userId: String) async throws -> WordBankData {
-        guard let url = URL(string: "\(baseURL)/words-learned?user_id=\(userId)") else {
+    func fetchWordBankScreenData() async throws -> WordBankData {
+        guard let url = URL(string: "\(baseURL)/words-learned/") else {
             throw URLError(.badURL)
         }
         
@@ -303,8 +268,8 @@ class NetworkManager {
         return try JSONDecoder().decode(WordBankData.self, from: data)
     }
     
-    func fetchUserActivityScreenData(userId: String) async throws -> UserActivityData {
-        guard let url = URL(string: "\(baseURL)/user-activity?user_id=\(userId)") else {
+    func fetchUserActivityScreenData() async throws -> UserActivityData {
+        guard let url = URL(string: "\(baseURL)/user-activity/") else {
             throw URLError(.badURL)
         }
         
@@ -318,8 +283,8 @@ class NetworkManager {
         return try JSONDecoder().decode(UserActivityData.self, from: data)
     }
     
-    func fetchWordCardExerciseData(userId: String) async throws -> WordCardExerciseData {
-        guard let url = URL(string: "\(baseURL)/word-card-exercise?user_id=\(userId)") else {
+    func fetchWordCardExerciseData() async throws -> WordCardExerciseData {
+        guard let url = URL(string: "\(baseURL)/word-card-exercise/") else {
             throw URLError(.badURL)
         }
         
@@ -333,8 +298,8 @@ class NetworkManager {
         return try JSONDecoder().decode(WordCardExerciseData.self, from: data)
     }
     
-    func fetchCompleteTheLyricExerciseData(userId: String) async throws -> LyricChallengeData {
-        guard let url = URL(string: "\(baseURL)/complete-the-lyric-exercise?user_id=\(userId)") else {
+    func fetchCompleteTheLyricExerciseData() async throws -> LyricChallengeData {
+        guard let url = URL(string: "\(baseURL)/complete-the-lyric-exercise/") else {
             throw URLError(.badURL)
         }
         
@@ -346,5 +311,50 @@ class NetworkManager {
         }
         
         return try JSONDecoder().decode(LyricChallengeData.self, from: data)
+    }
+    
+    func fetchPlaylistCollectionData() async throws -> PlaylistCollectionData {
+        guard let url = URL(string: "\(baseURL)/playlist-collection/") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(PlaylistCollectionData.self, from: data)
+    }
+    
+    func fetchLyricMatchExerciseData() async throws -> LyricMatchingData {
+        guard let url = URL(string: "\(baseURL)/lyric-match-exercise/") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(LyricMatchingData.self, from: data)
+    }
+    
+    func fetchSinglePlaylistData(playlistId: String) async throws -> SinglePlaylistData {
+        guard let url = URL(string: "\(baseURL)/playlist?playlist_id=\(playlistId)") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(SinglePlaylistData.self, from: data)
     }
 }

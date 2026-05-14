@@ -100,7 +100,7 @@ struct UserActivity: View {
             .background(Constants.coastal_mist)
             .task {
                 do {
-                    self.userActivity = try await NetworkManager.shared.fetchUserActivityScreenData(userId: "1")
+                    self.userActivity = try await NetworkManager.shared.fetchUserActivityScreenData()
                 } catch {
                     print("Request failed: \(error)")
                 }

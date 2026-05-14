@@ -101,8 +101,7 @@ struct MySongs: View {
             .background(Constants.sunset_horizon)
             .task {
                 do {
-                    let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                    let mySongsData = try await NetworkManager.shared.fetchMySongsData(userId: userID)
+                    let mySongsData = try await NetworkManager.shared.fetchMySongsData()
                     self.userSongs = mySongsData.userSongData
                     for songEntry in self.userSongs {
                         let totalActivities = (songEntry.numListens ?? 0) + (songEntry.numLyricChallengesCompleted ?? 0)

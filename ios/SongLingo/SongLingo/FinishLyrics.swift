@@ -72,13 +72,12 @@ struct FinishLyrics: View {
                 loadNewLyric()
             }
             .task {
-                do {
-                    let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                    self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData(userId: userID)
-                } catch {
-                    print("Request failed: \(error)")
-                }
-            }
+                            do {
+                                self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData()
+                            } catch {
+                                print("Request failed: \(error)")
+                            }
+                        }
         }
     }
 

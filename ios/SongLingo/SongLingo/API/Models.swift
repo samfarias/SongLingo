@@ -1,6 +1,6 @@
 //
 //  Models.swift
-//  
+//
 //
 //  Created by Austin Robertson on 4/30/26.
 //
@@ -244,4 +244,22 @@ struct LyricChallengeData: Codable {
         case songTitle = "song_title"
         case songArtist = "song_artist"
     }
+}
+
+// MARK: - NEW: Placeholder Models for Jaci's New Endpoints
+// These prevent the "Cannot find type in scope" crash
+
+struct PlaylistCollectionData: Codable {
+    // Placeholder: Add exact variables once Django endpoint is built
+    let message: String?
+}
+
+struct LyricMatchingData: Codable {
+    // Placeholder: Add exact variables once Django endpoint is built
+    let message: String?
+}
+
+struct SinglePlaylistData: Codable {
+    // Placeholder: Add exact variables once Django endpoint is built
+    let message: String?
 }

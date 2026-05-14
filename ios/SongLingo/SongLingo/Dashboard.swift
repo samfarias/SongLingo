@@ -1,10 +1,3 @@
-//
-//  Dashboard.swift
-//  SongLingo
-//
-//  Created by Jaci on 3/23/26.
-//
-
 import SwiftUI
 
 struct Dashboard: View {
@@ -28,29 +21,25 @@ struct Dashboard: View {
                             .font(.footnote.weight(.light))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 20)
-
+                        
                     }
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity, minHeight: 150)
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [
-                                Color.black.opacity(0.2), // Top overlay color
-                                Color.clear               // Fades into the background
+                                Color.black.opacity(0.2),
+                                Color.clear
                             ]),
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    
                 }
                 
-                //Handles the space between the the subtitle and Word Bank, My Songs, and Streak buttons
                 Spacer(minLength: 30)
                 
-                //Handles the Word Bank, My Songs, and Streak buttons
                 HStack (spacing: 10) {
-                    
                     NavigationLink(destination: WordBank()) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
@@ -62,7 +51,7 @@ struct Dashboard: View {
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.black, lineWidth: 1)
-                                        )
+                                    )
                                     .font(.system(size: 12))
                                 VStack (alignment: .leading) {
                                     Text("Word Bank")
@@ -79,29 +68,22 @@ struct Dashboard: View {
                             }
                             .padding(.horizontal)
                         }
-                        .shadow(
-                            color: .black.opacity(0.15), // Subtle transparency
-                            radius: 4,                   // Small blur for a clean edge
-                            x: 3,                        // Shifts shadow to the right
-                            y: 3                         // Shifts shadow downwards
-                        )
+                        .shadow(color: .black.opacity(0.15), radius: 4, x: 3, y: 3)
                         .frame(maxWidth: .infinity)
                     }
-                    
                     
                     NavigationLink(destination: MySongs()) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Constants.lavender)
                             HStack {
-                                //Self-note: Another possibility for the image can be the "opticaldisc"
                                 Image(systemName: "music.note.square.stack")
                                     .padding(4)
                                     .foregroundColor(.black)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.black, lineWidth: 1)
-                                        )
+                                    )
                                     .font(.system(size: 12))
                                 
                                 VStack (alignment: .leading) {
@@ -119,17 +101,11 @@ struct Dashboard: View {
                             }
                             .padding(.horizontal)
                         }
-                        .shadow(
-                            color: .black.opacity(0.15), // Subtle transparency
-                            radius: 4,                   // Small blur for a clean edge
-                            x: 3,                        // Shifts shadow to the right
-                            y: 3                        // Shifts shadow downwards
-                        )
+                        .shadow(color: .black.opacity(0.15), radius: 4, x: 3, y: 3)
                         .frame(maxWidth: .infinity)
                     }
                     
-                    NavigationLink(destination: UserActivity())
-                    {
+                    NavigationLink(destination: UserActivity()) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Constants.sunburst)
@@ -140,7 +116,7 @@ struct Dashboard: View {
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color.black, lineWidth: 1)
-                                        )
+                                    )
                                     .font(.system(size: 12))
                                 
                                 VStack (alignment: .leading) {
@@ -159,24 +135,16 @@ struct Dashboard: View {
                             .padding(.horizontal)
                             .padding(.vertical, 15)
                         }
-                        .shadow(
-                            color: .black.opacity(0.15), // Subtle transparency
-                            radius: 4,                   // Small blur for a clean edge
-                            x: 3,                        // Shifts shadow to the right
-                            y: 3                         // Shifts shadow downwards
-                        )
+                        .shadow(color: .black.opacity(0.15), radius: 4, x: 3, y: 3)
                         .frame(maxWidth: .infinity)
                     }
-                    
                 }
                 .padding(.horizontal)
                 
                 Spacer(minLength: 20)
                 
                 VStack(alignment: .leading, spacing: 15) {
-                    // MARK: - Current Playlists Section
                     VStack(alignment: .leading, spacing: 15) {
-                        // 1. Section Header
                         Text("Current Playlists")
                             .foregroundColor(.white.opacity(0.8))
                             .font(.headline)
@@ -190,7 +158,6 @@ struct Dashboard: View {
                                         print("Selected: \(playlist.playlistName)")
                                     }) {
                                         ZStack {
-                                            // Card Background using your Morning Sage gradient
                                             RoundedRectangle(cornerRadius: 15)
                                                 .fill(Constants.mint)
                                             
@@ -198,8 +165,6 @@ struct Dashboard: View {
                                                 Image(systemName: "play.circle.fill")
                                                     .font(.system(size: 28))
                                                     .foregroundColor(Color(red: 0.1, green: 0.3, blue: 0.2))
-                                                
-//                                                Spacer()
                                                 
                                                 Text(playlist.playlistName)
                                                     .font(.system(size: 13, weight: .bold))
@@ -218,26 +183,21 @@ struct Dashboard: View {
                                             .padding(12)
                                         }
                                         .frame(width: 110, height: 150)
-                                        // Card Shadow (Bottom-Right)
                                         .shadow(color: Color(red: 0.4, green: 0.6, blue: 0.5).opacity(0.3), radius: 5, x: 3, y: 3)
                                     }
                                 }
                             }
-                            .padding(.horizontal, 15) // Keeps cards from touching the container edges
-                            .padding(.bottom, 30)     // Extra room for the card shadows
+                            .padding(.horizontal, 15)
+                            .padding(.bottom, 30)
                             .padding(.top, 5)
                         }
                     }
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.25), lineWidth: 3) // Keeps the crisp edge
+                            .stroke(Color.white.opacity(0.25), lineWidth: 3)
                     )
                     
-//                    Spacer(minLength: 20)
-                    
-                    // -- MARK: Handles This Week's Word Cards Section
                     VStack (alignment: .leading) {
-                        //Handles the This Week's Word Cards headline
                         Text("This Week's Word Cards")
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.8))
@@ -261,22 +221,18 @@ struct Dashboard: View {
                                 
                                 Spacer()
                                 
-                                Button(action: {
-                                    // Action for New Words button
-                                }) {
+                                Button(action: { }) {
                                     Text("Begin")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 12))
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
-                                    
                                 }
-                                //MUST CHANGE
                                 .background(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
-                                            Color.white.opacity(0.2), // Top overlay color
-                                            Color.clear           // Fades into the background
+                                            Color.white.opacity(0.2),
+                                            Color.clear
                                         ]),
                                         startPoint: .top,
                                         endPoint: .bottom
@@ -284,36 +240,26 @@ struct Dashboard: View {
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 5)
-                                        .stroke(Color.white.opacity(0.05), lineWidth: 4) // Keeps the crisp edge
+                                        .stroke(Color.white.opacity(0.05), lineWidth: 4)
                                 )
                                 .cornerRadius(8)
-                                
-                                
                             }
                             .padding()
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.20), lineWidth: 6) // Keeps the crisp edge
+                                .stroke(Color.white.opacity(0.20), lineWidth: 6)
                         )
                         .cornerRadius(10)
-                        .shadow(
-                            color: .black.opacity(0.10), // Subtle transparency
-                            radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
-                        )
-                        
+                        .shadow(color: .black.opacity(0.10), radius: 4, x: 5, y: 5)
                     }
                     .padding(.vertical)
                     
-                    //Handles This Week's Word Cards Section
                     VStack (alignment: .leading) {
-                        //Handles the Practice Games headline
                         Text("Practice Games")
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.8))
-            
+                        
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.03))
@@ -339,13 +285,12 @@ struct Dashboard: View {
                                         .font(.system(size: 12))
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
-                                    
                                 }
                                 .background(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
-                                            Color.white.opacity(0.2), // Top overlay color
-                                            Color.clear              // Fades into the background
+                                            Color.white.opacity(0.2),
+                                            Color.clear
                                         ]),
                                         startPoint: .top,
                                         endPoint: .bottom
@@ -353,32 +298,23 @@ struct Dashboard: View {
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.white.opacity(0.05), lineWidth: 4) // Keeps the crisp edge
+                                        .stroke(Color.white.opacity(0.05), lineWidth: 4)
                                 )
                                 .cornerRadius(8)
-                                
                             }
                             .padding()
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.20), lineWidth: 6) // Keeps the crisp edge
+                                .stroke(Color.white.opacity(0.20), lineWidth: 6)
                         )
                         .cornerRadius(10)
-                        .shadow(
-                            color: .black.opacity(0.15), // Subtle transparency
-                            radius: 4,                   // Small blur for a clean edge
-                            x: 5,                        // Shifts shadow to the right
-                            y: 5                         // Shifts shadow downwards
-                        )
-                        
+                        .shadow(color: .black.opacity(0.15), radius: 4, x: 5, y: 5)
                     }
                     .padding(.vertical)
                 }
                 .padding()
-                
             }
-            //.background(Constants.butterfly)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [
@@ -392,16 +328,15 @@ struct Dashboard: View {
             )
             .ignoresSafeArea()
             .task {
-                            let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
-                            do {
-                                self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
-                            } catch {
-                                print("DEBUG: Dashboard fetch failed with error: \(error)")
-                            }
-                        }
-                    }
+                do {
+                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+                } catch {
+                    print("DEBUG: Profile fetch failed with error: \(error)")
                 }
             }
+        }
+    }
+}
 
 #Preview {
     Dashboard()

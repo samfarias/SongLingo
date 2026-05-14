@@ -32,57 +32,63 @@ from .views_helpers import (
     getTwoRandomSongLines, getPracticeExerciseSong
 )
 
-class HomeScreenView(APIView):
-    def get(self, request): # returns all data for the user's Home Screen
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
-        # user_info
-        user_id = request.query_params.get('user_id', None)
-        if user_id == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        try:
-            user_profile = UserProfile.objects.get(pk=user_id)
-        except UserProfile.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+class HomeScreenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Identify the user strictly by their JWT token
+        profile = request.user.userprofile
         
-        user_profile_info = UserProfileSerializer(user_profile).data
+        user_profile_info = UserProfileSerializer(profile).data
 
         # user_progress
-        num_words_learned = UserWord.objects.filter(user_profile=user_id).count()
-        num_songs_completed = UserSong.objects.filter(user_profile=user_id).count()
-        current_streak = UserActivity.objects.get(user_profile=user_id).current_streak
+        num_words_learned = UserWord.objects.filter(user_profile=profile).count()
+        num_songs_completed = UserSong.objects.filter(user_profile=profile).count()
+        
+        try:
+            activity = UserActivity.objects.get(user_profile=profile)
+            current_streak = activity.current_streak
+        except UserActivity.DoesNotExist:
+            current_streak = 0
+
         user_progress = {
             "num_words_learned": num_words_learned,
             "num_songs_completed": num_songs_completed,
             "current_streak": current_streak
         }
    
-        # suggested_playlists (returns 3 playlists: 2 recently_played and 1 new_playlist IF new_playlist exists, else 3 recently_played)
-        user_playlists = list(Playlist.objects.filter(user_profile=user_id).order_by('-last_date_played', '-created_date'))
+        # suggested_playlists
+        user_playlists = list(Playlist.objects.filter(user_profile=profile).order_by('-last_date_played', '-created_date'))
+        
         def getSuggestedPlaylists(user_playlists: list[Playlist]) -> dict[str, list[Playlist]]:
-            suggested_playlists = { # returns 3 total playlists: 2 recent and 1 new IF new exists, else 3 recent
+            suggested_playlists = {
                 "recently_played": [],
                 "new_playlist": []
             }
-            # get new_playlist if there is one, and move index past new_playlists and to up to recently_listened playlists
+            
             i = 0
             while i < len(user_playlists) and user_playlists[i].last_date_played == None:
                 if len(suggested_playlists["new_playlist"]) == 0:
                     suggested_playlists["new_playlist"].append(user_playlists[i])
                 i += 1
-            # append up to 3 recently_played playlists and afterwards pop() 1 recently_played if a new_playlist exists
+            
             while i < len(user_playlists) and len(suggested_playlists["recently_played"]) < 3:
                 suggested_playlists["recently_played"].append(user_playlists[i])
                 i += 1
+                
             if len(suggested_playlists["new_playlist"]) > 0 and len(suggested_playlists["recently_played"]) >= 3:
                 suggested_playlists["recently_played"].pop()
+                
             return suggested_playlists
-        suggested_playlists = getSuggestedPlaylists(user_playlists=user_playlists)
-        recently_played_serialized = SuggestedPlaylistsSerializer(suggested_playlists["recently_played"], many=True).data
-        new_playlist_serialized = SuggestedPlaylistsSerializer(suggested_playlists["new_playlist"], many=True).data
 
-        # (NEXT feature) daily recommended song
-        
-        # JSON response for Swift frontend
+        suggested = getSuggestedPlaylists(user_playlists=user_playlists)
+        recently_played_serialized = SuggestedPlaylistsSerializer(suggested["recently_played"], many=True).data
+        new_playlist_serialized = SuggestedPlaylistsSerializer(suggested["new_playlist"], many=True).data
+
         return Response({
             "user_info": user_profile_info,
             "user_progress": user_progress,
@@ -516,3 +522,137 @@ class RegisterView(APIView):
             }, status=status.HTTP_201_CREATED)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+import random
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import UserProfile, Playlist, PlaylistSong
+
+# Your distractor dictionary
+SPANISH_DICTIONARY = {
+    "novia": {"def": "girlfriend", "distractors": ["sister", "mother", "aunt", "friend"]},
+    "mañana": {"def": "tomorrow", "distractors": ["today", "yesterday", "tonight", "morning"]},
+    "boda": {"def": "wedding", "distractors": ["party", "funeral", "birthday", "meeting"]},
+    "mucho": {"def": "a lot", "distractors": ["a little", "nothing", "everything", "some"]},
+    "corazón": {"def": "heart", "distractors": ["mind", "soul", "body", "blood"]}
+}
+
+@api_view(['GET'])
+def fetch_word_cards(request, user_id):
+    try:
+        profile = UserProfile.objects.get(user__id=user_id)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+    # get all playlists for this user
+    user_playlists = Playlist.objects.filter(user_profile=profile)
+    
+    # get all songs in those playlists
+    # Adjust 'song' to whatever your related name is (e.g., analyzed_song)
+    saved_songs = PlaylistSong.objects.filter(playlist__in=user_playlists).select_related('song')
+    
+    # Aggregate all unique vocabulary words from these songs
+    vocab_pool = set()
+    for ps in saved_songs:
+        # Assuming your song model has a JSONField called vocabulary_json
+        song_vocab = ps.song.vocabulary_json 
+        if song_vocab:
+            vocab_pool.update(song_vocab)
+
+    # filter the pool to only include words we have definitions for
+    valid_words = [word for word in vocab_pool if word in SPANISH_DICTIONARY]
+    
+    # Optional: If they don't have enough words, you could fall back to a default list
+    if not valid_words:
+        valid_words = ["novia", "mañana", "boda"]
+
+    # pick up to 10 random words for this session
+    random.shuffle(valid_words)
+    session_words = valid_words[:10]
+    
+    practice_words = []
+    word_distractors = []
+    
+    # build array Jaci's frontend needs
+    for word in session_words:
+        data = SPANISH_DICTIONARY[word]
+        
+        practice_words.append({
+            "word_text": word,
+            "definition": data["def"]
+        })
+        
+        # pick exactly 3 random distractors
+        distractors = random.sample(data["distractors"], 3)
+        word_distractors.append(distractors)
+
+    return Response({
+        "practice_words": practice_words,
+        "word_distractors": word_distractors
+    })
+
+import random
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import UserProfile, AnalyzedSong, Playlist, PlaylistSong
+
+@api_view(['POST'])
+def generate_weekly_playlist(request, user_id):
+    try:
+        profile = UserProfile.objects.get(user__id=user_id)
+        
+        # 1. Determine the user's target level 
+        # (Assuming you have a level field. If not, default to something)
+        user_level = getattr(profile, 'proficiency_level', 'Beginner') 
+
+        # 2. Query the database for ALL songs matching their level
+        matching_songs = AnalyzedSong.objects.filter(difficulty_level=user_level)
+        
+        if not matching_songs.exists():
+            return Response({"error": f"No songs found for level {user_level}"}, status=404)
+
+        # 3. The Randomizer: Convert queryset to a list and pick 5 unique songs
+        song_pool = list(matching_songs)
+        num_songs = min(len(song_pool), 5) # Prevent errors if you have fewer than 5 songs
+        selected_songs = random.sample(song_pool, num_songs)
+
+        # 4. Create the new Playlist in the database
+        playlist = Playlist.objects.create(
+            user_profile=profile,
+            playlist_name="Your Weekly Mix",
+            # Add other fields like creation_date if your model requires them
+        )
+
+        # 5. Link the selected songs to the playlist
+        # We use bulk_create for performance so it's one DB hit instead of five
+        PlaylistSong.objects.bulk_create([
+            PlaylistSong(playlist=playlist, song=song) 
+            for song in selected_songs
+        ])
+
+        # 6. Serve the finalized data back to the frontend
+        # This formats the response exactly how Austin's SinglePlaylistView expects it
+        playlist_data = []
+        for entry in selected_songs:
+            playlist_data.append({
+                "id": entry.id,
+                "title": entry.title,
+                "artist": entry.artist,
+                "lyrics": entry.lyrics,
+                "proficiency_level": entry.difficulty_level,
+                "vocabulary": entry.vocabulary_json
+            })
+
+        return Response({
+            "playlist_info": {
+                "id": playlist.id,
+                "name": playlist.playlist_name,
+                "description": f"Curated for {user_level} learners."
+            },
+            "songs": playlist_data
+        }, status=201)
+
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

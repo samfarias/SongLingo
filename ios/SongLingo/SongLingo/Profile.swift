@@ -182,9 +182,8 @@ struct Profile: View {
             )
             // LIVE: Fetching the data when the screen appears
             .task {
-                let userID = UserDefaults.standard.string(forKey: "user_id") ?? "1"
                 do {
-                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData(userId: userID)
+                    self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
                 } catch {
                     print("DEBUG: Profile fetch failed with error: \(error)")
                 }
