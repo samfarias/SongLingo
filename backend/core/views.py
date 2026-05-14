@@ -1,12 +1,3 @@
-This is a classic Git merge mess! When multiple people are pulling, pasting, and committing at the same time, Git panics and just dumps both versions of the code into the file side-by-side.
-
-I have fully resolved the conflict, deleted the duplicates, and permanently "ghost-proofed" every single function by removing the `user_id` lookups and replacing them with `request.user.userprofile` (our JWT tokens!).
-
-I also took the liberty of converting Jaci's `fetch_word_cards` and `generate_weekly_playlist` into Class-Based Views (`WordCardExerciseView` and `GenerateWeeklyPlaylistView`) so they match exactly what we put in your `urls.py` earlier.
-
-Replace your **ENTIRE** `backend/core/views.py` file with this clean version:
-
-```python
 import random
 import os
 import json
