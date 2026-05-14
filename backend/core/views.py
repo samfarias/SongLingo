@@ -28,7 +28,7 @@ load_dotenv(find_dotenv())
 
 from .models import (
     UserProfile, Song, UserWord, UserSong, UserActivity, DaysActive, Playlist,
-    PlaylistSong, Word, Language, Genre, GenreSelection, AnalyzedSong
+    PlaylistSong, Word, Language, Genre, GenreSelection,
 )
 from .serializers import (
     SongSerializer, UserProfileSerializer, UserWordSerializer, UserSongSerializer,
@@ -337,7 +337,7 @@ class GenerateWeeklyPlaylistView(APIView):
         profile = request.user.userprofile
         user_level = getattr(profile, 'proficiency_level', 'Beginner') 
 
-        matching_songs = AnalyzedSong.objects.filter(difficulty_level=user_level)
+        matching_songs = Song.objects.filter(proficiency_level=user_level)
         if not matching_songs.exists():
             return Response({"error": f"No songs found for level {user_level}"}, status=404)
 
