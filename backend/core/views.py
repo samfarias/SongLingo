@@ -163,21 +163,21 @@ class HomeScreenView(APIView):
 class WordsLearnedView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        profile = request.user.userprofile
+        profile = request.user.profile
         user_words = UserWord.objects.filter(user_profile=profile).select_related('word')
         return Response({"user_word_data": UserWordSerializer(user_words, many=True).data})
 
 class SongsListenedView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        profile = request.user.userprofile
+        profile = request.user.profile
         user_songs = UserSong.objects.filter(user_profile=profile).select_related('song')
         return Response({"user_song_data": UserSongSerializer(user_songs, many=True).data})
 
 class UserActivityView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        profile = request.user.userprofile
+        profile = request.user.profile
         
         try:
             user_activity = UserActivity.objects.get(user_profile=profile)
@@ -196,7 +196,7 @@ class UserActivityView(APIView):
 class PlaylistCollectionView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        profile = request.user.userprofile
+        profile = request.user.profile
 
         def getPlaylistCollections(user_playlists: list[Playlist]) -> dict[str, list[Playlist]]:
             playlist_collections = {
@@ -244,7 +244,7 @@ class SinglePlaylistView(APIView):
             
         try:
             # Added a security check to make sure they own this playlist
-            playlist = Playlist.objects.get(pk=playlist_id, user_profile=request.user.userprofile)
+            playlist = Playlist.objects.get(pk=playlist_id, user_profile=request.user.profile)
         except Playlist.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
@@ -262,7 +262,7 @@ class SinglePlaylistView(APIView):
 class GenerateWeeklyDropView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        user = request.user.userprofile
+        user = request.user.profile
 
         try:
             client_id = os.getenv('SPOTIFY_CLIENT_ID')
@@ -458,7 +458,7 @@ def generate_weekly_playlist(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUserWordNumPracticesCompleted(request):
-    profile = request.user.userprofile
+    profile = request.user.profile
     word_id = request.query_params.get('word_id')
     if not word_id:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -472,7 +472,7 @@ def updateUserWordNumPracticesCompleted(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUserSongProgress(request):
-    profile = request.user.userprofile
+    profile = request.user.profile
     song_id = request.query_params.get('song_id')
     request_type = request.query_params.get('request_type')
     playlist_id = request.query_params.get('playlist_id')
@@ -503,7 +503,7 @@ def updateUserSongProgress(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getCompleteTheLyricExercise(request):
-    profile = request.user.userprofile
+    profile = request.user.profile
     practice_song = getPracticeExerciseSong(profile.id)
     lyric_and_word = getLyricAndMissingWord(practice_song)
     distractor_words = getSongDistractorWords(practice_song, lyric_and_word[1])
@@ -519,7 +519,7 @@ def getCompleteTheLyricExercise(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getLyricMatchExercise(request):
-    profile = request.user.userprofile
+    profile = request.user.profile
     practice_song = getPracticeExerciseSong(profile.id)
     two_song_lines = getTwoRandomSongLines(practice_song)
     
