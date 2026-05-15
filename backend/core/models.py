@@ -197,7 +197,7 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
 
             # 2. Safely grab or create a default language (assuming Spanish for now!)
             # Adjust 'Spanish' if your Language model uses language codes like 'es' instead
-            default_language, _ = Language.objects.get_or_create(name='Spanish')
+            default_language, _ = Language.objects.get_or_create(language_name='Spanish')
 
             # 3. Create the playlist using your exact model field names
             welcome_playlist = Playlist.objects.create(
