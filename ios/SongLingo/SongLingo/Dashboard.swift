@@ -59,7 +59,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("(\(homeData?.userProgress.numWordsLearned ?? -1))")
+                                    Text ("(\(homeData?.userProgress.numWordsLearned ?? 0))")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
@@ -92,7 +92,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("(\(homeData?.userProgress.numSongsCompleted ?? -1))")
+                                    Text ("(\(homeData?.userProgress.numSongsCompleted ?? 0))")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
@@ -125,7 +125,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("\(homeData?.userProgress.currentStreak ?? -1) days!")
+                                    Text ("\(homeData?.userProgress.currentStreak ?? 0) days!")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
