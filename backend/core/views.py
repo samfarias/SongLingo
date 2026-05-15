@@ -59,17 +59,26 @@ class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 class RegisterView(APIView):
+    # allow anyone to hit this endpoint so they can actually sign up
+    permission_classes = [AllowAny] 
+    
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
+        
         if serializer.is_valid():
             user = serializer.save()
-            UserProfile.objects.create(user=user)
+            
+            # Force the profile creation so the signal fires
+            UserProfile.objects.get_or_create(user=user)
+            
             refresh = RefreshToken.for_user(user)
+            
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
                 'user_id': user.id
             }, status=status.HTTP_201_CREATED)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ==========================================
@@ -334,24 +343,6 @@ class GenerateWeeklyDropView(APIView):
             
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-class RegisterView(APIView):
-    # Allow anyone to hit this endpoint so they can actually sign up
-    permission_classes = [AllowAny] 
-    
-    def post(self, request):
-        serializer = UserRegistrationSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            user = serializer.save()
-            refresh = RefreshToken.for_user(user)
-            
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'user_id': user.id
-            }, status=status.HTTP_201_CREATED)
-            
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Your distractor dictionary
 SPANISH_DICTIONARY = {
