@@ -161,31 +161,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import UserProfile, UserActivity, Language
-
-# This listens for any time a new User is created
-@receiver(post_save, sender=User)
-def create_user_data(sender, instance, created, **kwargs):
-    if created:
-        spanish_lang, _ = Language.objects.get_or_create(language_name="Spanish")
-        profile = UserProfile.objects.create(
-        user=instance,
-        first_name=instance.username,
-        last_name="",
-        target_language=spanish_lang,
-        proficiency_level="Beginner"
-        )
-
-        #  instantiate the Streak by linking it to the profile we just created!
-        UserActivity.objects.create(
-            user_profile=profile,
-            current_streak=1,
-            longest_streak=1
-        )
-
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import User
 import random
 
 @receiver(post_save, sender=User)
@@ -212,8 +187,13 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
             
             if beginner_songs:
                 starter_selection = random.sample(beginner_songs, min(len(beginner_songs), 5))
-                # Assuming your related_name for songs on the Playlist model is 'songs'
-                welcome_playlist.songs.set(starter_selection)
+                
+                # We loop through the random songs and create the "bridge" link
+                for song in starter_selection:
+                    PlaylistSong.objects.get_or_create(
+                        playlist=welcome_playlist,
+                        song=song
+                    )
                 
         except Exception as e:
             # This ensures if anything fails, it prints to Docker logs but DOES NOT block the user from signing up
