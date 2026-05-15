@@ -155,6 +155,7 @@ struct CreateAccView: View {
                             Task {
                                 do {
                                     let _ = try await NetworkManager.shared.register(username: username, password: password)
+                                    UserDefaults.standard.set(true, forKey: "is_new_user")
                                     navigateToOnboarding = true
                                 } catch {
                                     print("Registration failed: \(error)")

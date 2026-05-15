@@ -21,7 +21,7 @@ struct Constants
     static let profileIcon = "person.crop.circle"
     
     // Language id -> Language name
-    static let languageIdToName: [Int: String] = [0: "Language Name", 1: "Spanish", 3: "German", 5: "English"]
+    static let languageIdToName: [Int: String] = [1: "German", 2: "Spanish", 3: "French", 4: "Japanese", 5: "Greek"]
     
     static let songsMasteryLvlToMessage: [Int: String] = [0: "New🎵", 1: "Experimenting🤔", 2: "Fan🧑‍🎤", 3: "Your Jam🔥"]
     static let wordsMasteryLvlToMessage: [Int: String] = [0: "New🐣", 1: "Learning✍️", 2: "Familiar🧠", 3: "Mastered🔥"]
