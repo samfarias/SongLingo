@@ -188,21 +188,3 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             data['proficiency_level'] = "Beginner"
             
         return data
-    
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        profile = getattr(self.user, 'userprofile', None)
-        
-        if profile:
-            data['user_id'] = profile.id 
-            data['first_name'] = profile.first_name or "User"
-            data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
-            data['proficiency_level'] = profile.proficiency_level
-        else:
-            data['user_id'] = self.user.id
-            data['first_name'] = "User"
-            data['target_language'] = "Language"
-            data['proficiency_level'] = "Beginner"
-            
-        return data
