@@ -41,12 +41,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'join_date'
         ]
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['first_name'] = data['first_name'] or instance.user.username
-        data['last_name'] = data['last_name'] or ""
-        return data
-
 class GenreSelectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenreSelection
@@ -63,7 +57,6 @@ class DaysActiveSerializer(serializers.ModelSerializer):
         fields = ['date']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    # write_only ensures the password is never accidentally sent back in a response
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -74,7 +67,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # create_user automatically handles the secure password hashing
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password']
+            password=validated_data['password'],
+        )
+        UserProfile.objects.create(
+            user=user, 
+            target_language=1, # Sets default to Spanish
+            proficiency_level="Beginner"
         )
         return user
 
@@ -174,22 +172,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         
-        profile = getattr(self.user, 'userprofile', None)
-        
-        data['user_id'] = self.user.id
+        # FIX: Changed 'userprofile' to 'profile'
+        profile = getattr(self.user, 'profile', None)
         
         if profile:
+            # Send the profile ID
+            data['user_id'] = profile.id 
             data['first_name'] = profile.first_name or "User"
-            
-            if profile.target_language:
-                data['target_language'] = profile.target_language.language_name
-            else:
-                data['target_language'] = "None"
-                
+            data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
             data['proficiency_level'] = profile.proficiency_level
         else:
+            data['user_id'] = self.user.id
             data['first_name'] = "User"
-            data['target_language'] = "None"
+            data['target_language'] = "Language"
             data['proficiency_level'] = "Beginner"
             
         return data
@@ -200,7 +195,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         profile = getattr(self.user, 'userprofile', None)
         
         if profile:
-            # FIX: Send the profile ID
             data['user_id'] = profile.id 
             data['first_name'] = profile.first_name or "User"
             data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
