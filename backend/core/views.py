@@ -21,6 +21,9 @@ from dotenv import load_dotenv, find_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
+from gtts import gTTS
+import base64
+import io
 from mcp.client.sse import sse_client
 from mcp.client.session import ClientSession
 
@@ -530,6 +533,33 @@ def getLyricMatchExercise(request):
 # ==========================================
 # FAST MCP PROXY
 # ==========================================
+
+class PronunciationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, word):
+        try:
+            # 1. Your phonetic logic goes here (currently just a dummy placeholder!)
+            dummy_phonetic = f"/{word.lower()}/"
+            
+            # 2. Generate the native audio using gTTS
+            tts = gTTS(text=word, lang="es", tld="com.mx")
+            
+            # 3. The "pro" move: save to memory instead of the hard drive
+            audio_fp = io.BytesIO()
+            tts.write_to_fp(audio_fp)
+            
+            # 4. Convert the raw audio to a base64 string
+            audio_base64 = base64.b64encode(audio_fp.getvalue()).decode('utf-8')
+            
+            # 5. Return the exact JSON structure Jaci's Swift struct expects
+            return Response({
+                "phonetic": dummy_phonetic,
+                "audio": audio_base64
+            }, status=200)
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
