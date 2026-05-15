@@ -123,7 +123,7 @@ struct GenreSelectionView: View {
                                         // 2. Fire the PATCH request to the backend
                                         try await NetworkManager.shared.updateProfile(
                                             proficiency: selectedProficiency,
-                                            language: selectedLanguage,
+                                            language: "Spanish",
                                             genres: genresArray
                                         )
                                         

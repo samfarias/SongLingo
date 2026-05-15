@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct Login: View {
-    @State private var email = ""
+    @State private var username = ""
     @State private var password = ""
     @State private var navigateToHome = false
+    @State private var errorMessage: String? = nil
     
     var body: some View {
         NavigationStack {
@@ -32,27 +33,27 @@ struct Login: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
-
+                        
                         Text("Learn languages through the music you love")
                             .font(.subheadline)
                             .foregroundColor(.white)
                     }
-                
+                    
                     VStack(spacing: 20) {
-                
-                    Text("Welcome Back")
+                        
+                        Text("Welcome Back")
                             .font(.title2)
                             .fontWeight(.bold)
                         
-                    Text("Sign in to continue your journey")
+                        Text("Sign in to continue your journey")
                             .font(.subheadline)
                             .foregroundColor(.gray)
-                    
+                        
                         VStack(alignment: .leading, spacing: 15) {
-                            Text("Email")
+                            Text("Username")
                                 .fontWeight(.semibold)
                             
-                            TextField("", text: $email)
+                            TextField("", text: $username)
                                 .padding()
                                 .background(.gray.opacity(0.2))
                                 .cornerRadius(10)
@@ -68,6 +69,14 @@ struct Login: View {
                             
                             Text("Forgot Password?")
                                 .foregroundColor(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            
+                            if let errorMessage = errorMessage {
+                                Text(errorMessage)
+                                    .foregroundColor(.red)
+                                    .font(.callout)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.top, 5)
+                            }
                             
                             Button(action: handleLogin) {
                                 Text("Sign in")
@@ -104,14 +113,15 @@ struct Login: View {
             //this listens for navigateToHome to become true, then slides to ContentView
             .navigationDestination(isPresented: $navigateToHome) {
                 ContentView()
-                }
+            }
         }
     }
     func handleLogin() {
+        errorMessage = nil
         Task {
             do {
                 // 1. Tell the server who is trying to log in
-                let response = try await NetworkManager.shared.login(username: email, password: password)
+                let response = try await NetworkManager.shared.login(username: username, password: password)
                 
                 // 2. SAVE the real ID to the backpack!
                 // We use String() because your Dashboard is looking for a string.
@@ -124,12 +134,13 @@ struct Login: View {
                 
             } catch {
                 print("DEBUG: Login failed: \(error)")
-                // You could add an alert here later!
+                await MainActor.run {
+                    errorMessage = "Invalid username or password."
+                }
             }
         }
     }
 }
-
 #Preview {
     Login()
 }

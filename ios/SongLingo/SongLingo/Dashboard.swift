@@ -2,6 +2,7 @@ import SwiftUI
 
 struct Dashboard: View {
     @State private var homeData: HomeScreenData?
+    @State private var isNewUser = false
     
     var body: some View {
         NavigationStack {
@@ -10,7 +11,7 @@ struct Dashboard: View {
                     VStack {
                         Spacer()
                         
-                        Text("Welcome Back, \(homeData?.userInfo.firstName ?? "User")!")
+                        Text("\(isNewUser ? "Welcome" : "Welcome Back"), \(homeData?.userInfo.firstName ?? "User")!")
                             .foregroundColor(.white.opacity(0.8))
                             .font(.title.weight(.bold))
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -328,6 +329,8 @@ struct Dashboard: View {
             )
             .ignoresSafeArea()
             .task {
+                isNewUser = UserDefaults.standard.bool(forKey: "is_new_user")
+                UserDefaults.standard.removeObject(forKey: "is_new_user")
                 do {
                     self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
                 } catch {
