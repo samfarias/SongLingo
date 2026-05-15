@@ -64,16 +64,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ('username', 'password')
 
     def create(self, validated_data):
-        # create_user automatically handles the secure password hashing
+        # 1. This saves the user AND instantly triggers the post_save signal
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
         )
-        UserProfile.objects.create(
-            profile, _ = UserProfile.objects.get_or_create(user=user) 
-            target_language=1, # Sets default to Spanish
-            proficiency_level="Beginner"
-        )
+        
+        # 2. The signal just created the profile, so we safely grab it and update the defaults
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.target_language_id = 1
+        profile.proficiency_level = "Beginner"
+        profile.save()
+        
         return user
 
 ########################
