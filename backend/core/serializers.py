@@ -70,7 +70,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
         )
         UserProfile.objects.create(
-            user=user, 
+            profile, _ = UserProfile.objects.get_or_create(user=user) 
             target_language=1, # Sets default to Spanish
             proficiency_level="Beginner"
         )
