@@ -78,6 +78,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         # 2. The signal just created the profile, so we safely grab it and update the defaults
         profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.first_name = validated_data['username']
+        profile.last_name = ""
         profile.target_language_id = 1
         profile.proficiency_level = "Beginner"
         profile.save()
