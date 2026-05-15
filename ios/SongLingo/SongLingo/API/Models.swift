@@ -38,6 +38,17 @@ struct UserInfo: Codable {
         case targetLanguage = "target_language"
         case joinDate = "join_date"
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        firstName = try container.decodeIfPresent(String.self, forKey: .firstName) ?? ""
+        lastName = try container.decodeIfPresent(String.self, forKey: .lastName) ?? ""
+        proficiencyLevel = try container.decode(String.self, forKey: .proficiencyLevel)
+        userLevel = try container.decode(Int.self, forKey: .userLevel)
+        targetLanguage = try container.decode(Int.self, forKey: .targetLanguage)
+        joinDate = try container.decodeIfPresent(String.self, forKey: .joinDate)
+    }
 }
 
 struct UserProgress: Codable {

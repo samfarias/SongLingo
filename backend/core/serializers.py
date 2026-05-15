@@ -41,6 +41,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'join_date'
         ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['first_name'] = data['first_name'] or instance.user.username
+        data['last_name'] = data['last_name'] or ""
+        return data
+
 class GenreSelectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenreSelection
