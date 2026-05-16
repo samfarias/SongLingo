@@ -10,18 +10,8 @@ import SwiftUI
 struct LyricMatchView: View {
     
     @State private var lyricMatchData: LyricMatchingData?
-    
-    //Mock Data
-    let correctWords = ["I've", "been", "on", "my", "own"]
-    
-    @State private var wordBank = [
-        "own",
-        "been",
-        "I've",
-        "my",
-        "on"
-    ]
-    
+    @State private var correctWords: [String] = []
+    @State private var wordBank: [String] = []
     @State private var sentence: [String] = []
     @State private var isPlaying: Bool = false
     
@@ -176,10 +166,8 @@ struct LyricMatchView: View {
             do {
                 self.lyricMatchData = try await NetworkManager.shared.fetchLyricMatchExerciseData()
                 if let data = self.lyricMatchData {
-                    print(data.lineToDisplay)
-                    print(data.lineToMatch)
-                    print(data.songTitle)
-                    print(data.songArtist)
+                    correctWords = data.lineToMatch.components(separatedBy: " ")
+                    wordBank = correctWords.shuffled()
                 }
             } catch {
                 print("Request failed: \(error)")
