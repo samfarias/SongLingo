@@ -154,10 +154,8 @@ struct Dashboard: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 15) {
-                                ForEach(homeData?.suggestedPlaylists.recentlyPlayed ?? [], id: \.playlistName) { playlist in
-                                    Button(action: {
-                                        print("Selected: \(playlist.playlistName)")
-                                    }) {
+                                ForEach(homeData?.suggestedPlaylists.allSuggestedPlaylists ?? []) { playlist in
+                                    NavigationLink(destination: PlaylistCollection()) {
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 15)
                                                 .fill(Constants.mint)
@@ -329,6 +327,7 @@ struct Dashboard: View {
             )
             .ignoresSafeArea()
             .task {
+                print("\(dataFilePath())")
                 isNewUser = UserDefaults.standard.bool(forKey: "is_new_user")
                 UserDefaults.standard.removeObject(forKey: "is_new_user")
                 do {

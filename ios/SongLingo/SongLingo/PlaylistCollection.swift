@@ -79,7 +79,7 @@ struct PlaylistCollection: View {
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
-                        ForEach(playlists, id: \.playlistName) { playlist in
+                        ForEach(playlists) { playlist in
                             PlaylistCard(playlist: playlist)
                         }
                     }
@@ -95,9 +95,8 @@ struct PlaylistCard: View {
     let playlist: Playlist
     
     var body: some View {
-        Button(action: {
+        NavigationLink(destination: SinglePlaylistView(playlistId: playlist.id)) {
             // Action to play playlist
-        }) {
             VStack(alignment: .leading) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SinglePlaylistView: View {
     
+    let playlistId: Int
     @State private var singlePlaylistData: SinglePlaylistData?
     
     var body: some View {
@@ -44,8 +45,7 @@ struct SinglePlaylistView: View {
             .background(Constants.sunset_horizon)
             .task {
                 do {
-                    let playlistId = "1" // HARDCODED FOR NOW, SHOULD BE PASSED IN FROM PREVIOUS SCREEN
-                    self.singlePlaylistData = try await NetworkManager.shared.fetchSinglePlaylistData(playlistId: playlistId)
+                    self.singlePlaylistData = try await NetworkManager.shared.fetchSinglePlaylistData(playlistId: self.playlistId)
                 } catch {
                     print("Request failed: \(error)")
                 }
@@ -114,5 +114,5 @@ struct PlaylistSongRow: View {
 }
 
 #Preview {
-    SinglePlaylistView()
+    SinglePlaylistView(playlistId: 0)
 }

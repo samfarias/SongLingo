@@ -66,6 +66,10 @@ struct UserProgress: Codable {
 struct SuggestedPlaylists: Codable {
     let recentlyPlayed: [Playlist]
     let newPlaylist: [Playlist]
+    
+    var allSuggestedPlaylists: [Playlist] {
+        recentlyPlayed + newPlaylist
+    }
 
     enum CodingKeys: String, CodingKey {
         case recentlyPlayed = "recently_played"
@@ -74,9 +78,7 @@ struct SuggestedPlaylists: Codable {
 }
 
 struct Playlist: Codable, Identifiable {
-    // SwiftUI specifically looks for a property named 'id'
-    var id: String { playlistName }
-    
+    let id: Int
     let playlistName: String
     let language: Int
     let genre: Int?
@@ -85,6 +87,7 @@ struct Playlist: Codable, Identifiable {
     let proficiencyLevel: String
 
     enum CodingKeys: String, CodingKey {
+        case id
         case playlistName = "playlist_name"
         case language, genre
         case lastDatePlayed = "last_date_played"

@@ -30,3 +30,13 @@ func getMasteryLvlFillColor(numActivitiesCompleted: Int) -> LinearGradient {
         return Constants.green;
     }
 }
+
+func documentsDirectory() -> URL {
+    let paths = FileManager.default.urls(
+        for: .documentDirectory,
+        in: .userDomainMask)
+    return paths[0]
+}
+func dataFilePath() -> URL {
+    return documentsDirectory().appendingPathComponent("SongLingo.plist")
+}
