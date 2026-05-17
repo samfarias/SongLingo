@@ -231,14 +231,10 @@ struct PracticeWord: Codable {
     let translation: String?
     let pronunciation: String?
     let definition: String
-    let numPracticesCompleted: Int
-    let masteryLvl: Int
 
     enum CodingKeys: String, CodingKey {
         case wordText = "word_text"
         case translation, pronunciation, definition
-        case numPracticesCompleted = "num_practices_completed"
-        case masteryLvl = "mastery_lvl"
     }
 }
 
