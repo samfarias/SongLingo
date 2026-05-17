@@ -14,6 +14,8 @@ struct LyricMatchView: View {
     @State private var wordBank: [String] = []
     @State private var sentence: [String] = []
     @State private var isPlaying: Bool = false
+    @State private var showingResultAlert = false
+    @State private var isCorrectAnswer = false
     
     var body: some View {
         
@@ -146,9 +148,9 @@ struct LyricMatchView: View {
             Spacer()
             
             Button {
-                // TODO: Submit logic
+                isCorrectAnswer = (sentence == correctWords)
+                showingResultAlert = true
             } label: {
-                
                 Text("Submit")
                     .font(.headline.weight(.semibold))
                     .frame(maxWidth: .infinity)
@@ -168,6 +170,9 @@ struct LyricMatchView: View {
         .navigationTitle("Lyric Match")
         .navigationBarTitleDisplayMode(.inline)
         .animation(.spring(duration: 0.3), value: sentence)
+        .alert(isPresented: $showingResultAlert){
+            Alert(title: Text(isCorrectAnswer ? "Well done!" : "Try again!"), message: Text(isCorrectAnswer ? "You've matched the lyrics correctly!" : "Keep practicing!"), dismissButton: .default(Text("OK")))
+        }
         .task {
             do {
                 self.lyricMatchData = try await NetworkManager.shared.fetchLyricMatchExerciseData()
