@@ -15,9 +15,9 @@ struct FinishLyricsResults: View {
 
     var performanceMessage: String {
         switch correctAnswers {
-        case 0..<3:
+        case 0..<2:
             return "Good try! Keep Practicing!"
-        case 3..<8:
+        case 2..<5:
             return "Nice work! You're learning!"
         default:
             return "Amazing!"
@@ -105,5 +105,5 @@ struct FinishLyricsResults: View {
 }
 
 #Preview {
-    FinishLyricsResults(totalTime: 45.67, correctAnswers: 7, totalQuestions: 10)
+    FinishLyricsResults(totalTime: 45.67, correctAnswers: 6, totalQuestions: 6)
 }
