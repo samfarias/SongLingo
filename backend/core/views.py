@@ -45,6 +45,8 @@ from .views_helpers import (
     search_spotify_track
 )
 
+from .helpers import fetch_word_info
+
 # ==========================================
 # AUTHENTICATION VIEWS
 # ==========================================
@@ -413,12 +415,15 @@ def updateUserWordNumPracticesCompleted(request):
     word_obj = Word.objects.filter(word_text=word_text).first()
 
     if word_obj == None: # Word is not in the DB
-        # WE NEED TO FIND A WAY TO GET THE OTHER FIELDS (TRANSLATION, DEFINTION, ETC.)
-        print("wasnt there")
+        print("fetching word info from external API")
+
+        word_info = fetch_word_info(word_text)
         word_obj = Word.objects.create(
             language=Language.objects.get(language_name='Spanish'),
             word_text=word_text,
-            translation=""
+            translation=word_info["definition"], # API doesnt return translation for most words
+            pronunciation=word_info["pronunciation"],
+            definition=word_info["definition"]
         )
 
     rows_updated = UserWord.objects.filter(user_profile=profile, word=word_obj).update(
