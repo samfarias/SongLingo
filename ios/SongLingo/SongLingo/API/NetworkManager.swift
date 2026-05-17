@@ -344,7 +344,7 @@ class NetworkManager {
     }
     
     func fetchSinglePlaylistData(playlistId: Int) async throws -> SinglePlaylistData {
-        guard let url = URL(string: "\(baseURL)/playlist?playlist_id=\(playlistId)") else {
+        guard let url = URL(string: "\(baseURL)/playlist/?playlist_id=\(playlistId)") else {
             throw URLError(.badURL)
         }
         

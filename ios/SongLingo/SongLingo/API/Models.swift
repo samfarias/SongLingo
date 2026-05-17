@@ -324,7 +324,7 @@ struct DetailedPlaylistInfo: Codable {
     let proficiencyLevel: String
     let userProfile: Int
     let language: Int
-    let genre: Int
+    let genre: Int?
 
     enum CodingKeys: String, CodingKey {
         case id
