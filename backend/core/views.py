@@ -45,7 +45,7 @@ from .views_helpers import (
     search_spotify_track
 )
 
-from .helpers import fetch_word_info
+from .helpers import fetch_word_info, clean_and_format_word
 
 # ==========================================
 # AUTHENTICATION VIEWS
@@ -411,7 +411,7 @@ def updateUserWordNumPracticesCompleted(request):
     
     updateUserActivity(profile.id)
 
-    word_text = word_text.lower()
+    word_text = clean_and_format_word(word_text)
     word_obj = Word.objects.filter(word_text=word_text).first()
 
     if word_obj == None: # Word is not in the DB
@@ -421,10 +421,14 @@ def updateUserWordNumPracticesCompleted(request):
         word_obj = Word.objects.create(
             language=Language.objects.get(language_name='Spanish'),
             word_text=word_text,
-            translation=word_info["definition"], # API doesnt return translation for most words
-            pronunciation=word_info["pronunciation"],
-            definition=word_info["definition"]
+            translation=word_info["definition"] if word_info else "",
+            pronunciation=word_info["pronunciation"] if word_info else "",
+            definition=word_info["definition"] if word_info else ""
         )
+        print(f"word_text: {word_obj.word_text}")
+        print(f"translation: {word_obj.translation}")
+        print(f"pronunciation: {word_obj.pronunciation}")
+        print(f"definition: {word_obj.definition}")
 
     rows_updated = UserWord.objects.filter(user_profile=profile, word=word_obj).update(
         num_practices_completed=F('num_practices_completed') + 1
