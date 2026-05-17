@@ -20,6 +20,7 @@ GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 
 # increments user's current_streak, longest_streak (if applicable), and adds a DaysActive record for this day
 def updateUserActivity(user_id: int):
+    print(user_id)
     last_activity = DaysActive.objects.filter(user_profile_id=user_id).order_by('-date').first()
     if last_activity and last_activity.date == date.today():
         return

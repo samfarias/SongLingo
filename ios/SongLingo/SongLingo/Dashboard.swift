@@ -3,6 +3,7 @@ import SwiftUI
 struct Dashboard: View {
     @State private var homeData: HomeScreenData?
     @State private var isNewUser = false
+    @State private var streakDayFormat = "days"
     
     var body: some View {
         NavigationStack {
@@ -126,7 +127,7 @@ struct Dashboard: View {
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
-                                    Text ("\(homeData?.userProgress.currentStreak ?? 0) days!")
+                                    Text ("\(homeData?.userProgress.currentStreak ?? 0) \(self.streakDayFormat)!")
                                         .foregroundColor(.black)
                                         .font(.system(size: 8))
                                         .lineLimit(1)
@@ -331,6 +332,7 @@ struct Dashboard: View {
                 UserDefaults.standard.removeObject(forKey: "is_new_user")
                 do {
                     self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+                    self.streakDayFormat = self.homeData?.userProgress.currentStreak == 1 ? "day" : "days"
                 } catch {
                     print("DEBUG: Profile fetch failed with error: \(error)")
                 }

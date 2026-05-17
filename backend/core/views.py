@@ -69,7 +69,10 @@ class RegisterView(APIView):
             user = serializer.save()
             
             # Force the profile creation so the signal fires
-            UserProfile.objects.get_or_create(user=user)
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+
+            UserActivity.objects.create(user_profile=profile)
+            updateUserActivity(profile.pk)
             
             refresh = RefreshToken.for_user(user)
             

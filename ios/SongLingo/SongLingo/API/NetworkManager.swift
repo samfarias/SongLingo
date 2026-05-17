@@ -147,7 +147,7 @@ class NetworkManager {
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Pull the token from the iPhone's secure storage
+//      Pull the token from the iPhone's secure storage
         if let token = UserDefaults.standard.string(forKey: "jwt_access_token") {
             // Inject it into the HTTP Header for Django to verify
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
