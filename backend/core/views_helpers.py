@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from django.db.models import F
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     DaysActive, UserActivity, Playlist, Song, UserSong
 )
@@ -103,12 +104,14 @@ def getTwoRandomSongLines(practice_song: Song) -> tuple[str, str]:
     return [line_one, line_two]
 
 def getPracticeExerciseSong(user_id: str) -> Song:
-    # randomization for choice of song
-    filter_options = ["num_listens", "num_lyric_challenges_completed"]
-    order_options = ["", "-"]
-    random_order = order_options[random.randint(0, len(order_options) - 1)]
-    random_filter = filter_options[random.randint(0, len(filter_options) - 1)]
-    return UserSong.objects.filter(user_profile=user_id).order_by(random_order + random_filter).first().song
+    user_songs_queryset = UserSong.objects.filter(user_profile=user_id)
+    count = user_songs_queryset.count()
+    if count == 0:
+        raise ObjectDoesNotExist("This user has no songs available for practice.")
+    
+    random_index = random.randint(0, count - 1)
+    random_user_song = user_songs_queryset[random_index]
+    return random_user_song.song
 
     
 #--> External API helper functions <--#

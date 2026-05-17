@@ -115,7 +115,6 @@ struct FinishLyrics: View {
     }
 
     func loadGameData() {
-        // Only show the big spinner for the very first load
         isLoading = true
         
         Task {
