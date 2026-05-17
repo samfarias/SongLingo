@@ -127,7 +127,7 @@ struct FinishLyrics: View {
                         options: challenge.buttonOptions,
                         correctOption: challenge.missingWord
                     )
-                    
+                                        
                     self.songTitle = challenge.songTitle
                     self.songArtist = challenge.songArtist
                     
