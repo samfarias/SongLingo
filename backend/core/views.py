@@ -549,6 +549,7 @@ def getCompleteTheLyricExercise(request):
     distractor_words = getSongDistractorWords(practice_song, lyric_and_word[1])
 
     return Response({
+        "song_id": practice_song.pk,
         "lyric": lyric_and_word[0],
         "missing_word": lyric_and_word[1],
         "distractor_words": distractor_words,
