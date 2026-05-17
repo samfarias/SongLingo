@@ -327,7 +327,6 @@ struct Dashboard: View {
             )
             .ignoresSafeArea()
             .task {
-                print("\(dataFilePath())")
                 isNewUser = UserDefaults.standard.bool(forKey: "is_new_user")
                 UserDefaults.standard.removeObject(forKey: "is_new_user")
                 do {
