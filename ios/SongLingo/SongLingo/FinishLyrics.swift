@@ -11,6 +11,7 @@ struct FinishLyrics: View {
     @State private var lyricChallengeData: LyricChallengeData?
     @State private var songTitle: String = "Title"
     @State private var songArtist: String = "Artist"
+    @State private var songId: Int = -1
     
     struct Lyric {
         let id = UUID()
@@ -130,6 +131,7 @@ struct FinishLyrics: View {
                                         
                     self.songTitle = challenge.songTitle
                     self.songArtist = challenge.songArtist
+                    self.songId = challenge.songId
                     
                     optionColors = Dictionary(uniqueKeysWithValues: currentLyric.options.map { ($0, Color.blue.opacity(0.3)) })
                     
@@ -156,6 +158,13 @@ struct FinishLyrics: View {
                     try await NetworkManager.shared.updateUserWordNumPracticesCompleted(word_text: currentLyric.correctOption)
                 } catch {
                     print("Error updating UserWord num practices completed \(error)")
+                }
+            }
+            Task {
+                do {
+                    try await NetworkManager.shared.updateUserSongProgress(song_id: self.songId, request_type: "lyric_challenge", playlist_id: -1)
+                } catch {
+                    print("Error updating user song progress \(error)")
                 }
             }
         } else {

@@ -152,6 +152,7 @@ class NetworkManager {
             // Inject it into the HTTP Header for Django to verify
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+
         
         return request
     }
@@ -385,6 +386,39 @@ class NetworkManager {
     
     func updateUserWordNumPracticesCompleted(word_text: String) async throws {
         guard let url = URL(string: "\(baseURL)/word-practices-completed/?word_text=\(word_text)") else { throw URLError(.badURL) }
+        
+        var request = createAuthenticatedRequest(url: url)
+        request.httpMethod = "PUT"
+                
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("DEBUG: Update Profile Status: \(httpResponse.statusCode)")
+            if httpResponse.statusCode != 200 {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("DEBUG: Server error message: \(errorMsg)")
+            }
+        }
+    }
+    
+    func updateUserSongProgress(song_id: Int, request_type: String, playlist_id: Int) async throws {
+        if song_id < 0 {return}
+        
+        var urlString: String = ""
+        if request_type == "lyric_challenge" {
+            urlString = "\(baseURL)/user-song-progress/?song_id=\(song_id)&request_type=lyric_challenge"
+        } else if request_type == "song_listen" {
+            if playlist_id < 0 { // this song didn't come from a playlist, none to update
+                urlString = "\(baseURL)/user-song-progress/?song_id=\(song_id)&request_type=song_listen"
+            }
+            else {
+                urlString = "\(baseURL)/user-song-progress/?song_id=\(song_id)&request_type=song_listen&playlist_id=\(playlist_id)"
+            }
+        }
+        
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
         
         var request = createAuthenticatedRequest(url: url)
         request.httpMethod = "PUT"

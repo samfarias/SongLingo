@@ -240,6 +240,7 @@ struct PracticeWord: Codable {
 
 // MARK: - Complete the Lyric Exercise Models
 struct LyricChallengeData: Codable {
+    let songId: Int
     let lyric: String
     let missingWord: String
     let distractorWords: [String]
@@ -251,6 +252,7 @@ struct LyricChallengeData: Codable {
     }
     
     enum CodingKeys: String, CodingKey {
+        case songId = "song_id"
         case lyric
         case missingWord = "missing_word"
         case distractorWords = "distractor_words"
