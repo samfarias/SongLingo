@@ -289,12 +289,14 @@ struct LyricMatchingData: Codable {
     let lineToMatch: String
     let songTitle: String
     let songArtist: String
+    let audioBase64: String
 
     enum CodingKeys: String, CodingKey {
         case lineToDisplay = "line_to_display"
         case lineToMatch = "line_to_match"
         case songTitle = "song_title"
         case songArtist = "song_artist"
+        case audioBase64 = "audio_base64"
     }
 }
 
