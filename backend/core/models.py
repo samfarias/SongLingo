@@ -177,7 +177,7 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
             # 3. Create the playlist using your exact model field names
             welcome_playlist = Playlist.objects.create(
                 user_profile=profile, 
-                playlist_name="Welcome to SongLingo! 🎵",
+                playlist_name="Welcome to SongLingo!",
                 language=default_language,
                 description="A hand-picked starter pack of easy songs to get you practicing immediately."
             )
