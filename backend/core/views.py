@@ -463,6 +463,30 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
     
     practice_words = list(Word.objects.raw(sql_query, [user_profile_id]))
 
+    # A brand new user will have an empty Word Bank, get practice words from a starter pack song
+    if len(practice_words) == 0:
+        word_set = set()
+        attempts = 50
+        
+        while len(practice_words) < 10 and attempts > 0:
+            starter_pack_song = getPracticeExerciseSong(user_profile_id)
+            song_vocab = starter_pack_song.vocabulary_json
+            
+            for word in song_vocab:
+                lowercase = word.lower() # to match db
+                word_set.add(lowercase)
+
+            practice_words.extend(list(Word.objects.filter(word_text__in=word_set)))
+            
+            if len(practice_words) >= 10:
+                practice_words = practice_words[:10]
+                break # We have our 10 valid words, we can stop entirely!
+                
+            attempts -= 1
+
+    for word in practice_words:
+        print(word)
+
     word_distractors = []
     most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song
     if most_listened_song != None:

@@ -153,6 +153,8 @@ class NetworkManager {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
+
+        
         return request
     }
     
