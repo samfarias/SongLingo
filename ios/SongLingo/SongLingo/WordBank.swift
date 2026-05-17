@@ -124,7 +124,7 @@ struct WordRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(entry.word.wordText)
+                Text(entry.word.wordText.capitalized)
                     .font(.title2)
                     .foregroundColor(.black)
                 
