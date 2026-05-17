@@ -403,14 +403,37 @@ def generate_weekly_playlist(request):
 @permission_classes([IsAuthenticated])
 def updateUserWordNumPracticesCompleted(request):
     profile = request.user.profile
-    word_id = request.query_params.get('word_id')
-    if not word_id:
+    word_text = request.query_params.get('word_text')
+    if not word_text:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    updateUserActivity(profile.id) 
-    rows_updated = UserWord.objects.filter(user_profile=profile, word_id=word_id).update(
+    updateUserActivity(profile.id)
+
+    word_text = word_text.lower()
+    word_obj = Word.objects.filter(word_text=word_text).first()
+
+    if word_obj == None: # Word is not in the DB
+        # WE NEED TO FIND A WAY TO GET THE OTHER FIELDS (TRANSLATION, DEFINTION, ETC.)
+        print("wasnt there")
+        word_obj = Word.objects.create(
+            language=Language.objects.get(language_name='Spanish'),
+            word_text=word_text,
+            translation=""
+        )
+
+    rows_updated = UserWord.objects.filter(user_profile=profile, word=word_obj).update(
         num_practices_completed=F('num_practices_completed') + 1
     )
+
+    # If the UserWord object doesn't exist yet (first time the user practiced this word)
+    if rows_updated == 0:
+        UserWord.objects.create(
+            user_profile=profile,
+            word=word_obj,
+            num_practices_completed=1
+        )
+        rows_updated = 1
+
     return Response({"rows_updated": rows_updated}, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])

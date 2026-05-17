@@ -150,6 +150,14 @@ struct FinishLyrics: View {
         if selected == currentLyric.correctOption {
             correctAnswers += 1
             optionColors[selected] = Color.green
+            // Update the user's num_practices_completed for this Word
+            Task {
+                do {
+                    try await NetworkManager.shared.updateUserWordNumPracticesCompleted(word_text: currentLyric.correctOption)
+                } catch {
+                    print("Error updating UserWord num practices completed \(error)")
+                }
+            }
         } else {
             optionColors[selected] = Color.red
             optionColors[currentLyric.correctOption] = Color.green

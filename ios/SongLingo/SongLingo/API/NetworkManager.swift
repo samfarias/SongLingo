@@ -153,8 +153,6 @@ class NetworkManager {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-
-        
         return request
     }
     
@@ -384,4 +382,21 @@ class NetworkManager {
             // Decodes the returned playlist into Austin's existing SinglePlaylistData model
             return try JSONDecoder().decode(SinglePlaylistData.self, from: data)
         }
+    
+    func updateUserWordNumPracticesCompleted(word_text: String) async throws {
+        guard let url = URL(string: "\(baseURL)/word-practices-completed/?word_text=\(word_text)") else { throw URLError(.badURL) }
+        
+        var request = createAuthenticatedRequest(url: url)
+        request.httpMethod = "PUT"
+                
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("DEBUG: Update Profile Status: \(httpResponse.statusCode)")
+            if httpResponse.statusCode != 200 {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("DEBUG: Server error message: \(errorMsg)")
+            }
+        }
+    }
 }
