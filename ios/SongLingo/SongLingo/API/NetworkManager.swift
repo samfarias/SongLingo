@@ -343,7 +343,7 @@ class NetworkManager {
         return try JSONDecoder().decode(LyricMatchingData.self, from: data)
     }
     
-    func fetchSinglePlaylistData(playlistId: String) async throws -> SinglePlaylistData {
+    func fetchSinglePlaylistData(playlistId: Int) async throws -> SinglePlaylistData {
         guard let url = URL(string: "\(baseURL)/playlist?playlist_id=\(playlistId)") else {
             throw URLError(.badURL)
         }

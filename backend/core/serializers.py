@@ -167,7 +167,7 @@ class PlaylistSongSerializer(serializers.ModelSerializer):
 class SuggestedPlaylistsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
-        fields = ['playlist_name', 'language', 'genre', 'last_date_played', 'created_date', 'proficiency_level']
+        fields = ['id', 'playlist_name', 'language', 'genre', 'last_date_played', 'created_date', 'proficiency_level']
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
