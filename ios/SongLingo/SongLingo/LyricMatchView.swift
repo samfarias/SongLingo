@@ -47,7 +47,13 @@ struct LyricMatchView: View {
                         
                         Button {
                             isPlaying.toggle()
-                            //TODO: Audio playback
+                            if isPlaying {
+                                isPlaying = false
+                            } else if let b64 = lyricMatchData?.audioBase64 {
+                                let clean = b64.trimmingCharacters(in: .whitespacesAndNewlines)
+                                AudioPlayerManager.shared.playBase64Audio(clean)
+                                isPlaying = true
+                            }
                         } label: {
                             
                             Image(systemName: isPlaying ? "pause.fill" : "play.fill")
