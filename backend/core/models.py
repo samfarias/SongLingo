@@ -194,6 +194,10 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
                         playlist=welcome_playlist,
                         song=song
                     )
+                    UserSong.objects.create(
+                        user_profile=profile,
+                        song=song
+                    )
                 
         except Exception as e:
             # This ensures if anything fails, it prints to Docker logs but DOES NOT block the user from signing up

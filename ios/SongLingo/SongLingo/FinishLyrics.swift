@@ -9,6 +9,8 @@ import SwiftUI
 
 struct FinishLyrics: View {
     @State private var lyricChallengeData: LyricChallengeData?
+    @State private var songTitle: String = "Title"
+    @State private var songArtist: String = "Artist"
     
     struct Lyric {
         let id = UUID()
@@ -59,11 +61,14 @@ struct FinishLyrics: View {
                             .cornerRadius(12)
                         }
                     } else {
-                        Text("Fill in the lyrics:")
+                        Text("Fill in the lyrics from '\(self.songTitle)' by \(self.songArtist):")
                             .font(.title)
                             .foregroundColor(.white)
                             .bold()
                             .padding()
+                        
+                        Spacer()
+                            .frame(maxHeight: 40)
                         
                         Text(currentLyric.text)
                             .font(.title2)
@@ -91,6 +96,7 @@ struct FinishLyrics: View {
                         }
                     }
                 }
+                .padding()
             }
             .navigationDestination(isPresented: $navigateToLyricResults) {
                 FinishLyricsResults(
@@ -99,18 +105,19 @@ struct FinishLyrics: View {
                     totalQuestions: questionCount
                 )
             }
-            .padding()
             .onAppear {
                 startTime = Date()
                 loadGameData()
             }
             .task {
-                            do {
-                                self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData()
-                            } catch {
-                                print("Request failed: \(error)")
-                            }
-                        }
+                do {
+                    self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData()
+                    self.songTitle = self.lyricChallengeData?.songTitle ?? "Title"
+                    self.songArtist = self.lyricChallengeData?.songArtist ?? "Artist"
+                } catch {
+                    print("Request failed: \(error)")
+                }
+            }
         }
     }
 
