@@ -84,7 +84,7 @@ def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
         for ch in random_word:
             if ch.isalpha():
                 formatted_random_word += ch
-        if formatted_random_word not in word_set:
+        if formatted_random_word != "" and (formatted_random_word not in word_set):
             word_set.add(formatted_random_word)
         attempts -= 1
 

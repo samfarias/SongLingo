@@ -9,6 +9,8 @@ import SwiftUI
 
 struct FinishLyrics: View {
     @State private var lyricChallengeData: LyricChallengeData?
+    @State private var songTitle: String = "Title"
+    @State private var songArtist: String = "Artist"
     
     struct Lyric {
         let id = UUID()
@@ -26,7 +28,7 @@ struct FinishLyrics: View {
     @State private var totalTime: TimeInterval = 0
     @State private var navigateToLyricResults = false
 
-    let maxQuestions = 10
+    let maxQuestions = 6
 
     var body: some View {
         NavigationStack {
@@ -43,9 +45,11 @@ struct FinishLyrics: View {
                 
                 VStack(spacing: 20) {
                     if isLoading {
-                        ProgressView("Loading Lyrics...")
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .foregroundColor(.white)
+                        if questionCount == 0 {
+                            ProgressView("Loading Lyrics...")
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .foregroundColor(.white)
+                        }
                     } else if currentLyric.text.isEmpty {
                         VStack {
                             Text("No songs found!")
@@ -59,11 +63,14 @@ struct FinishLyrics: View {
                             .cornerRadius(12)
                         }
                     } else {
-                        Text("Fill in the lyrics:")
+                        Text("Fill in the lyrics from '\(self.songTitle)' by \(self.songArtist):")
                             .font(.title)
                             .foregroundColor(.white)
                             .bold()
                             .padding()
+                        
+                        Spacer()
+                            .frame(maxHeight: 40)
                         
                         Text(currentLyric.text)
                             .font(.title2)
@@ -91,6 +98,7 @@ struct FinishLyrics: View {
                         }
                     }
                 }
+                .padding()
             }
             .navigationDestination(isPresented: $navigateToLyricResults) {
                 FinishLyricsResults(
@@ -99,26 +107,16 @@ struct FinishLyrics: View {
                     totalQuestions: questionCount
                 )
             }
-            .padding()
             .onAppear {
                 startTime = Date()
                 loadGameData()
             }
-            .task {
-                            do {
-                                self.lyricChallengeData = try await NetworkManager.shared.fetchCompleteTheLyricExerciseData()
-                            } catch {
-                                print("Request failed: \(error)")
-                            }
-                        }
         }
     }
 
     func loadGameData() {
         // Only show the big spinner for the very first load
-        if questionCount == 0 {
-            isLoading = true
-        }
+        isLoading = true
         
         Task {
             do {
@@ -130,6 +128,9 @@ struct FinishLyrics: View {
                         options: challenge.buttonOptions,
                         correctOption: challenge.missingWord
                     )
+                    
+                    self.songTitle = challenge.songTitle
+                    self.songArtist = challenge.songArtist
                     
                     optionColors = Dictionary(uniqueKeysWithValues: currentLyric.options.map { ($0, Color.blue.opacity(0.3)) })
                     
