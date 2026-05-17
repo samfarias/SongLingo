@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
-    updateUserSongProgress, fetch_word_cards, getCompleteTheLyricExercise,
+    updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise,
     getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, 
     GenerateWeeklyDropView, UpdateProfileView, generate_weekly_playlist
 )
@@ -23,7 +23,7 @@ urlpatterns = [
     path('playlists/generate/', generate_weekly_playlist, name='generate-playlist'),
     
     # --- EXERCISES ---
-    path('word-card-exercise/', fetch_word_cards, name='word-cards'),
+    path('word-card-exercise/', getWordCardExercise, name='word-cards'),
     path('complete-the-lyric-exercise/', getCompleteTheLyricExercise, name='complete-the-lyric-exercise'),
     path('lyric-match-exercise/', getLyricMatchExercise, name='lyric-match-exercise'),
     path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation'),

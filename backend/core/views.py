@@ -344,56 +344,6 @@ class GenerateWeeklyDropView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# Your distractor dictionary
-SPANISH_DICTIONARY = {
-    "novia": {"def": "girlfriend", "distractors": ["sister", "mother", "aunt", "friend"]},
-    "mañana": {"def": "tomorrow", "distractors": ["today", "yesterday", "tonight", "morning"]},
-    "boda": {"def": "wedding", "distractors": ["party", "funeral", "birthday", "meeting"]},
-    "mucho": {"def": "a lot", "distractors": ["a little", "nothing", "everything", "some"]},
-    "corazón": {"def": "heart", "distractors": ["mind", "soul", "body", "blood"]}
-}
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def fetch_word_cards(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-
-    user_playlists = Playlist.objects.filter(user_profile=profile)
-    saved_songs = PlaylistSong.objects.filter(playlist__in=user_playlists).select_related('song')
-    
-    vocab_pool = set()
-    for ps in saved_songs:
-        try:
-            song_vocab = ps.song.vocabulary_json 
-            if song_vocab:
-                vocab_pool.update(song_vocab)
-        except AttributeError:
-            pass
-
-    valid_words = [word for word in vocab_pool if word in SPANISH_DICTIONARY]
-    
-    if not valid_words:
-        valid_words = ["novia", "mañana", "boda"]
-
-    random.shuffle(valid_words)
-    session_words = valid_words[:10]
-    
-    practice_words = []
-    word_distractors = []
-    
-    for word in session_words:
-        data = SPANISH_DICTIONARY[word]
-        practice_words.append({
-            "word_text": word,
-            "definition": data["def"]
-        })
-        word_distractors.append(random.sample(data["distractors"], 3))
-
-    return Response({
-        "practice_words": practice_words,
-        "word_distractors": word_distractors
-    })
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -493,10 +443,50 @@ def updateUserSongProgress(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def getWordCardExercise(request): # returns the user's 10 least practiced words and their relevant info
+    user_profile_id = UserProfile.objects.get(user=request.user).pk
+
+    if user_profile_id == None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    sql_query = "SELECT " \
+    "               w.id, w.word_text, w.translation, w.pronunciation, w.definition," \
+    "           uw.num_practices_completed, uw.mastery_lvl" \
+    "           FROM core_userword AS uw" \
+    "           JOIN core_word AS w ON w.id = uw.word_id" \
+    "           WHERE uw.user_profile_id = %s" \
+    "           GROUP BY uw.num_practices_completed, uw.mastery_lvl, w.id, w.word_text, w.translation, w.pronunciation, w.definition" \
+    "           ORDER BY uw.num_practices_completed" \
+    "           LIMIT 10"
+    
+    practice_words = list(Word.objects.raw(sql_query, [user_profile_id]))
+
+    word_distractors = []
+    most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song
+    if most_listened_song != None:
+        for word in practice_words:
+            distractors = getSongDistractorWords(most_listened_song, word)
+            word_distractors.append(distractors)
+
+    practice_words_serialized = WordCardSerializer(practice_words, many=True).data
+    return Response(
+        {"practice_words": practice_words_serialized,
+         "word_distractors": word_distractors
+        },
+        status=status.HTTP_200_OK
+    )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getCompleteTheLyricExercise(request):
     profile = request.user.profile
     practice_song = getPracticeExerciseSong(profile.id)
-    lyric_and_word = getLyricAndMissingWord(practice_song)
+
+    attempts = 20
+    lyric_and_word = ["", ""]
+    while (lyric_and_word[0] == "" or lyric_and_word[1] == "") and attempts > 0:
+        lyric_and_word = getLyricAndMissingWord(practice_song)
+        attempts -=1
+
     distractor_words = getSongDistractorWords(practice_song, lyric_and_word[1])
 
     return Response({
