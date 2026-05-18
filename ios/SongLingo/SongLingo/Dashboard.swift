@@ -5,6 +5,16 @@ struct Dashboard: View {
     @State private var isNewUser = false
     @State private var streakDayFormat = "days"
     
+    @AppStorage("last_playlist_generation_date") private var lastGeneratedDateString: String = ""
+    @State private var navigateToPlaylist = false
+    
+    private var hasGeneratedToday: Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let todayString = formatter.string(from: Date())
+        return lastGeneratedDateString == todayString
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -210,7 +220,7 @@ struct Dashboard: View {
                                 .fill(Color.white.opacity(0.05))
                             HStack {
                                 VStack (alignment: .leading) {
-                                    Text("Fresh new songs waiting for you!")
+                                    Text(hasGeneratedToday ? "Your daily playlist is ready!" : "Fresh new songs waiting for you!")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 14))
                                     
@@ -225,16 +235,24 @@ struct Dashboard: View {
                                 Spacer()
                                 
                                 Button(action: {
-                                    Task {
-                                        do {
-                                            try await NetworkManager.shared.generateNewPlaylist()
-                                            self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
-                                        } catch {
-                                            print("Error generating new playlist \(error)")
+                                    if hasGeneratedToday {
+                                        navigateToPlaylist = true
+                                    } else {
+                                        Task {
+                                            do {
+                                                try await NetworkManager.shared.generateNewPlaylist()
+                                                self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+                                                
+                                                let formatter = DateFormatter()
+                                                formatter.dateFormat = "yyyy-MM-dd"
+                                                lastGeneratedDateString = formatter.string(from: Date())
+                                            } catch {
+                                                print("Error generating new playlist \(error)")
+                                            }
                                         }
                                     }
                                 }) {
-                                    Text("Generate")
+                                    Text(hasGeneratedToday ? "Listen Now" : "Generate")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 12))
                                         .padding(.vertical, 10)
@@ -338,6 +356,9 @@ struct Dashboard: View {
                     endPoint: .bottom
                 )
             )
+            .navigationDestination(isPresented: $navigateToPlaylist) {
+                PlaylistCollection()
+            }
             .ignoresSafeArea()
             .task {
                 isNewUser = UserDefaults.standard.bool(forKey: "is_new_user")
