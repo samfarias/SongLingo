@@ -515,10 +515,7 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
                 break # We have our 10 valid words, we can stop entirely!
                 
             attempts -= 1
-
-    for word in practice_words:
-        print(word)
-
+            
     word_distractors = []
     most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song
     if most_listened_song != None:
