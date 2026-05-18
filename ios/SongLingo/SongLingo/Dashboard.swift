@@ -6,6 +6,7 @@ struct Dashboard: View {
     @State private var streakDayFormat = "days"
     
     @AppStorage("last_playlist_generation_date") private var lastGeneratedDateString: String = ""
+    @AppStorage("daily_playlist_id") private var dailyPlaylistId: String = ""
     @State private var navigateToPlaylist = false
     
     private var hasGeneratedToday: Bool {
@@ -240,12 +241,13 @@ struct Dashboard: View {
                                     } else {
                                         Task {
                                             do {
-                                                try await NetworkManager.shared.generateNewPlaylist()
+                                                let dailyPlaylist = try await NetworkManager.shared.generateNewPlaylist()
                                                 self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
                                                 
                                                 let formatter = DateFormatter()
                                                 formatter.dateFormat = "yyyy-MM-dd"
                                                 lastGeneratedDateString = formatter.string(from: Date())
+                                                dailyPlaylistId = String(dailyPlaylist.id)
                                             } catch {
                                                 print("Error generating new playlist \(error)")
                                             }
@@ -357,7 +359,7 @@ struct Dashboard: View {
                 )
             )
             .navigationDestination(isPresented: $navigateToPlaylist) {
-                PlaylistCollection()
+                SinglePlaylistView(playlistId: Int(dailyPlaylistId) ?? -1)
             }
             .ignoresSafeArea()
             .task {
@@ -370,6 +372,9 @@ struct Dashboard: View {
                     print("DEBUG: Profile fetch failed with error: \(error)")
                 }
             }
+//            Button("Debug: Reset Daily Limit") {
+//                lastGeneratedDateString = "" // Clears the app storage state
+//            }
         }
     }
 }

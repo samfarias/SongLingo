@@ -358,3 +358,7 @@ struct DetailedSong: Codable {
         case proficiencyLevel = "proficiency_level"
     }
 }
+
+struct PlaylistResponse: Codable {
+    let playlist: Playlist
+}
