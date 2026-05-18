@@ -23,6 +23,9 @@ struct WordCards: View {
     @State private var currOptions: [String] = []
     @State private var correctOptionIndex: Int = 0
     
+    @State private var selectedOptionIndex: Int? = nil
+    @State private var isCheckingAnswer = false
+    
     @State private var navigateToResults = false
     @State private var isLoading = true
     
@@ -62,9 +65,15 @@ struct WordCards: View {
                     } else {
                         Text("Define each word before time runs out!")
                             .padding(.top, 110)
+                            .padding(.horizontal)
                             .foregroundColor(.white)
+                            .font(.title2)
                             .bold()
+                            .lineLimit(2)
                     }
+                    
+                    Spacer()
+                            .frame(maxHeight: 60)
                     
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
@@ -77,7 +86,7 @@ struct WordCards: View {
                                 Spacer()
                             }
                             
-                            Text(currWord)
+                            Text(currWord.capitalized)
                                 .font(.largeTitle)
                                 .foregroundColor(.white)
                                 .bold()
@@ -99,14 +108,22 @@ struct WordCards: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                         ForEach(0..<currOptions.count, id: \.self) { index in
                             Button(action: {
-                                ifCorrectAnswer(index: index)
+                                checkAnswer(index: index)
                             }) {
-                                Text(currOptions[index])
+                                Text(currOptions[index].capitalized)
                                     .font(.headline)
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 80)
-                                    .background(Color.white.opacity(0.15))
+                                    .background(Group {
+                                        if isCheckingAnswer && index == correctOptionIndex {
+                                            Color.green
+                                        } else if isCheckingAnswer && index == selectedOptionIndex {
+                                            Color.red
+                                        } else {
+                                            Color.white.opacity(0.15)
+                                        }
+                                    })
                                     .cornerRadius(15)
                                     .shadow(radius: 2)
                             }
@@ -184,28 +201,45 @@ struct WordCards: View {
             self.correctOptionIndex = correctIdx
         }
         
-        Task {
-            do {
-                let pronunciationData = try await NetworkManager.shared.fetchPronunciation(for: currWord)
-                await MainActor.run {
-                    self.currentPronunciation = pronunciationData
-                    AudioPlayerManager.shared.playBase64Audio(pronunciationData.audio)
-                }
-            } catch {
-                print("Pronunciation fetch failed: \(error)")
-            }
-        }
+        // NEEDS TO BE FIXED ON BACKEND, ALWAYS THROWS ERROR
+//        Task {
+//            do {
+//                let pronunciationData = try await NetworkManager.shared.fetchPronunciation(for: currWord)
+//                await MainActor.run {
+//                    self.currentPronunciation = pronunciationData
+//                    AudioPlayerManager.shared.playBase64Audio(pronunciationData.audio)
+//                }
+//            } catch {
+//                print("Pronunciation fetch failed: \(error)")
+//            }
+//        }
     }
     
-    func ifCorrectAnswer (index: Int) {
+    func checkAnswer(index: Int) {
         totalCardsAnswered += 1
+        selectedOptionIndex = index
+        isCheckingAnswer = true
+        
         if index == correctOptionIndex {
             correctCards += 1
-            addTime(seconds: 3)
+            // Update the user's num_practices_completed for this Word
+            Task {
+                do {
+                    try await NetworkManager.shared.updateUserWordNumPracticesCompleted(word_text: currWord)
+                } catch {
+                    print("Error updating UserWord num practices completed \(error)")
+                }
+            }
+        }
+        
+        // Pause briefly for 1 second so the user can see the green/red highlight
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            isCheckingAnswer = false
+            selectedOptionIndex = nil
+            
+            // Advance the game
             wordCardIdx += 1
             setupCurrentWord()
-        } else {
-            subtractTime(seconds: 5)
         }
     }
     
@@ -228,16 +262,6 @@ struct WordCards: View {
         timer?.invalidate()
         endTime = Date()
         navigateToResults = true
-    }
-    
-    func addTime(seconds: Double) {
-        remainingTime = min(remainingTime + seconds, totalDuration)
-        updateProgress()
-    }
-    
-    func subtractTime(seconds: Double) {
-        remainingTime = max(remainingTime - seconds, 0)
-        updateProgress()
     }
     
     func updateProgress() {

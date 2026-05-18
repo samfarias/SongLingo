@@ -13,99 +13,127 @@ struct WordBank: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                HStack (spacing: 5) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Constants.yellow)
-                            .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
-                            )
+            // 1. ZStack ensures your background fills the screen regardless of content state
+            ZStack {
+                Constants.amber_tide
+                    .ignoresSafeArea()
+                
+                // 2. Main Content Conditional Control Flow Split
+                if userWords.isEmpty {
+                    // This block pushes the placeholder view to the exact absolute center
+                    VStack(spacing: 12) {
+                        Image(systemName: "tray")
+                            .font(.system(size: 48))
+                            .foregroundColor(.black.opacity(0.4))
                         
-                        HStack {
-                            Text("New🐣 (\(masteryLvlCounts[0]))")
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
+                        Text("Your Word Bank is Empty")
+                            .font(.title3)
+                            .bold()
+                            .foregroundColor(.black)
+                        
+                        Text("Words you practice during song exercises will appear here automatically.")
+                            .font(.subheadline)
+                            .foregroundColor(.black.opacity(0.6))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Forces layout centralization
+                    
+                } else {
+                    // Normal layout state rendering logic
+                    ScrollView {
+                        HStack (spacing: 5) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Constants.yellow)
+                                    .shadow(
+                                        color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                                    )
+                                
+                                HStack {
+                                    Text("New🐣 (\(masteryLvlCounts[0]))")
+                                        .lineLimit(1)
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 12))
+                                }
+                                .padding(.horizontal)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical)
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Constants.lavender)
+                                    .shadow(
+                                        color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                                    )
+                                
+                                HStack {
+                                    Text("Learning✍️ (\(masteryLvlCounts[1]))")
+                                        .lineLimit(1)
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 12))
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical)
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Constants.blue)
+                                    .shadow(
+                                        color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                                    )
+                                
+                                HStack {
+                                    Text("Familiar🧠 (\(masteryLvlCounts[2]))")
+                                        .lineLimit(1)
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 12))
+                                }
+                                .padding(.horizontal)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical)
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Constants.green)
+                                    .shadow(
+                                        color: .black.opacity(0.25), radius: 3, x: 1, y: 1
+                                    )
+                                
+                                HStack {
+                                    Text("Mastered🔥 (\(masteryLvlCounts[3]))")
+                                        .lineLimit(1)
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 12))
+                                }
+                                .padding(.vertical, 10)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical)
                         }
                         .padding(.horizontal)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical)
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Constants.lavender)
-                            .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
-                            )
                         
-                        HStack {
-                            Text("Learning✍️ (\(masteryLvlCounts[1]))")
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
+                        Divider()
+                            .overlay(Color.black)
+                        
+                        // Dynamic List of Songs
+                        ForEach(userWords) { entry in
+                            WordRow(entry: entry)
+                            Divider().overlay(Color.black)
                         }
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical)
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Constants.blue)
-                            .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
-                            )
-                        
-                        HStack {
-                            Text("Familiar🧠 (\(masteryLvlCounts[2]))")
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
-                        }
-                        .padding(.horizontal)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical)
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Constants.green)
-                            .shadow(
-                                color: .black.opacity(0.25), radius: 3, x: 1, y: 1
-                            )
-                        
-                        HStack {
-                            Text("Mastered🔥 (\(masteryLvlCounts[3]))")
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                                .font(.system(size: 12))
-                        }
-                        .padding(.vertical, 10)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical)
                 }
-                .padding(.horizontal)
-                
-                Divider()
-                    .overlay(Color.black)
-                
-                // Dynamic List of Songs
-                ForEach(userWords) { entry in
-                    WordRow(entry: entry)
-                    Divider().overlay(Color.black)
-                }
-                
             }
             .navigationTitle("Word Bank")
-            .background(Constants.amber_tide)
+            // Removed .background() from here since it's nested in the base ZStack layer now
             .task {
                 do {
-                    // FIX: Removed the unused userID line here
                     let wordBankData = try await NetworkManager.shared.fetchWordBankScreenData()
                     self.userWords = wordBankData.userWordData
-                    self.masteryLvlCounts = [0, 0, 0, 0] //rsets count so dnot double up if view reloads
+                    self.masteryLvlCounts = [0, 0, 0, 0]
                     for wordEntry in self.userWords {
                         let total = wordEntry.numListens + wordEntry.numPracticesCompleted
                         masteryLvlCounts[calculateMasteryLvl(numActivitiesCompleted: total)] += 1
