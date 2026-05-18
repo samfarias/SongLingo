@@ -157,30 +157,33 @@ struct Dashboard: View {
                             HStack(spacing: 15) {
                                 ForEach(homeData?.suggestedPlaylists.allSuggestedPlaylists ?? []) { playlist in
                                     NavigationLink(destination: PlaylistCollection()) {
+                                        let theme = themeForPlaylist(playlist)
+                                        
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 15)
-                                                .fill(Constants.mint)
+                                                .fill(theme.background)
                                             
                                             VStack(spacing: 8) {
                                                 Image(systemName: "play.circle.fill")
                                                     .font(.system(size: 28))
-                                                    .foregroundColor(Color(red: 0.1, green: 0.3, blue: 0.2))
+                                                    .foregroundColor(theme.foreground)
                                                 
                                                 Text(playlist.playlistName)
                                                     .font(.system(size: 13, weight: .bold))
-                                                    .lineLimit(2)
+                                                    .lineLimit(3)
                                                     .multilineTextAlignment(.center)
+                                                    .fixedSize(horizontal: false, vertical: true)
                                                 
                                                 Spacer()
                                                 
                                                 Text("\(Constants.languageIdToName[playlist.language] ?? "ID") · \(playlist.proficiencyLevel)")
                                                     .font(.system(size: 9))
                                                 
-                                                Text("\(Constants.genreIdToName[playlist.genre ?? 0] ?? "Unknown")")
+                                                Text("\(Constants.genreIdToName[playlist.genre ?? 0] ?? "Multi-Genre")")
                                                     .font(.system(size: 9))
                                             }
-                                            .foregroundColor(Color(red: 0.1, green: 0.3, blue: 0.2))
-                                            .padding(12)
+                                            .foregroundColor(theme.foreground)
+                                            .padding(10)
                                         }
                                         .frame(width: 110, height: 150)
                                         .shadow(color: Color(red: 0.4, green: 0.6, blue: 0.5).opacity(0.3), radius: 5, x: 3, y: 3)
@@ -221,7 +224,16 @@ struct Dashboard: View {
                                 
                                 Spacer()
                                 
-                                Button(action: { }) {
+                                Button(action: {
+                                    Task {
+                                        do {
+                                            try await NetworkManager.shared.generateNewPlaylist()
+                                            self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+                                        } catch {
+                                            print("Error generating new playlist \(error)")
+                                        }
+                                    }
+                                }) {
                                     Text("Generate")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 12))
@@ -339,6 +351,25 @@ struct Dashboard: View {
             }
         }
     }
+}
+
+struct PlaylistTheme {
+    let background: LinearGradient
+    let foreground: Color
+}
+
+// A helper function to fetch the right theme based on the playlist's data
+func themeForPlaylist(_ playlist: Playlist) -> PlaylistTheme {
+    if playlist.playlistName.contains("Daily Mix") {
+        return PlaylistTheme(
+            background: Constants.gold,
+            foreground: Color.black.opacity(0.7)
+        )
+    }
+    return PlaylistTheme(
+        background: Constants.mint,
+        foreground: Color(red: 0.1, green: 0.3, blue: 0.2)
+    )
 }
 
 #Preview {

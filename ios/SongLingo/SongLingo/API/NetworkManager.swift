@@ -433,4 +433,21 @@ class NetworkManager {
             }
         }
     }
+    
+    func generateNewPlaylist() async throws {
+        guard let url = URL(string: "\(baseURL)/playlists/generate/") else { throw URLError(.badURL) }
+        
+        var request = createAuthenticatedRequest(url: url)
+        request.httpMethod = "POST"
+                
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("DEBUG: Update Profile Status: \(httpResponse.statusCode)")
+            if httpResponse.statusCode != 200 && httpResponse.statusCode != 201 {
+                let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("DEBUG: Server error message: \(errorMsg)")
+            }
+        }
+    }
 }

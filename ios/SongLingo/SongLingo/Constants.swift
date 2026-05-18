@@ -73,6 +73,15 @@ struct Constants
         endPoint: .bottomTrailing
     )
     
+    static let gold: LinearGradient = LinearGradient(
+        colors: [
+            Color(red: 1.00, green: 0.93, blue: 0.65), // Luminous, bright gold
+            Color(red: 0.90, green: 0.78, blue: 0.50)  // Medium, soft gold
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
     static let green: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
             Color(red: 0.55, green: 0.85, blue: 0.65), // Lush Amazonite

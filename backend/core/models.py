@@ -118,8 +118,8 @@ class Song(models.Model):
 
 class UserSong(models.Model):
 
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_song')
-    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_progress')
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_profile')
+    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_song')
     num_listens = models.IntegerField(default=0)
     num_lyric_challenges_completed = models.IntegerField(default=0)
     mastery_lvl = models.IntegerField(default=0)

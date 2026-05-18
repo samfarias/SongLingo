@@ -100,20 +100,13 @@ struct PlaylistCard: View {
             VStack(alignment: .leading) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color(red: 0.600, green: 0.650, blue: 0.900),
-                                Color(red: 0.450, green: 0.500, blue: 0.800)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
+                        .fill(getPlaylistBackground(playlist))
                         .frame(width: 140, height: 140)
                         .shadow(color: .black.opacity(0.2), radius: 4, x: 2, y: 2)
                     
                     Image(systemName: "music.note.list")
                         .font(.system(size: 40))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(getPlaylistForeground(playlist))
                 }
                 
                 Text(playlist.playlistName)
@@ -129,6 +122,28 @@ struct PlaylistCard: View {
             .frame(width: 140)
         }
     }
+}
+
+// A helper function to fetch the right theme based on the playlist's data
+func getPlaylistBackground(_ playlist: Playlist) -> LinearGradient {
+    if playlist.playlistName.contains("Daily Mix") {
+        return Constants.gold
+    }
+    return LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 0.600, green: 0.650, blue: 0.900),
+            Color(red: 0.450, green: 0.500, blue: 0.800)
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+}
+
+func getPlaylistForeground(_ playlist: Playlist) -> Color {
+    if playlist.playlistName.contains("Daily Mix") {
+        return Color.black.opacity(0.8)
+    }
+    return Color.white.opacity(0.8)
 }
 
 #Preview {

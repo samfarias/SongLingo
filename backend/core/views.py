@@ -2,7 +2,8 @@ import random
 import os
 import json
 import requests
-from datetime import date
+from datetime import date, datetime
+from collections import Counter
 
 from django.shortcuts import render
 from django.db.models import F
@@ -146,7 +147,7 @@ class HomeScreenView(APIView):
             
             i = 0
             while i < len(user_playlists) and user_playlists[i].last_date_played == None:
-                if len(suggested_playlists["new_playlist"]) == 0:
+                if len(suggested_playlists["new_playlist"]) < 3 or user_playlists[i].created_date == date.today():
                     suggested_playlists["new_playlist"].append(user_playlists[i])
                 i += 1
             
@@ -154,7 +155,7 @@ class HomeScreenView(APIView):
                 suggested_playlists["recently_played"].append(user_playlists[i])
                 i += 1
                 
-            if len(suggested_playlists["new_playlist"]) > 0 and len(suggested_playlists["recently_played"]) >= 3:
+            if len(suggested_playlists["new_playlist"]) > 2 and len(suggested_playlists["recently_played"]) > 3:
                 suggested_playlists["recently_played"].pop()
                 
             return suggested_playlists
@@ -352,24 +353,73 @@ class GenerateWeeklyDropView(APIView):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def generate_weekly_playlist(request):
+def generateNewPlaylist(request):
     try:
-        profile, created = UserProfile.objects.get_or_create(user=request.user)
+        profile = request.user.profile
         
-        user_level = getattr(profile, 'proficiency_level', 'Beginner') 
+        query_proficiency_level = getattr(profile, 'proficiency_level', 'Beginner')
+        query_genres = GenreSelection.objects.filter( # this returns a list of Genre objects
+            user_profile=profile
+        ).values_list('genre', flat=True)
+        query_language = profile.target_language
 
-        # Make sure we use AnalyzedSong if that is where difficulty_level lives
-        matching_songs = Song.objects.filter(proficiency_level=user_level)
-        if not matching_songs.exists():
-            return Response({"error": f"No songs found for level {user_level}"}, status=404)
+        selected_songs = []
+        attempts = 0
+        while len(selected_songs) < 6 and attempts < 30:
+            song_query = Song.objects.exclude( # avoid songs which the user already has in MySongs
+                user_song__user_profile=profile
+            ).filter(
+                language=query_language
+            )
+            # Exclude songs we have already selected in previous iterations of this loop
+            if selected_songs:
+                song_query = song_query.exclude(id__in=[song.id for song in selected_songs])
 
-        song_pool = list(matching_songs)
-        num_songs = min(len(song_pool), 5) 
-        selected_songs = random.sample(song_pool, num_songs)
+            if attempts < 5: # try to only get songs based on the user's preferences
+                song_query = song_query.filter(
+                    proficiency_level=query_proficiency_level,
+                    genre__in=query_genres
+                )
+            elif attempts < 15: # after 5 attempts, relax the genre parameter to include songs of any genre
+                song_query = song_query.filter(
+                    proficiency_level=query_proficiency_level,
+                )
+            # after 15 attempts, no filters are used so songs could be any genre and any proficiency level
 
-        playlist = Playlist.objects.create(
+            song_pool = list(song_query)
+            if song_pool:
+                num_songs_needed = 6 - len(selected_songs)
+                num_to_sample = min(len(song_pool), num_songs_needed)
+
+                sampled_batch = random.sample(song_pool, num_to_sample)
+                selected_songs.extend(sampled_batch)
+
+            attempts += 1
+
+        if len(selected_songs) == 0: # no songs found after 30 attempts
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        # get most frequent genre to set as the playlists genre
+        most_frequent_genre = None
+        genres_in_playlist = [song.genre for song in selected_songs]
+        genre_counts = Counter(genres_in_playlist)
+        if genre_counts:
+            most_frequent_genre = genre_counts.most_common(1)[0][0]
+
+        date_formatted = datetime.now().strftime("%B %d")
+        playlist_description = (
+            f"Your daily mix for {date_formatted} consists of {len(selected_songs)} songs "
+            f"primarily in the {most_frequent_genre} genre and is perfect for a "
+            f"{profile.proficiency_level} {profile.target_language} learner."
+        )
+        
+        playlist = Playlist.objects.create( # THIS SHOULD BE UPDATED AFTER FIGURING OUT HOW TO GENERATE NAME AND DESCRIPTION, ETC.
             user_profile=profile,
-            playlist_name="Your Weekly Mix"
+            playlist_name="Your Daily Mix",
+            language=profile.target_language,
+            genre=most_frequent_genre,
+            description=playlist_description,
+            proficiency_level=profile.proficiency_level
         )
 
         PlaylistSong.objects.bulk_create([
@@ -377,22 +427,13 @@ def generate_weekly_playlist(request):
             for song in selected_songs
         ])
 
-        playlist_data = [{
-            "id": entry.id,
-            "title": entry.title,
-            "artist": entry.artist,
-            "lyrics": entry.lyrics,
-            "proficiency_level": entry.difficulty_level,
-            "vocabulary": getattr(entry, 'vocabulary_json', [])
-        } for entry in selected_songs]
+        UserSong.objects.bulk_create([
+            UserSong(user_profile=profile, song=song)
+            for song in selected_songs
+        ])
 
         return Response({
-            "playlist_info": {
-                "id": playlist.id,
-                "name": playlist.playlist_name,
-                "description": f"Curated for {user_level} learners."
-            },
-            "songs": playlist_data
+            "playlist_info": PlaylistSerializer(playlist).data
         }, status=status.HTTP_201_CREATED)
     
     except Exception as e:
@@ -515,7 +556,7 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
                 break # We have our 10 valid words, we can stop entirely!
                 
             attempts -= 1
-            
+
     word_distractors = []
     most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song
     if most_listened_song != None:
