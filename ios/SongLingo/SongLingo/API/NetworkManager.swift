@@ -152,7 +152,6 @@ class NetworkManager {
             // Inject it into the HTTP Header for Django to verify
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-
         
         return request
     }
