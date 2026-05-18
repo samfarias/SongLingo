@@ -434,7 +434,7 @@ class NetworkManager {
         }
     }
     
-    func generateNewPlaylist() async throws {
+    func generateNewPlaylist() async throws -> Playlist {
         guard let url = URL(string: "\(baseURL)/playlists/generate/") else { throw URLError(.badURL) }
         
         var request = createAuthenticatedRequest(url: url)
@@ -449,5 +449,8 @@ class NetworkManager {
                 print("DEBUG: Server error message: \(errorMsg)")
             }
         }
+        
+        let decodedResponse = try JSONDecoder().decode(PlaylistResponse.self, from: data)
+        return decodedResponse.playlist
     }
 }

@@ -433,7 +433,7 @@ def generateNewPlaylist(request):
         ])
 
         return Response({
-            "playlist_info": PlaylistSerializer(playlist).data
+            "playlist": PlaylistSerializer(playlist).data
         }, status=status.HTTP_201_CREATED)
     
     except Exception as e:

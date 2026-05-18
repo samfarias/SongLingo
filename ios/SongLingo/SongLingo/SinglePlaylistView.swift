@@ -114,5 +114,5 @@ struct PlaylistSongRow: View {
 }
 
 #Preview {
-    SinglePlaylistView(playlistId: 0)
+    SinglePlaylistView(playlistId: -1)
 }
