@@ -198,7 +198,7 @@ struct Dashboard: View {
                     )
                     
                     VStack (alignment: .leading) {
-                        Text("This Week's Word Cards")
+                        Text("Today's Daily Playlist")
                             .font(.headline)
                             .foregroundColor(.white.opacity(0.8))
                         
@@ -207,13 +207,13 @@ struct Dashboard: View {
                                 .fill(Color.white.opacity(0.05))
                             HStack {
                                 VStack (alignment: .leading) {
-                                    Text("_ new words waiting for you!")
+                                    Text("Fresh new songs waiting for you!")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 14))
                                     
                                     Spacer(minLength: 1)
                                     
-                                    Text("Complete your daily practice to maintain your streak")
+                                    Text("A playlist a day keeps the locals blown away")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 10, weight: .light, design: .rounded))
                                 }
@@ -222,7 +222,7 @@ struct Dashboard: View {
                                 Spacer()
                                 
                                 Button(action: { }) {
-                                    Text("Begin")
+                                    Text("Generate")
                                         .foregroundColor(.white.opacity(0.8))
                                         .font(.system(size: 12))
                                         .padding(.vertical, 10)
