@@ -15,7 +15,7 @@ struct ContentView: View {
                 .tabItem {
                     Label(Constants.homeString, systemImage: Constants.homeIcon)
                 }
-            Login()
+            PlaylistCollection()
                 .tabItem {
                     Label(Constants.playlistString, systemImage: Constants.playlistIcon)
                 }
