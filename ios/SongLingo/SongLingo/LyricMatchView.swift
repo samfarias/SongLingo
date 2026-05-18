@@ -10,20 +10,12 @@ import SwiftUI
 struct LyricMatchView: View {
     
     @State private var lyricMatchData: LyricMatchingData?
-    
-    //Mock Data
-    let correctWords = ["I've", "been", "on", "my", "own"]
-    
-    @State private var wordBank = [
-        "own",
-        "been",
-        "I've",
-        "my",
-        "on"
-    ]
-    
+    @State private var correctWords: [String] = []
+    @State private var wordBank: [String] = []
     @State private var sentence: [String] = []
     @State private var isPlaying: Bool = false
+    @State private var showingResultAlert = false
+    @State private var isCorrectAnswer = false
     
     var body: some View {
         
@@ -33,23 +25,15 @@ struct LyricMatchView: View {
                 
                 Text("What do you hear?")
                     .font(.largeTitle.bold())
+                    .foregroundStyle(.white)
                 
                 Text("Listen carefully and rebuild the lyric.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.7))
             }
             
             RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.black.opacity(0.92),
-                            Color.black.opacity(0.78)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(.ultraThinMaterial)
                 .frame(height: 160)
                 .overlay {
                     
@@ -57,7 +41,13 @@ struct LyricMatchView: View {
                         
                         Button {
                             isPlaying.toggle()
-                            //TODO: Audio playback
+                            if isPlaying {
+                                isPlaying = false
+                            } else if let b64 = lyricMatchData?.audioBase64 {
+                                let clean = b64.trimmingCharacters(in: .whitespacesAndNewlines)
+                                AudioPlayerManager.shared.playBase64Audio(clean)
+                                isPlaying = true
+                            }
                         } label: {
                             
                             Image(systemName: isPlaying ? "pause.fill" : "play.fill")
@@ -90,7 +80,7 @@ struct LyricMatchView: View {
                 
                 Text("YOUR ANSWER")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.6))
                 
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: 70))],
@@ -111,10 +101,10 @@ struct LyricMatchView: View {
                     minHeight: 70,
                     alignment: .topLeading
                 )
-                .background(.white)
+                .background(.white.opacity(0.08))
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.black.opacity(0.05))
+                        .stroke(Color.white.opacity(0.1))
                 )
                 .shadow(
                     color: .black.opacity(0.03),
@@ -130,7 +120,7 @@ struct LyricMatchView: View {
                 
                 Text("WORD BANK")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.6))
                 
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: 70))],
@@ -150,16 +140,16 @@ struct LyricMatchView: View {
             Spacer()
             
             Button {
-                // TODO: Submit logic
+                isCorrectAnswer = (sentence == correctWords)
+                showingResultAlert = true
             } label: {
-                
                 Text("Submit")
                     .font(.headline.weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding()
             }
-            .background(Color.black)
-            .foregroundStyle(.white)
+            .background(.white)
+            .foregroundStyle(.black)
             .clipShape(RoundedRectangle(cornerRadius: 18))
             .disabled(sentence.isEmpty)
             .opacity(sentence.isEmpty ? 0.5 : 1)
@@ -167,19 +157,28 @@ struct LyricMatchView: View {
         .padding(20)
         .padding(.top, 12)
         .background(
-            Color(UIColor.systemGroupedBackground)
+            LinearGradient(
+                colors: [
+                    Color(red: 0.050, green: 0.120, blue: 0.150),
+                    Color(red: 0.110, green: 0.440, blue: 0.450),
+                    Color(red: 0.376, green: 0.450, blue: 0.450)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
         )
         .navigationTitle("Lyric Match")
         .navigationBarTitleDisplayMode(.inline)
         .animation(.spring(duration: 0.3), value: sentence)
+        .alert(isPresented: $showingResultAlert){
+            Alert(title: Text(isCorrectAnswer ? "Well done!" : "Try again!"), message: Text(isCorrectAnswer ? "You've matched the lyrics correctly!" : "Keep practicing!"), dismissButton: .default(Text("OK")))
+        }
         .task {
             do {
                 self.lyricMatchData = try await NetworkManager.shared.fetchLyricMatchExerciseData()
                 if let data = self.lyricMatchData {
-                    print(data.lineToDisplay)
-                    print(data.lineToMatch)
-                    print(data.songTitle)
-                    print(data.songArtist)
+                    correctWords = data.lineToMatch.components(separatedBy: " ")
+                    wordBank = correctWords.shuffled()
                 }
             } catch {
                 print("Request failed: \(error)")
@@ -219,17 +218,13 @@ struct WordCapsule: View {
         
         Text(word)
             .font(.subheadline.weight(.medium))
+            .foregroundStyle(.white)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(.white)
+            .background(.white.opacity(0.12))
             .overlay(
                 Capsule()
-                    .stroke(Color.black.opacity(0.06))
-            )
-            .shadow(
-                color: .black.opacity(0.04),
-                radius: 4,
-                y: 2
+                    .stroke(Color.white.opacity(0.15))
             )
             .clipShape(Capsule())
     }
