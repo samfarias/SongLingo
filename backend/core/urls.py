@@ -4,7 +4,7 @@ from .views import (
     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
     updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise,
     getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, 
-    GenerateWeeklyDropView, UpdateProfileView, generate_weekly_playlist
+    GenerateWeeklyDropView, UpdateProfileView, generateNewPlaylist
 )
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -20,7 +20,7 @@ urlpatterns = [
     path('playlist/', SinglePlaylistView.as_view(), name='playlist'),
     path('playlist-collection/', PlaylistCollectionView.as_view(), name='playlist-collection'),
     path('generate-drop/', GenerateWeeklyDropView.as_view(), name='generate-drop'), 
-    path('playlists/generate/', generate_weekly_playlist, name='generate-playlist'),
+    path('playlists/generate/', generateNewPlaylist, name='generate-playlist'),
     
     # --- EXERCISES ---
     path('word-card-exercise/', getWordCardExercise, name='word-cards'),
