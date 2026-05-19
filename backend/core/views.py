@@ -546,8 +546,8 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
             song_vocab = starter_pack_song.vocabulary_json
             
             for word in song_vocab:
-                lowercase = word.lower() # to match db
-                word_set.add(lowercase)
+                cleaned_word = clean_and_format_word(word)
+                word_set.add(cleaned_word)
 
             practice_words.extend(list(Word.objects.filter(word_text__in=word_set)))
             
@@ -603,6 +603,7 @@ def getLyricMatchExercise(request):
     two_song_lines = getTwoRandomSongLines(practice_song)
     
     return Response({
+        "song_id": practice_song.pk,
         "line_to_display": two_song_lines[0],
         "line_to_match": two_song_lines[1],
         "song_title": practice_song.title,
