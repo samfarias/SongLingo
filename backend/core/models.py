@@ -202,3 +202,15 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
         except Exception as e:
             # This ensures if anything fails, it prints to Docker logs but DOES NOT block the user from signing up
             print(f"CRITICAL: Could not generate starter pack for {instance.username}: {e}")
+
+class SpotifyCredentials(models.Model):
+    # Links directly to Django's built-in User system
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='spotify_creds')
+    
+    spotify_id = models.CharField(max_length=150, null=True, blank=True)
+    access_token = models.CharField(max_length=300)
+    refresh_token = models.CharField(max_length=300)
+    expires_at = models.DateTimeField()
+
+    def __str__(self):
+        return f"Spotify Vault - {self.user.username}"

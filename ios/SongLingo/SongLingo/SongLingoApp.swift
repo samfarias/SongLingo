@@ -10,9 +10,15 @@ import SwiftUI
 
 @main
 struct SongLingoApp: App {
+    @AppStorage("isLoggedIn") private var isLoggedIn = false
+
     var body: some Scene {
         WindowGroup {
-            Login()
+            if isLoggedIn {
+                ContentView()
+            } else {
+                Login()
+            }
         }
     }
 }

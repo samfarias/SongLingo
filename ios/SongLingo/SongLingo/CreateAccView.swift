@@ -7,7 +7,8 @@ struct CreateAccView: View {
     @State private var confirmPassword = ""
     
     @State private var navigateToOnboarding = false
-    
+    @State private var errorMessage: String? = nil
+
     @Environment(\.dismiss) var dismiss
     
     // MARK: - Computed Validation Properties
@@ -210,14 +211,24 @@ struct CreateAccView: View {
                             }
                         }
 
+                        if let errorMessage = errorMessage {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .font(.callout)
+                                .multilineTextAlignment(.center)
+                        }
+
                         Button {
+                            errorMessage = nil
                             Task {
                                 do {
                                     let _ = try await NetworkManager.shared.register(username: username, password: password)
                                     UserDefaults.standard.set(true, forKey: "is_new_user")
                                     navigateToOnboarding = true
                                 } catch {
-                                    print("Registration failed: \(error)")
+                                    await MainActor.run {
+                                        errorMessage = error.localizedDescription
+                                    }
                                 }
                             }
                         } label: {

@@ -6,13 +6,16 @@
 //
 
 import SwiftUI
+import AuthenticationServices
 
 struct Profile: View {
     // Dummy info fallback
     @State private var demo = UserData(username: "JohnDoe", email: "bob@gmail.com", password: "Password1@", genrePreference: "Rock", languagePreference: "Spanish", languageProficiency: "Beginner", joinDate: "March 2026")
-    
+
     // NEW: Live backend data holder
     @State private var homeData: HomeScreenData?
+    @AppStorage("spotifyLinked") private var spotifyLinked = false
+    @State private var isLinkingSpotify = false
     
     var body: some View {
         NavigationStack {
@@ -169,27 +172,53 @@ struct Profile: View {
                             Divider()
                             
                             Button {
-                                //Link Here
+                                connectSpotify()
                             } label: {
                                 HStack {
                                     HStack(spacing: 8) {
-                                        Text("Connect to Spotify")
+                                        Text(spotifyLinked ? "Spotify Connected" : "Connect to Spotify")
                                             .foregroundStyle(Color.white.opacity(0.5))
                                             .font(.subheadline)
-                                        Image(systemName: "music.note")
-                                            .foregroundStyle(Color.white.opacity(0.8))
+                                        Image(systemName: spotifyLinked ? "checkmark.circle.fill" : "music.note")
+                                            .foregroundStyle(spotifyLinked ? .green : Color.white.opacity(0.8))
                                     }
                                     Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .foregroundStyle(Color.white.opacity(0.9))
+                                    if isLinkingSpotify {
+                                        ProgressView()
+                                            .tint(.white)
+                                    } else if !spotifyLinked {
+                                        Image(systemName: "chevron.right")
+                                            .foregroundStyle(Color.white.opacity(0.9))
+                                    }
                                 }
                                 .padding()
                                 .background(Color.white.opacity(0.2))
                             }
+                            .disabled(spotifyLinked || isLinkingSpotify)
                         }
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(20)
                         .shadow(radius: 4)
+
+                        Spacer().frame(height: 20)
+
+                        Button {
+                            UserDefaults.standard.removeObject(forKey: "jwt_access_token")
+                            UserDefaults.standard.removeObject(forKey: "user_id")
+                            UserDefaults.standard.removeObject(forKey: "is_new_user")
+                            UserDefaults.standard.set(false, forKey: "isLoggedIn")
+                        } label: {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                Text("Log Out")
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.15))
+                            .cornerRadius(15)
+                        }
                     }
                     .padding()
                 }
@@ -223,7 +252,27 @@ struct Profile: View {
             }
         }
     }
+
+    func connectSpotify() {
+        isLinkingSpotify = true
+        Task {
+            do {
+                try await SpotifyAuthManager.shared.connect()
+                print("DEBUG: Spotify linked successfully")
+
+                try await NetworkManager.shared.generateSpotifyDrop()
+                print("DEBUG: Created playlist on user's Spotify account")
+
+                await MainActor.run { self.homeData = nil }
+                self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+            } catch {
+                print("DEBUG: Spotify connect error: \(error)")
+            }
+            await MainActor.run { isLinkingSpotify = false }
+        }
+    }
 }
+
 struct UserData {
     var username: String
     var email: String

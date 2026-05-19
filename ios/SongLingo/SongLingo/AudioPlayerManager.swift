@@ -8,15 +8,36 @@
 import Foundation
 import AVFoundation
 
-class AudioPlayerManager {
-    
+class AudioPlayerManager: NSObject, AVSpeechSynthesizerDelegate {
+
     // 1. The Singleton (Crucial for memory)
     static let shared = AudioPlayerManager()
-    
+
     // 2. The Player instance must be held in memory, otherwise it dies instantly
     private var audioPlayer: AVAudioPlayer?
-    
-    private init() {}
+    private let speechSynthesizer = AVSpeechSynthesizer()
+
+    private override init() {
+        super.init()
+        speechSynthesizer.delegate = self
+    }
+
+    func speakWord(_ word: String, language: String = "es-MX") {
+        speechSynthesizer.stopSpeaking(at: .immediate)
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Audio session error: \(error.localizedDescription)")
+        }
+
+        let utterance = AVSpeechUtterance(string: word)
+        utterance.voice = AVSpeechSynthesisVoice(language: language)
+        utterance.rate = 0.4
+        utterance.pitchMultiplier = 1.0
+        speechSynthesizer.speak(utterance)
+    }
     
     /// Decodes a Base64 string and plays it out loud
     func playBase64Audio(_ base64String: String) {

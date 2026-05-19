@@ -8,21 +8,58 @@
 import SwiftUI
 
 struct PlaylistCollection: View {
-    
+
     @State private var playlistCollectionData: PlaylistCollectionData?
-    
+    @State private var isGenerating = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 25) {
                     Spacer(minLength: 20)
                     
-                    Text("Your Playlists")
-                        .font(.title)
-                        .bold()
-                        .foregroundColor(.white)
-                    
-                    Spacer().frame(height: 20)
+                    HStack {
+                        Text("Your Playlists")
+                            .font(.title)
+                            .bold()
+                            .foregroundColor(.white)
+
+                        Spacer()
+
+                        Button {
+                            isGenerating = true
+                            Task {
+                                do {
+                                    let _ = try await NetworkManager.shared.generateNewPlaylist()
+                                    self.playlistCollectionData = try await NetworkManager.shared.fetchPlaylistCollectionData()
+                                } catch {
+                                    print("Error generating playlist: \(error)")
+                                }
+                                isGenerating = false
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                if isGenerating {
+                                    ProgressView().tint(.white)
+                                } else {
+                                    Image(systemName: "plus")
+                                        .font(.caption.bold())
+                                    Text("New Playlist")
+                                        .font(.caption.bold())
+                                }
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.white.opacity(0.2))
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                        }
+                        .disabled(isGenerating)
+                    }
+                    .padding(.horizontal)
+
+                    Spacer().frame(height: 10)
                     
                     // --- Recently Played Section ---
                     renderSection(
