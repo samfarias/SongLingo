@@ -9,9 +9,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from .models import (
-    DaysActive, UserActivity, Playlist, Song, UserSong
+    DaysActive, UserActivity, Playlist, Song, UserSong, Word
 )
-from .helpers import clean_and_format_word
+from .helpers import clean_and_format_word, get_unique_words_from_lyrics
 
 load_dotenv()
 #grab API keys
@@ -95,6 +95,29 @@ def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
         if word != missing_word:
             distractor_words.append(word)
     return distractor_words
+
+def getEnglishWordDistractors(user_profile_id: int, practice_word_in_english: str) -> list[str]:
+    distractors = set()
+    attempts = 50
+    
+    while len(distractors) < 3 and attempts > 0:
+        random_user_song = getPracticeExerciseSong(user_profile_id)
+        song_words = get_unique_words_from_lyrics(random_user_song.lyrics)
+        
+        for word in song_words:
+            cleaned_word = clean_and_format_word(word)
+            
+            word_obj = Word.objects.filter(word_text=cleaned_word).first()
+            
+            if word_obj and word_obj.translation != practice_word_in_english:
+                distractors.add(word_obj.translation) # Or word_obj.word_text
+            
+            if len(distractors) >= 3:
+                break
+        attempts -= 1
+
+    return list(distractors)
+
 
 def getTwoRandomSongLines(practice_song: Song) -> tuple[str, str]:
     line_one = ""
