@@ -286,13 +286,15 @@ struct PlaylistCollections: Codable {
 // MARK: - Lyric Matching Exercise Models
 
 struct LyricMatchingData: Codable {
+    let songId: Int
     let lineToDisplay: String
     let lineToMatch: String
     let songTitle: String
     let songArtist: String
-    let audioBase64: String
+    let audioBase64: String?
 
     enum CodingKeys: String, CodingKey {
+        case songId = "song_id"
         case lineToDisplay = "line_to_display"
         case lineToMatch = "line_to_match"
         case songTitle = "song_title"

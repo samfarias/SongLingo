@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import (
     DaysActive, UserActivity, Playlist, Song, UserSong
 )
+from .helpers import clean_and_format_word
 
 load_dotenv()
 #grab API keys
@@ -43,6 +44,8 @@ def updateUserActivity(user_id: int):
 
 # increments (+1) Playlist.num_song_listens. Updates last_date_played and num_days_played if it's a new day
 def updateUserPlaylistNumSongListens(playlist_id: int) -> int:
+    if playlist_id < 0:
+        return 0
     try:
         playlist = Playlist.objects.get(pk=playlist_id)
         update_args = {
@@ -71,7 +74,7 @@ def getLyricAndMissingWord(practice_song: Song) -> tuple[str, str]:
             blanked_out_line += ('_' * len(word))
         blanked_out_line += ' '
     blanked_out_line = blanked_out_line[:-1] # remove last space
-    return [blanked_out_line, random_word]
+    return [blanked_out_line, clean_and_format_word(random_word)]
 
 def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
     word_set = {missing_word}
@@ -82,12 +85,9 @@ def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
         random_line = lines[random.randint(0, len(lines) - 1)][:-1] # be sure there is at least 1 line, [:-1] to remove '\r' at end
         line_words = random_line.split(' ')
         random_word = line_words[random.randint(0, len(line_words) - 1)]
-        formatted_random_word = ""
-        for ch in random_word:
-            if ch.isalpha():
-                formatted_random_word += ch
-        if formatted_random_word != "" and (formatted_random_word not in word_set):
-            word_set.add(formatted_random_word)
+        cleaned_word = clean_and_format_word(random_word)
+        if cleaned_word != "" and (cleaned_word not in word_set):
+            word_set.add(cleaned_word)
         attempts -= 1
 
     distractor_words = []
@@ -97,11 +97,16 @@ def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
     return distractor_words
 
 def getTwoRandomSongLines(practice_song: Song) -> tuple[str, str]:
-    lyrics = practice_song.lyrics
-    lines = lyrics.split('\n')
-    random_line_idx = random.randint(0, len(lines) - 2) # -2 ensures it's not the last line so we can also get the following line
-    line_one = lines[random_line_idx][:-1] # [:-1] to remove '\r' at end
-    line_two = lines[random_line_idx + 1][:-1]
+    line_one = ""
+    line_two = ""
+    attempts = 20
+    while (line_one == "" or line_two == "") and attempts > 0:
+        lyrics = practice_song.lyrics
+        lines = lyrics.split('\n')
+        random_line_idx = random.randint(0, len(lines) - 2) # -2 ensures it's not the last line so we can also get the following line
+        line_one = lines[random_line_idx][:-1] # [:-1] to remove '\r' at end
+        line_two = clean_and_format_word(lines[random_line_idx + 1][:-1])
+        attempts -= 1
     return [line_one, line_two]
 
 def getPracticeExerciseSong(user_id: str) -> Song:
