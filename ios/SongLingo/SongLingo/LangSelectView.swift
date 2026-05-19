@@ -2,8 +2,6 @@ import SwiftUI
 
 struct LangSelectionView: View {
     @State private var selectedLanguage: Int? = nil
-    
-    @Environment(\.dismiss) var dismiss
 
     let columns = [
         GridItem(.flexible(), spacing: 16),
