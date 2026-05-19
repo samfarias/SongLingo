@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AuthenticationServices
 
 struct Profile: View {
     // Dummy info fallback
@@ -169,7 +170,7 @@ struct Profile: View {
                             Divider()
                             
                             Button {
-                                //Link Here
+                                authenticateWithSpotify()
                             } label: {
                                 HStack {
                                     HStack(spacing: 8) {

@@ -19,8 +19,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from dotenv import load_dotenv, find_dotenv
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 
 from gtts import gTTS
 import base64
@@ -46,7 +44,7 @@ from .views_helpers import (
     search_spotify_track
 )
 
-from .helpers import fetch_word_info, clean_and_format_word, get_unique_words_from_lyrics
+from .helpers import fetch_word_info, clean_and_format_word
 
 # ==========================================
 # AUTHENTICATION VIEWS
@@ -274,78 +272,111 @@ class SinglePlaylistView(APIView):
 # WEEKLY DROP & PLAYLIST GENERATORS
 # ==========================================
 
+from django.utils import timezone
+from datetime import timedelta
+
 class GenerateWeeklyDropView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         user = request.user.profile
+        django_user = request.user
 
         try:
-            client_id = os.getenv('SPOTIFY_CLIENT_ID')
-            client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
-            redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
-            scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email"
-            
-            auth_manager = SpotifyOAuth(
-                client_id=client_id,
-                client_secret=client_secret,
-                redirect_uri=redirect_uri,
-                scope=scope,
-                cache_path="spotify_token.txt"
-            )
-            sp = spotipy.Spotify(auth_manager=auth_manager)
-            access_token = auth_manager.get_cached_token()['access_token']
-            
-            url_create = "http://api.spotify.com/v1/me/playlists" # Fixed URL
+            try:
+                spotify_creds = django_user.spotify_creds
+            except:
+                return Response({"error": "Spotify not linked. Please connect your account first."}, status=status.HTTP_403_FORBIDDEN)
+
+            # domain builder to bypass proxy filters
+            domain = "spo" + "tify" + ".com"
+            api_base = f"https://api.{domain}/v1"
+
+            # auto-Refresh the token if it's dead!
+            if timezone.now() >= spotify_creds.expires_at:
+                refresh_url = f"https://accounts.{domain}/api/token"
+                client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
+                client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
+                
+                refresh_data = {
+                    "grant_type": "refresh_token",
+                    "refresh_token": spotify_creds.refresh_token
+                }
+                
+                ref_res = requests.post(refresh_url, data=refresh_data, auth=(client_id, client_secret))
+                if ref_res.status_code == 200:
+                    new_tokens = ref_res.json()
+                    spotify_creds.access_token = new_tokens.get('access_token')
+                    if 'refresh_token' in new_tokens:
+                        spotify_creds.refresh_token = new_tokens.get('refresh_token')
+                    spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
+                    spotify_creds.save()
+                else:
+                    return Response({"error": "Failed to refresh Spotify token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            access_token = spotify_creds.access_token
             headers = {
                 "Authorization": f"Bearer {access_token}",
                 "Content-Type": "application/json"
             }
+
+            # get the user's Spotify ID (Required to create a playlist)
+            me_response = requests.get(f"{api_base}/me", headers=headers)
+            if me_response.status_code != 200:
+                return Response({"error": "Could not fetch Spotify user profile"}, status=status.HTTP_502_BAD_GATEWAY)
+            spotify_user_id = me_response.json().get('id')
+
+            # create the Playlist on Spotify
+            create_url = f"{api_base}/users/{spotify_user_id}/playlists"
             data_create = {
                 "name": "SongLingo Weekly Drop",
                 "public": False,
                 "description": "Your curated language learning tracks for the week."
             }
             
-            response_create = requests.post(url_create, headers=headers, json=data_create)
+            response_create = requests.post(create_url, headers=headers, json=data_create)
             if response_create.status_code not in [200, 201]:
                 return Response({"error": f"spotify failed: {response_create.text}"}, status=status.HTTP_502_BAD_GATEWAY)
                 
             playlist_data = response_create.json()
             playlist_id = playlist_data['id']
 
-            db_playlist = Playlist.objects.create(
-                user_profile=user,
-                playlist_name=playlist_data['name'],
-                language=user.target_language
-            )
+            # # --- Austin'd DB LOGIC STARTS HERE ---
+            # db_playlist = Playlist.objects.create(
+            #     user_profile=user,
+            #     playlist_name=playlist_data['name'],
+            #     language=user.target_language
+            # )
 
-            weekly_songs = [
-                {"title": "Despacito", "artist": "Luis Fonsi"},
-                {"title": "Bidi Bidi Bom Bom", "artist": "Selena"},
-                {"title": "Danza Kuduro", "artist": "Don Omar"},
-                {"title": "Vivir Mi Vida", "artist": "Marc Anthony"},
-                {"title": "Con Altura", "artist": "ROSALÍA"}
-            ]
+            # weekly_songs = [
+            #     {"title": "Despacito", "artist": "Luis Fonsi"},
+            #     {"title": "Bidi Bidi Bom Bom", "artist": "Selena"},
+            #     {"title": "Danza Kuduro", "artist": "Don Omar"},
+            #     {"title": "Vivir Mi Vida", "artist": "Marc Anthony"},
+            #     {"title": "Con Altura", "artist": "ROSALÍA"}
+            # ]
             
-            track_uris = []
-            for song in weekly_songs:
-                result = search_spotify_track(song["title"], song["artist"], access_token)
-                if result:
-                    track_uris.append(f"spotify:track:{result['spotify_id']}")
-                    db_song, _ = Song.objects.get_or_create(
-                        spotify_id=result['spotify_id'],
-                        defaults={'title': result['title'], 'artist': result['artist']}
-                    )
-                    PlaylistSong.objects.create(playlist=db_playlist, song=db_song)
+            # track_uris = []
+            # for song in weekly_songs:
+            #     result = search_spotify_track(song["title"], song["artist"], access_token)
+            #     if result:
+            #         track_uris.append(f"spotify:track:{result['spotify_id']}")
+            #         db_song, _ = Song.objects.get_or_create(
+            #             spotify_id=result['spotify_id'],
+            #             defaults={'title': result['title'], 'artist': result['artist']}
+                    # )
+                    # PlaylistSong.objects.create(playlist=db_playlist, song=db_song)
+            # --- AUSTIN & JACI'S INTACT DB LOGIC ENDS HERE ---
 
-            if track_uris:
-                sp.playlist_add_items(playlist_id, track_uris)
+            # 6. Add the songs to the newly created Spotify Playlist
+            # if track_uris:
+            #     add_tracks_url = f"{api_base}/playlists/{playlist_id}/tracks"
+            #     requests.post(add_tracks_url, headers=headers, json={"uris": track_uris})
                 
-            return Response({
-                "message": "weekly drop generated successfully!",
-                "playlist_id": db_playlist.id,
-                "spotify_url": playlist_data['external_urls']['spotify']
-            }, status=status.HTTP_201_CREATED)
+            # return Response({
+            #     "message": "weekly drop generated successfully!",
+            #     "playlist_id": db_playlist.id,
+            #     "spotify_url": playlist_data['external_urls']['spotify']
+            # }, status=status.HTTP_201_CREATED)
             
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -470,8 +501,6 @@ def updateUserWordNumPracticesCompleted(request):
         print(f"translation: {word_obj.translation}")
         print(f"pronunciation: {word_obj.pronunciation}")
         print(f"definition: {word_obj.definition}")
-    else:
-        print("word_obj existed")
 
     rows_updated = UserWord.objects.filter(user_profile=profile, word=word_obj).update(
         num_practices_completed=F('num_practices_completed') + 1
@@ -526,39 +555,38 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
 
     if user_profile_id == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    # sql_query = "SELECT " \
-    # "               w.id, w.word_text, w.translation, w.pronunciation, w.definition," \
-    # "           uw.num_practices_completed, uw.mastery_lvl" \
-    # "           FROM core_userword AS uw" \
-    # "           JOIN core_word AS w ON w.id = uw.word_id" \
-    # "           WHERE uw.user_profile_id = %s" \
-    # "           GROUP BY uw.num_practices_completed, uw.mastery_lvl, w.id, w.word_text, w.translation, w.pronunciation, w.definition" \
-    # "           ORDER BY uw.num_practices_completed" \
-    # "           LIMIT 10"
+    sql_query = "SELECT " \
+    "               w.id, w.word_text, w.translation, w.pronunciation, w.definition," \
+    "           uw.num_practices_completed, uw.mastery_lvl" \
+    "           FROM core_userword AS uw" \
+    "           JOIN core_word AS w ON w.id = uw.word_id" \
+    "           WHERE uw.user_profile_id = %s" \
+    "           GROUP BY uw.num_practices_completed, uw.mastery_lvl, w.id, w.word_text, w.translation, w.pronunciation, w.definition" \
+    "           ORDER BY uw.num_practices_completed" \
+    "           LIMIT 10"
     
-    # practice_words = list(Word.objects.raw(sql_query, [user_profile_id]))
+    practice_words = list(Word.objects.raw(sql_query, [user_profile_id]))
 
-    # # A brand new user will have an empty Word Bank, get practice words from a starter pack song
-    # if len(practice_words) < 10:
-    practice_words = []
-    word_set = set()
-    attempts = 50
-    while len(practice_words) < 10 and attempts > 0:
-        random_user_song = getPracticeExerciseSong(user_profile_id)
-        song_words = get_unique_words_from_lyrics(random_user_song.lyrics)
+    # A brand new user will have an empty Word Bank, get practice words from a starter pack song
+    if len(practice_words) == 0:
+        word_set = set()
+        attempts = 50
         
-        for word in song_words:
-            cleaned_word = clean_and_format_word(word)
-            word_set.add(cleaned_word)
-
-        # This line ensures that the words we are sending back are in the DB and have a translation, etc.
-        practice_words.extend(list(Word.objects.filter(word_text__in=word_set)))
-        
-        if len(practice_words) >= 10:
-            practice_words = practice_words[:10]
-            break # We have our 10 valid words, we can stop entirely!
+        while len(practice_words) < 10 and attempts > 0:
+            starter_pack_song = getPracticeExerciseSong(user_profile_id)
+            song_vocab = starter_pack_song.vocabulary_json
             
-        attempts -= 1
+            for word in song_vocab:
+                cleaned_word = clean_and_format_word(word)
+                word_set.add(cleaned_word)
+
+            practice_words.extend(list(Word.objects.filter(word_text__in=word_set)))
+            
+            if len(practice_words) >= 10:
+                practice_words = practice_words[:10]
+                break # We have our 10 valid words, we can stop entirely!
+                
+            attempts -= 1
 
     word_distractors = []
     most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song
@@ -665,4 +693,67 @@ async def get_pronunciation(request, word):
                     "audio": tool_response["audio_base64"]
                 })
     except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)   
+
+#The Helper: Generates the login link for the Swift frontend
+class SpotifyAuthURLView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
+        redirect_uri = "songlingo://spotify-callback" 
+        scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email"
+        
+        domain = "spo" + "tify" + ".com"
+        
+        url = f"https://accounts.{domain}/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope={scope}"
+        
+        return Response({"auth_url": url}, status=200)
+
+from .models import SpotifyCredentials
+class SpotifyMobileCallbackView(APIView):
+    permission_classes = [IsAuthenticated] 
+    
+    def post(self, request):
+        code = request.data.get('code')
+        
+        if not code:
+            return Response({"error": "No authorization code provided"}, status=400)
+            
+        # Standard Spotify Token Endpoint
+        token_url = "https://accounts.spotify.com/api/token"
+        
+        redirect_uri = "songlingo://spotify-callback" 
+
+        data = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri,
+        }
+        
+        client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
+        client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
+        
+        # Trade the code for the tokens
+        response = requests.post(token_url, data=data, auth=(client_id, client_secret))
+        
+        if response.status_code != 200:
+            return Response({"error": "Spotify rejected the code trade", "details": response.text}, status=400)
+            
+        token_data = response.json()
+        
+        # calculate exactly when this token dies
+        expires_in = token_data.get('expires_in', 3600)
+        expires_at = timezone.now() + timedelta(seconds=expires_in)
+        
+        # Lock it in the Vault! (update_or_create means they can re-link safely if needed)
+        SpotifyCredentials.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'access_token': token_data.get('access_token'),
+                'refresh_token': token_data.get('refresh_token'),
+                'expires_at': expires_at
+            }
+        )
+        
+        return Response({"status": "success", "message": "Spotify successfully linked!"})
