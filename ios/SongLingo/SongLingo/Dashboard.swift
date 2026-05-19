@@ -74,7 +74,6 @@ struct Dashboard: View {
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [
-                                Color(red: 0.88, green: 0.35, blue: 0.25),
                                 Color.clear
                             ]),
                             startPoint: .top,
