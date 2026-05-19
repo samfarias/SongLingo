@@ -209,7 +209,7 @@ struct Dashboard: View {
                         Task {
                             do {
                                 try await SpotifyAuthManager.shared.connect()
-                                try await NetworkManager.shared.generateSpotifyDrop()
+                                try await NetworkManager.shared.syncPlaylistsToSpotify()
                                 self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
                             } catch {
                                 print("DEBUG: Spotify link error: \(error)")

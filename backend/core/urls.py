@@ -3,8 +3,9 @@ from .views import (
     HomeScreenView, WordsLearnedView, SongsListenedView, UserActivityView,
     SinglePlaylistView, PlaylistCollectionView, updateUserWordNumPracticesCompleted,
     updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise,
-    getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView, 
-    GenerateWeeklyDropView, UpdateProfileView, generateNewPlaylist
+    getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView,
+    GenerateWeeklyDropView, UpdateProfileView, generateNewPlaylist,
+    SyncPlaylistsToSpotifyView
 )
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -20,8 +21,9 @@ urlpatterns = [
     # --- PLAYLISTS ---
     path('playlist/', SinglePlaylistView.as_view(), name='playlist'),
     path('playlist-collection/', PlaylistCollectionView.as_view(), name='playlist-collection'),
-    path('generate-drop/', GenerateWeeklyDropView.as_view(), name='generate-drop'), 
+    path('generate-drop/', GenerateWeeklyDropView.as_view(), name='generate-drop'),
     path('playlists/generate/', generateNewPlaylist, name='generate-playlist'),
+    path('sync-playlists-to-spotify/', SyncPlaylistsToSpotifyView.as_view(), name='sync-playlists-to-spotify'),
     path('spotify/get-auth-url/', SpotifyAuthURLView.as_view(), name='spotify-auth-url'),
     path('spotify/callback/', SpotifyMobileCallbackView.as_view(), name='spotify-mobile-callback'),
     

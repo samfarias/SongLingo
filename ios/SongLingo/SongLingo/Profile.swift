@@ -324,8 +324,8 @@ struct Profile: View {
                 try await SpotifyAuthManager.shared.connect()
                 print("DEBUG: Spotify linked successfully")
 
-                try await NetworkManager.shared.generateSpotifyDrop()
-                print("DEBUG: Created playlist on user's Spotify account")
+                try await NetworkManager.shared.syncPlaylistsToSpotify()
+                print("DEBUG: Synced playlists to user's Spotify account")
 
                 await MainActor.run { self.homeData = nil }
                 self.homeData = try await NetworkManager.shared.fetchHomeScreenData()

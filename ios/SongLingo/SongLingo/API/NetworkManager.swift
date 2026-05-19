@@ -40,7 +40,11 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
+<<<<<<< Updated upstream
     private let baseURL = "http://68.183.31.175:8000/api"
+=======
+    private let baseURL = "http://68.183.31.175/api"
+>>>>>>> Stashed changes
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
 //     private let baseURL = "http://localhost:8000/api"
@@ -474,6 +478,23 @@ class NetworkManager {
         }
 
         print("DEBUG: Spotify playlist created on user account")
+    }
+
+    func syncPlaylistsToSpotify() async throws {
+        guard let url = URL(string: "\(baseURL)/sync-playlists-to-spotify/") else {
+            throw URLError(.badURL)
+        }
+
+        let request = createAuthenticatedRequest(url: url, method: "POST")
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("DEBUG: Sync playlists to Spotify error: \(errorMsg)")
+            throw URLError(.badServerResponse)
+        }
+
+        print("DEBUG: Synced existing playlists to user's Spotify account")
     }
 
     // MARK: - Spotify OAuth

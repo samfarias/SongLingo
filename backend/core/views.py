@@ -276,6 +276,69 @@ class SinglePlaylistView(APIView):
 from django.utils import timezone
 from datetime import timedelta
 
+class SyncPlaylistsToSpotifyView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from .models import SpotifyCredentials
+        user = request.user
+
+        try:
+            spotify_creds = user.spotify_creds
+        except SpotifyCredentials.DoesNotExist:
+            return Response({"error": "Spotify not linked"}, status=status.HTTP_400_BAD_REQUEST)
+
+        domain = "spo" + "tify" + ".com"
+        api_base = f"https://api.{domain}/v1"
+
+        if timezone.now() >= spotify_creds.expires_at:
+            client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
+            client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
+            ref_res = requests.post(
+                f"https://accounts.{domain}/api/token",
+                data={"grant_type": "refresh_token", "refresh_token": spotify_creds.refresh_token},
+                auth=(client_id, client_secret)
+            )
+            if ref_res.status_code == 200:
+                new_tokens = ref_res.json()
+                spotify_creds.access_token = new_tokens.get('access_token')
+                if 'refresh_token' in new_tokens:
+                    spotify_creds.refresh_token = new_tokens['refresh_token']
+                spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
+                spotify_creds.save()
+            else:
+                return Response({"error": "Failed to refresh Spotify token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        headers = {"Authorization": f"Bearer {spotify_creds.access_token}", "Content-Type": "application/json"}
+
+        me_resp = requests.get(f"{api_base}/me", headers=headers)
+        if me_resp.status_code != 200:
+            return Response({"error": "Could not fetch Spotify profile"}, status=status.HTTP_502_BAD_GATEWAY)
+        spotify_user_id = me_resp.json()["id"]
+
+        playlists = Playlist.objects.filter(user_profile=user.profile)
+        synced = []
+
+        for playlist in playlists:
+            songs = PlaylistSong.objects.filter(playlist=playlist).select_related('song')
+            track_uris = [f"spotify:track:{ps.song.spotify_id}" for ps in songs if ps.song.spotify_id]
+
+            if not track_uris:
+                continue
+
+            create_resp = requests.post(
+                f"{api_base}/users/{spotify_user_id}/playlists",
+                headers=headers,
+                json={"name": playlist.playlist_name, "public": False, "description": playlist.description or "Created by SongLingo"}
+            )
+            if create_resp.status_code in [200, 201]:
+                sp_id = create_resp.json()["id"]
+                requests.post(f"{api_base}/playlists/{sp_id}/tracks", headers=headers, json={"uris": track_uris})
+                synced.append(playlist.playlist_name)
+
+        return Response({"synced": synced, "count": len(synced)}, status=status.HTTP_200_OK)
+
+
 class GenerateWeeklyDropView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
