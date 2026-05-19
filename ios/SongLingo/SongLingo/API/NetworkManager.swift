@@ -40,10 +40,10 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-//    private let baseURL = "http://68.183.31.175:8000/api"
+    private let baseURL = "http://68.183.31.175:8000/api"
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
-     private let baseURL = "http://localhost:8000/api"
+//     private let baseURL = "http://localhost:8000/api"
     
     // Prevents anyone else from creating another instance
     private init() {}
@@ -156,8 +156,6 @@ class NetworkManager {
             // Inject it into the HTTP Header for Django to verify
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-
-        
         
         return request
     }
