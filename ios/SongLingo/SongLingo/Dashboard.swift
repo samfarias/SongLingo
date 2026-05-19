@@ -20,7 +20,7 @@ struct Dashboard: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ScrollView (.vertical, showsIndicators: true) {
                 ZStack {
                     VStack {
                         ZStack {
@@ -69,8 +69,8 @@ struct Dashboard: View {
                             .padding(.leading, 20)
                         
                     }
-                    .padding(.vertical, 20)
-                    .frame(maxWidth: .infinity, minHeight: 150)
+                    .padding(.bottom, 5)
+                    .frame(maxWidth: .infinity, minHeight: 135)
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [
@@ -83,7 +83,7 @@ struct Dashboard: View {
                     )
                 }
                 
-                Spacer(minLength: 30)
+                Spacer(minLength: 10)
                 
                 HStack (spacing: 10) {
                     NavigationLink(destination: WordBank()) {
@@ -227,8 +227,9 @@ struct Dashboard: View {
                                 Text("Link your Spotify")
                                     .font(.headline)
                                     .foregroundColor(.white)
-                                Text("Unlock personalized playlists from your library")
+                                Text("Unlock personalized playlists!")
                                     .font(.caption)
+                                    .lineLimit(1)
                                     .foregroundColor(.white.opacity(0.95))
                             }
 
@@ -252,7 +253,7 @@ struct Dashboard: View {
                     }
                     .disabled(isLinkingSpotify)
                     .padding(.horizontal)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 1)
                 }
 
                 VStack(alignment: .leading, spacing: 15) {
@@ -325,7 +326,7 @@ struct Dashboard: View {
                             }
                             .padding(.horizontal, 15)
                             .padding(.bottom, 30)
-                            .padding(.top, 5)
+                            .padding(.top, 1)
                         }
                     }
                     .background(
@@ -412,7 +413,7 @@ struct Dashboard: View {
                         .cornerRadius(10)
                         .shadow(color: .black.opacity(0.10), radius: 4, x: 5, y: 5)
                     }
-                    .padding(.top)
+                    .padding(.top, 5)
                     
                     VStack (alignment: .leading) {
                         Text("Practice Games")
@@ -470,7 +471,7 @@ struct Dashboard: View {
                         .cornerRadius(10)
                         .shadow(color: .black.opacity(0.15), radius: 4, x: 5, y: 5)
                     }
-                    .padding(.vertical)
+                    .padding(.top, 5)
                 }
                 .padding()
             }
