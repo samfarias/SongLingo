@@ -19,8 +19,39 @@ struct Dashboard: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                ZStack (alignment: .top) {
+                ZStack {
                     VStack {
+                        ZStack {
+                            GeometryReader { geometry in
+                                ZStack {
+                                    ForEach(0..<10, id: \.self) { _ in
+                                        Circle()
+                                            .fill(.white)
+                                            .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                            .opacity(Double.random(in: 0.1...0.9))
+                                            .position(
+                                                x: CGFloat.random(in: 0...geometry.size.width),
+                                                y: CGFloat.random(in: 0...geometry.size.height)
+                                            )
+                                    }
+                                    
+                                    ForEach(0..<5, id: \.self) { i in
+                                        Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: CGFloat.random(in: 10...15)))
+                                            .opacity(Double.random(in: 0.5...0.7))
+                                            .shadow(color: .white.opacity(0.3), radius: 3)
+                                            .position(
+                                                x: CGFloat.random(in: 0...geometry.size.width),
+                                                y: CGFloat.random(in: 0...geometry.size.height)
+                                            )
+                                    }
+                                }
+                            }
+                            .ignoresSafeArea()
+                            .blur(radius: 6)
+                        }
+
                         Spacer()
                         
                         Text("\(isNewUser ? "Welcome" : "Welcome Back"), \(homeData?.userInfo.firstName ?? "User")!")
@@ -30,7 +61,7 @@ struct Dashboard: View {
                             .padding(.leading, 20)
                         
                         Text("You're learning \(Constants.languageIdToName[homeData?.userInfo.targetLanguage ?? 0] ?? "Language name") · \(homeData?.userInfo.proficiencyLevel ?? "Proficiency Level")")
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.95))
                             .font(.footnote.weight(.light))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 20)
@@ -41,12 +72,12 @@ struct Dashboard: View {
                     .background(
                         LinearGradient(
                             gradient: Gradient(colors: [
-                                Color.black.opacity(0.2),
+                                Color(red: 0.88, green: 0.35, blue: 0.25),
                                 Color.clear
                             ]),
                             startPoint: .top,
                             endPoint: .bottom
-                        )
+                        ).opacity(0.25)
                     )
                 }
                 
@@ -56,24 +87,29 @@ struct Dashboard: View {
                     NavigationLink(destination: WordBank()) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.blue)
+                                .fill(Constants.sunburst.opacity(0.4))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 2)
+                                )
+                            
                             HStack {
                                 Image(systemName: "book")
                                     .padding(4)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white.opacity(0.95))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
-                                            .stroke(Color.black, lineWidth: 1)
+                                            .stroke(Color.white.opacity(0.55), lineWidth: 1)
                                     )
                                     .font(.system(size: 12))
                                 VStack (alignment: .leading) {
                                     Text("Word Bank")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
                                     Text ("(\(homeData?.userProgress.numWordsLearned ?? 0))")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 8))
                                         .lineLimit(1)
                                 }
@@ -88,25 +124,30 @@ struct Dashboard: View {
                     NavigationLink(destination: MySongs()) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.lavender)
+                                .fill(Constants.sunburst.opacity(0.4))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 2)
+                                )
+                            
                             HStack {
                                 Image(systemName: "music.note.square.stack")
                                     .padding(4)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white.opacity(0.95))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
-                                            .stroke(Color.black, lineWidth: 1)
+                                            .stroke(Color.white.opacity(0.55), lineWidth: 1)
                                     )
                                     .font(.system(size: 12))
                                 
                                 VStack (alignment: .leading) {
                                     Text("My Songs")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
                                     Text ("(\(homeData?.userProgress.numSongsCompleted ?? 0))")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 8))
                                         .lineLimit(1)
                                 }
@@ -121,25 +162,30 @@ struct Dashboard: View {
                     NavigationLink(destination: UserActivity()) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Constants.sunburst)
+                                .fill(Constants.sunburst.opacity(0.4))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 2)
+                                )
+                            
                             HStack {
                                 Image(systemName: "flame.fill")
                                     .padding(4)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white.opacity(0.85))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
-                                            .stroke(Color.black, lineWidth: 1)
+                                            .stroke(Color.white.opacity(0.55), lineWidth: 1)
                                     )
                                     .font(.system(size: 12))
                                 
                                 VStack (alignment: .leading) {
                                     Text("Streak")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 10))
                                         .lineLimit(1)
                                     
                                     Text ("\(homeData?.userProgress.currentStreak ?? 0) \(self.streakDayFormat)!")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 8))
                                         .lineLimit(1)
                                 }
@@ -159,7 +205,7 @@ struct Dashboard: View {
                 VStack(alignment: .leading, spacing: 15) {
                     VStack(alignment: .leading, spacing: 15) {
                         Text("Current Playlists")
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.95))
                             .font(.headline)
                             .padding(.leading, 15)
                             .padding(.top, 15)
@@ -168,16 +214,20 @@ struct Dashboard: View {
                             HStack(spacing: 15) {
                                 ForEach(homeData?.suggestedPlaylists.allSuggestedPlaylists ?? []) { playlist in
                                     NavigationLink(destination: PlaylistCollection()) {
-                                        let theme = themeForPlaylist(playlist)
-                                        
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 15)
-                                                .fill(theme.background)
+                                                .fill(Color.white.opacity(0.2))
                                             
                                             VStack(spacing: 8) {
                                                 Image(systemName: "play.circle.fill")
                                                     .font(.system(size: 28))
-                                                    .foregroundColor(theme.foreground)
+                                                    .foregroundColor(Color.white.opacity(0.95))
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                    .padding(.vertical, 8)
+                                                    .overlay(
+                                                        RoundedRectangle(cornerRadius: 4)
+                                                            .stroke(Color.white.opacity(0.35), lineWidth: 1.5)
+                                                    )
                                                 
                                                 Text(playlist.playlistName)
                                                     .font(.system(size: 13, weight: .bold))
@@ -193,7 +243,7 @@ struct Dashboard: View {
                                                 Text("\(Constants.genreIdToName[playlist.genre ?? 0] ?? "Multi-Genre")")
                                                     .font(.system(size: 9))
                                             }
-                                            .foregroundColor(theme.foreground)
+                                            .foregroundColor(Color.white.opacity(0.95))
                                             .padding(10)
                                         }
                                         .frame(width: 110, height: 150)
@@ -206,29 +256,34 @@ struct Dashboard: View {
                             .padding(.top, 5)
                         }
                     }
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Constants.sunburst.opacity(0.4))
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.white.opacity(0.25), lineWidth: 3)
                     )
+
                     
                     VStack (alignment: .leading) {
                         Text("Today's Daily Playlist")
                             .font(.headline)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.95))
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.05))
+                                .fill(Constants.sunburst.opacity(0.4))
                             HStack {
                                 VStack (alignment: .leading) {
                                     Text(hasGeneratedToday ? "Your daily playlist is ready!" : "Fresh new songs waiting for you!")
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 14))
                                     
                                     Spacer(minLength: 1)
                                     
                                     Text("A playlist a day keeps the locals blown away")
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 10, weight: .light, design: .rounded))
                                 }
                                 .padding(.horizontal, 10)
@@ -255,7 +310,7 @@ struct Dashboard: View {
                                     }
                                 }) {
                                     Text(hasGeneratedToday ? "Listen Now" : "Generate")
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 12))
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
@@ -263,7 +318,7 @@ struct Dashboard: View {
                                 .background(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
-                                            Color.white.opacity(0.2),
+                                            Color.white.opacity(0.35),
                                             Color.clear
                                         ]),
                                         startPoint: .top,
@@ -290,21 +345,21 @@ struct Dashboard: View {
                     VStack (alignment: .leading) {
                         Text("Practice Games")
                             .font(.headline)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.95))
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.03))
+                                .fill(Constants.sunburst.opacity(0.4))
                             HStack {
                                 VStack (alignment: .leading) {
                                     Text("Ready to test your vocabulary?")
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 14))
                                     
                                     Spacer(minLength: 1)
                                     
                                     Text("Take a quiz on words from your completed songs")
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(.white.opacity(0.95))
                                         .font(.system(size: 10, weight: .light, design: .rounded))
                                 }
                                 .padding(.horizontal, 10)
@@ -321,7 +376,7 @@ struct Dashboard: View {
                                 .background(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
-                                            Color.white.opacity(0.2),
+                                            Color.white.opacity(0.35),
                                             Color.clear
                                         ]),
                                         startPoint: .top,
@@ -348,16 +403,74 @@ struct Dashboard: View {
                 .padding()
             }
             .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0.300, green: 0.225, blue: 0.520),
-                        Color(red: 0.150, green: 0.350, blue: 0.550),
-                        Color(red: 0.050, green: 0.355, blue: 0.250),
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.030, green: 0.050, blue: 0.120),
+                            Color(red: 0.275, green: 0.095, blue: 0.250),
+                            Color(red: 0.110, green: 0.165, blue: 0.325)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(0..<150, id: \.self) { _ in
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                    .opacity(Double.random(in: 0.1...0.9))
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                            
+                            ForEach(0..<10, id: \.self) { i in
+                                Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: CGFloat.random(in: 10...15)))
+                                    .opacity(Double.random(in: 0.5...0.7))
+                                    .shadow(color: .white.opacity(0.3), radius: 3)
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: -105, y: -30)
+                        
+                        Spacer(minLength: 0.2)
+                        
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: 95, y: -10)
+                    }
+                }
             )
+            .navigationBarBackButtonHidden()
             .navigationDestination(isPresented: $navigateToPlaylist) {
                 SinglePlaylistView(playlistId: Int(dailyPlaylistId) ?? -1)
             }
@@ -384,7 +497,6 @@ struct PlaylistTheme {
     let foreground: Color
 }
 
-// A helper function to fetch the right theme based on the playlist's data
 func themeForPlaylist(_ playlist: Playlist) -> PlaylistTheme {
     if playlist.playlistName.contains("Daily Mix") {
         return PlaylistTheme(
