@@ -56,30 +56,54 @@ struct LyricMatchView: View {
                         .fill(.ultraThinMaterial)
                         .frame(height: 160)
                         .overlay {
-                            VStack(spacing: 16) {
-                                Button {
-                                    isPlaying.toggle()
-                                    if isPlaying {
-                                        isPlaying = false
-                                    } else if let b64 = lyricMatchData?.audioBase64 {
-                                        let clean = b64.trimmingCharacters(in: .whitespacesAndNewlines)
-                                        AudioPlayerManager.shared.playBase64Audio(clean)
-                                        isPlaying = true
-                                    }
-                                } label: {
-                                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                        .font(.system(size: 26, weight: .bold))
-                                        .foregroundStyle(.white)
-                                        .frame(width: 64, height: 64)
-                                        .background(Circle().fill(Color.white.opacity(0.14)))
-                                        .overlay(Circle().stroke(Color.white.opacity(0.12)))
+                            VStack(spacing: 12) {
+                                if let data = lyricMatchData {
+                                    Text("\(data.songTitle) — \(data.songArtist)")
+                                        .font(.caption)
+                                        .foregroundStyle(.white.opacity(0.6))
+                                        .lineLimit(1)
                                 }
-                                .buttonStyle(.plain)
-                                .disabled(isSubmissionEvaluated) // Block actions while progressing
-                                
-                                Text("Play Audio")
-                                    .font(.headline.weight(.semibold))
-                                    .foregroundStyle(.white.opacity(0.85))
+
+                                if lyricMatchData?.audioBase64 != nil {
+                                    Button {
+                                        if isPlaying {
+                                            isPlaying = false
+                                        } else if let b64 = lyricMatchData?.audioBase64 {
+                                            let clean = b64.trimmingCharacters(in: .whitespacesAndNewlines)
+                                            AudioPlayerManager.shared.playBase64Audio(clean)
+                                            isPlaying = true
+                                        }
+                                    } label: {
+                                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                            .font(.system(size: 26, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .frame(width: 64, height: 64)
+                                            .background(Circle().fill(Color.white.opacity(0.14)))
+                                            .overlay(Circle().stroke(Color.white.opacity(0.12)))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .disabled(isSubmissionEvaluated)
+
+                                    Text("Play Audio")
+                                        .font(.headline.weight(.semibold))
+                                        .foregroundStyle(.white.opacity(0.85))
+                                } else {
+                                    Text(lyricMatchData?.lineToDisplay ?? "")
+                                        .font(.title3.weight(.medium))
+                                        .foregroundStyle(.white)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal)
+
+                                    if let data = lyricMatchData {
+                                        Button {
+                                            openInSpotify(title: data.songTitle, artist: data.songArtist)
+                                        } label: {
+                                            Label("Listen on Spotify", systemImage: "play.circle.fill")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.green)
+                                        }
+                                    }
+                                }
                             }
                         }
                         .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
@@ -188,8 +212,6 @@ extension LyricMatchView {
                     self.correctWords = data.lineToMatch.components(separatedBy: " ")
                     self.wordBank = self.correctWords.shuffled()
                     self.isLoading = false
-                    print(self.lyricMatchData?.lineToMatch ?? "")
-                    print("song name: \(self.lyricMatchData?.songTitle ?? "not found")")
                 }
             } catch {
                 print("Request failed: \(error)")

@@ -70,3 +70,16 @@ def clean_and_format_word(word):
         cleaned_word = word.strip(chars_to_strip)
         cleaned_word = re.sub(r"^['-]+|['-]+$", "", cleaned_word)
         return cleaned_word
+    
+    
+def get_unique_words_from_lyrics(lyrics):
+    chars_to_strip = string.punctuation.replace("'", "").replace("-", "") + "♪♫„“»«¡¿"
+    unique_words = set()
+    tokens = lyrics.split()
+    for token in tokens:
+        word = token.lower().strip(chars_to_strip)
+        word = re.sub(r"^['-]+|['-]+$", "", word)
+        if word and not word.isnumeric():
+          unique_words.add(word)
+            
+    return list(unique_words)

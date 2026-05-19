@@ -33,8 +33,8 @@ struct WordCards: View {
     @State private var correctCards = 0
     @State private var startTime: Date? = nil
     @State private var endTime: Date? = nil
-    @State private var currentPronunciation: PronunciationResponse? = nil
-    
+    @State private var currentPhonetic: String = ""
+
     let totalDuration: TimeInterval = 60
     
     var body: some View {
@@ -81,23 +81,32 @@ struct WordCards: View {
                             .frame(height: 150)
                             .shadow(color: .black.opacity(0.2), radius: 4)
                         
-                        VStack (alignment: .center) {
-                            HStack {
-                                Spacer()
-                            }
-                            
+                        VStack(alignment: .center, spacing: 8) {
                             Text(currWord.capitalized)
                                 .font(.largeTitle)
                                 .foregroundColor(.white)
                                 .bold()
                                 .lineLimit(1)
-                            
-                            Text(currentPronunciation?.phonetic ?? "")
-                                .foregroundColor(.white.opacity(0.8))
-                                .italic()
-                                .lineLimit(1)
+
+                            if !currentPhonetic.isEmpty {
+                                Text(currentPhonetic)
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .italic()
+                                    .lineLimit(1)
+                            }
+
+                            Button {
+                                AudioPlayerManager.shared.speakWord(currWord)
+                            } label: {
+                                Image(systemName: "speaker.wave.2.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .padding(8)
+                                    .background(Color.white.opacity(0.15))
+                                    .clipShape(Circle())
+                            }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity)
                         .padding()
                     }
                     .padding(.top, 20)
@@ -190,29 +199,20 @@ struct WordCards: View {
         let wordDistractors = distractors[wordCardIdx]
         
         self.currWord = wordObj.wordText
-        
+        let backendPhonetic = wordObj.pronunciation ?? ""
+        self.currentPhonetic = backendPhonetic.isEmpty ? spanishToEnglishPhonetic(wordObj.wordText) : backendPhonetic
+
         var options = wordDistractors
-        options.append(wordObj.definition)
+        options.append(wordObj.translation ?? "N/A")
         options.shuffle()
-        
+
         self.currOptions = options
-        
-        if let correctIdx = options.firstIndex(of: wordObj.definition) {
+
+        if let correctIdx = options.firstIndex(of: wordObj.translation ?? "N/A") {
             self.correctOptionIndex = correctIdx
         }
-        
-        // NEEDS TO BE FIXED ON BACKEND, ALWAYS THROWS ERROR
-//        Task {
-//            do {
-//                let pronunciationData = try await NetworkManager.shared.fetchPronunciation(for: currWord)
-//                await MainActor.run {
-//                    self.currentPronunciation = pronunciationData
-//                    AudioPlayerManager.shared.playBase64Audio(pronunciationData.audio)
-//                }
-//            } catch {
-//                print("Pronunciation fetch failed: \(error)")
-//            }
-//        }
+
+        AudioPlayerManager.shared.speakWord(currWord)
     }
     
     func checkAnswer(index: Int) {

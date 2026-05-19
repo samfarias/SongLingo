@@ -10,7 +10,6 @@ import SwiftUI
 struct Login: View {
     @State private var username = ""
     @State private var password = ""
-    @State private var navigateToHome = false
     @State private var errorMessage: String? = nil
     
     var body: some View {
@@ -185,10 +184,6 @@ struct Login: View {
                     .padding(.horizontal, 30)
                 }
             }
-            //this listens for navigateToHome to become true, then slides to ContentView
-            .navigationDestination(isPresented: $navigateToHome) {
-                ContentView()
-            }
         }
     }
     func handleLogin() {
@@ -201,15 +196,13 @@ struct Login: View {
                 // 2. SAVE the real ID to the backpack!
                 // We use String() because your Dashboard is looking for a string.
                 UserDefaults.standard.set(String(response.user_id), forKey: "user_id")
-                
+                UserDefaults.standard.set(true, forKey: "isLoggedIn")
+
                 print("DEBUG: Successfully saved User ID: \(response.user_id)")
-        
-                navigateToHome = true
                 
             } catch {
-                print("DEBUG: Login failed: \(error)")
                 await MainActor.run {
-                    errorMessage = "Invalid username or password."
+                    errorMessage = error.localizedDescription
                 }
             }
         }

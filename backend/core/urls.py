@@ -8,6 +8,7 @@ from .views import (
 )
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
+from .views import SpotifyMobileCallbackView, SpotifyAuthURLView
 
 urlpatterns = [
     # --- DASHBOARD & ACTIVITY ---
@@ -21,6 +22,8 @@ urlpatterns = [
     path('playlist-collection/', PlaylistCollectionView.as_view(), name='playlist-collection'),
     path('generate-drop/', GenerateWeeklyDropView.as_view(), name='generate-drop'), 
     path('playlists/generate/', generateNewPlaylist, name='generate-playlist'),
+    path('spotify/get-auth-url/', SpotifyAuthURLView.as_view(), name='spotify-auth-url'),
+    path('spotify/callback/', SpotifyMobileCallbackView.as_view(), name='spotify-mobile-callback'),
     
     # --- EXERCISES ---
     path('word-card-exercise/', getWordCardExercise, name='word-cards'),

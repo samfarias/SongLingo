@@ -22,6 +22,16 @@ struct DjangoError: Codable {
     let non_field_errors: [String]?
 }
 
+enum APIError: LocalizedError {
+    case serverMessage(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .serverMessage(let message): return message
+        }
+    }
+}
+
 // MARK: - Network Manager
 
 class NetworkManager {
@@ -68,23 +78,19 @@ class NetworkManager {
         }
 
         if !(200...299).contains(httpResponse.statusCode) {
-                    
             var errorMessage = "Login failed. Please check your information."
-                    
+
             if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
                 if let detail = decoded.detail {
-                        errorMessage = detail
+                    errorMessage = detail
                 } else if let general = decoded.non_field_errors?.first {
-                        errorMessage = general
+                    errorMessage = general
                 } else if let userErr = decoded.username?.first {
-                        errorMessage = "Username: \(userErr)"
+                    errorMessage = userErr
                 }
             }
-                    
-            print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
-            print("User-facing message: \(errorMessage)")
-                    
-            throw URLError(.badServerResponse)
+
+            throw APIError.serverMessage(errorMessage)
         }
 
         let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
@@ -118,18 +124,16 @@ class NetworkManager {
 
             if !(200...299).contains(httpResponse.statusCode) {
                 var errorMessage = "Registration failed. Please try again."
-                
+
                 if let decoded = try? JSONDecoder().decode(DjangoError.self, from: data) {
                     if let userErr = decoded.username?.first {
-                        errorMessage = "Username: \(userErr)" // e.g., "A user with that username already exists."
+                        errorMessage = userErr
                     } else if let passErr = decoded.password?.first {
-                        errorMessage = "Password: \(passErr)"
+                        errorMessage = passErr
                     }
                 }
-                
-                print("--- SERVER REJECTION: \(httpResponse.statusCode) ---")
-                print("User-facing message: \(errorMessage)")
-                throw URLError(.badServerResponse)
+
+                throw APIError.serverMessage(errorMessage)
             }
 
             let decodedResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
@@ -153,6 +157,7 @@ class NetworkManager {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
+        
         
         return request
     }
@@ -452,5 +457,63 @@ class NetworkManager {
         
         let decodedResponse = try JSONDecoder().decode(PlaylistResponse.self, from: data)
         return decodedResponse.playlist
+    }
+
+    // MARK: - Spotify Playlist Creation (on user's Spotify account)
+
+    func generateSpotifyDrop() async throws {
+        guard let url = URL(string: "\(baseURL)/generate-drop/") else {
+            throw URLError(.badURL)
+        }
+
+        let request = createAuthenticatedRequest(url: url, method: "POST")
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("DEBUG: Spotify drop error: \(errorMsg)")
+            throw URLError(.badServerResponse)
+        }
+
+        print("DEBUG: Spotify playlist created on user account")
+    }
+
+    // MARK: - Spotify OAuth
+
+    func fetchSpotifyAuthURL() async throws -> URL {
+        guard let url = URL(string: "\(baseURL)/spotify/get-auth-url/") else {
+            throw URLError(.badURL)
+        }
+
+        let request = createAuthenticatedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let authUrlString = json["auth_url"] as? String,
+              let authUrl = URL(string: authUrlString) else {
+            throw URLError(.cannotParseResponse)
+        }
+
+        return authUrl
+    }
+
+    func sendSpotifyCode(_ code: String) async throws {
+        guard let url = URL(string: "\(baseURL)/spotify/callback/") else {
+            throw URLError(.badURL)
+        }
+
+        var request = createAuthenticatedRequest(url: url, method: "POST")
+        let body = ["code": code]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
     }
 }

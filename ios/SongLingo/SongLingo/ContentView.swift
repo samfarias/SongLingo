@@ -25,7 +25,7 @@ struct ContentView: View {
                     }
             }
             .tint(Color(red: 0.90, green: 0.15, blue: 0.25).opacity(0.8))
-            .navigationBarBackButtonHidden()
+            .navigationBarBackButtonHidden(true)
         }
     }
 }
