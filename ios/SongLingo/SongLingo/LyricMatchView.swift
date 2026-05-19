@@ -188,8 +188,6 @@ extension LyricMatchView {
                     self.correctWords = data.lineToMatch.components(separatedBy: " ")
                     self.wordBank = self.correctWords.shuffled()
                     self.isLoading = false
-                    print(self.lyricMatchData?.lineToMatch ?? "")
-                    print("song name: \(self.lyricMatchData?.songTitle ?? "not found")")
                 }
             } catch {
                 print("Request failed: \(error)")

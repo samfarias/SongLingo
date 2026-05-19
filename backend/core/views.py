@@ -46,7 +46,7 @@ from .views_helpers import (
     search_spotify_track
 )
 
-from .helpers import fetch_word_info, clean_and_format_word
+from .helpers import fetch_word_info, clean_and_format_word, get_unique_words_from_lyrics
 
 # ==========================================
 # AUTHENTICATION VIEWS
@@ -470,6 +470,8 @@ def updateUserWordNumPracticesCompleted(request):
         print(f"translation: {word_obj.translation}")
         print(f"pronunciation: {word_obj.pronunciation}")
         print(f"definition: {word_obj.definition}")
+    else:
+        print("word_obj existed")
 
     rows_updated = UserWord.objects.filter(user_profile=profile, word=word_obj).update(
         num_practices_completed=F('num_practices_completed') + 1
@@ -524,38 +526,39 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
 
     if user_profile_id == None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    sql_query = "SELECT " \
-    "               w.id, w.word_text, w.translation, w.pronunciation, w.definition," \
-    "           uw.num_practices_completed, uw.mastery_lvl" \
-    "           FROM core_userword AS uw" \
-    "           JOIN core_word AS w ON w.id = uw.word_id" \
-    "           WHERE uw.user_profile_id = %s" \
-    "           GROUP BY uw.num_practices_completed, uw.mastery_lvl, w.id, w.word_text, w.translation, w.pronunciation, w.definition" \
-    "           ORDER BY uw.num_practices_completed" \
-    "           LIMIT 10"
+    # sql_query = "SELECT " \
+    # "               w.id, w.word_text, w.translation, w.pronunciation, w.definition," \
+    # "           uw.num_practices_completed, uw.mastery_lvl" \
+    # "           FROM core_userword AS uw" \
+    # "           JOIN core_word AS w ON w.id = uw.word_id" \
+    # "           WHERE uw.user_profile_id = %s" \
+    # "           GROUP BY uw.num_practices_completed, uw.mastery_lvl, w.id, w.word_text, w.translation, w.pronunciation, w.definition" \
+    # "           ORDER BY uw.num_practices_completed" \
+    # "           LIMIT 10"
     
-    practice_words = list(Word.objects.raw(sql_query, [user_profile_id]))
+    # practice_words = list(Word.objects.raw(sql_query, [user_profile_id]))
 
-    # A brand new user will have an empty Word Bank, get practice words from a starter pack song
-    if len(practice_words) == 0:
-        word_set = set()
-        attempts = 50
+    # # A brand new user will have an empty Word Bank, get practice words from a starter pack song
+    # if len(practice_words) < 10:
+    practice_words = []
+    word_set = set()
+    attempts = 50
+    while len(practice_words) < 10 and attempts > 0:
+        random_user_song = getPracticeExerciseSong(user_profile_id)
+        song_words = get_unique_words_from_lyrics(random_user_song.lyrics)
         
-        while len(practice_words) < 10 and attempts > 0:
-            starter_pack_song = getPracticeExerciseSong(user_profile_id)
-            song_vocab = starter_pack_song.vocabulary_json
-            
-            for word in song_vocab:
-                cleaned_word = clean_and_format_word(word)
-                word_set.add(cleaned_word)
+        for word in song_words:
+            cleaned_word = clean_and_format_word(word)
+            word_set.add(cleaned_word)
 
-            practice_words.extend(list(Word.objects.filter(word_text__in=word_set)))
+        # This line ensures that the words we are sending back are in the DB and have a translation, etc.
+        practice_words.extend(list(Word.objects.filter(word_text__in=word_set)))
+        
+        if len(practice_words) >= 10:
+            practice_words = practice_words[:10]
+            break # We have our 10 valid words, we can stop entirely!
             
-            if len(practice_words) >= 10:
-                practice_words = practice_words[:10]
-                break # We have our 10 valid words, we can stop entirely!
-                
-            attempts -= 1
+        attempts -= 1
 
     word_distractors = []
     most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song

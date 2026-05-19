@@ -192,12 +192,12 @@ struct WordCards: View {
         self.currWord = wordObj.wordText
         
         var options = wordDistractors
-        options.append(wordObj.definition)
+        options.append(wordObj.translation ?? "N/A")
         options.shuffle()
         
         self.currOptions = options
         
-        if let correctIdx = options.firstIndex(of: wordObj.definition) {
+        if let correctIdx = options.firstIndex(of: wordObj.translation ?? "N/A") {
             self.correctOptionIndex = correctIdx
         }
         
