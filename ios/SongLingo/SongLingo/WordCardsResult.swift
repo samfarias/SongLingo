@@ -23,6 +23,33 @@ struct WordCardsResult: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
+                    
+            GeometryReader { geometry in
+                ZStack {
+                    ForEach(0..<150, id: \.self) { i in
+                        Circle()
+                            .fill(.white)
+                            .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                            .opacity(Double.random(in: 0.1...0.9))
+                            .position(
+                                x: CGFloat.random(in: 0...geometry.size.width),
+                                y: CGFloat.random(in: 0...geometry.size.height)
+                            )
+                    }
+                    
+                    ForEach(0..<10, id: \.self) { i in
+                        Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                            .foregroundColor(.gray)
+                            .font(.system(size: CGFloat.random(in: 10...15)))
+                            .opacity(Double.random(in: 0.5...0.7))
+                            .shadow(color: .white.opacity(0.3), radius: 3)
+                            .position(
+                                x: CGFloat.random(in: 0...geometry.size.width),
+                                y: CGFloat.random(in: 0...geometry.size.height)
+                            )
+                    }
+                }
+            }
             
             VStack {
                 ZStack {
