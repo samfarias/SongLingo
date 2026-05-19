@@ -142,24 +142,6 @@ struct LangSelectionView: View {
                         }
                         
                         HStack(spacing: 16) {
-                            NavigationLink(destination: CreateAccView()) {
-                                Text("Back")
-                            }
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(LinearGradient(
-                                colors: [
-                                    Color(red: 0.250, green: 0.150, blue: 0.920),
-                                    Color(red: 0.655, green: 0.195, blue: 0.950),
-                                    Color(red: 0.985, green: 0.165, blue: 0.555)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ))
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                            
                             NavigationLink(destination: ProficiencyView(selectedLanguage: languages[selectedLanguage ?? 0].name)) {
                                 Text("Continue")
                             }

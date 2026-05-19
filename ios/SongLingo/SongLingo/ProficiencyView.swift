@@ -5,6 +5,8 @@ struct ProficiencyView: View {
     
     @State private var selectedLevel: String? = nil
     
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -106,8 +108,8 @@ struct ProficiencyView: View {
                         }
                         
                         HStack(spacing: 16) {
-                            NavigationLink(destination: LangSelectionView()) {
-                                Text("Back")
+                            Button("Back") {
+                                dismiss()
                             }
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
