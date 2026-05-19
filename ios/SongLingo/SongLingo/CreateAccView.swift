@@ -42,14 +42,69 @@ struct CreateAccView: View {
             ZStack {
                 LinearGradient(
                     colors: [
-                        Color(red: 0.984, green: 0.443, blue: 0.522),
-                        Color(red: 0.576, green: 0.200, blue: 0.918),
-                        Color(red: 0.231, green: 0.027, blue: 0.392)
+                        Color(red: 0.030, green: 0.050, blue: 0.120),
+                        Color(red: 0.275, green: 0.095, blue: 0.250),
+                        Color(red: 0.110, green: 0.165, blue: 0.325)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
+                
+                GeometryReader { geometry in
+                    ZStack {
+                        ForEach(0..<150, id: \.self) { i in
+                            Circle()
+                                .fill(.white)
+                                .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                .opacity(Double.random(in: 0.1...0.9))
+                                .position(
+                                    x: CGFloat.random(in: 0...geometry.size.width),
+                                    y: CGFloat.random(in: 0...geometry.size.height)
+                                )
+                        }
+                        
+                        ForEach(0..<10, id: \.self) { i in
+                            Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                .foregroundColor(.gray)
+                                .font(.system(size: CGFloat.random(in: 10...15)))
+                                .opacity(Double.random(in: 0.5...0.7))
+                                .shadow(color: .white.opacity(0.3), radius: 3)
+                                .position(
+                                    x: CGFloat.random(in: 0...geometry.size.width),
+                                    y: CGFloat.random(in: 0...geometry.size.height)
+                                )
+                        }
+                    }
+                }
+                
+                VStack {
+                    RadialGradient(
+                        colors: [
+                            Color.red.opacity(0.25),
+                                .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 200
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: -100, y: 10)
+                    
+                    Spacer(minLength: 0.2)
+                    
+                    RadialGradient(
+                        colors: [
+                            Color.red.opacity(0.25),
+                                .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 200
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: 200, y: -10)
+                }
 
                 VStack(spacing: 16) {
                     VStack(spacing: 6) {
@@ -60,7 +115,7 @@ struct CreateAccView: View {
 
                         Text("Learn languages through the music you love")
                             .font(.subheadline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.white.opacity(0.9))
                     }
                     .padding(.top, 40)
 
@@ -72,7 +127,7 @@ struct CreateAccView: View {
 
                             Text("Join SongLingo and start learning today")
                                 .font(.subheadline)
-                                .foregroundColor(.gray)
+                                .foregroundColor(.white.opacity(0.9))
                                 .padding(.top, 10)
                         }
 
@@ -85,7 +140,8 @@ struct CreateAccView: View {
                                     TextField("", text: $username)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
-                                        .background(Color.gray.opacity(0.2))
+                                        .background(Color.white.opacity(0.55))
+                                        .foregroundColor(.black)
                                         .cornerRadius(10)
                                         .autocapitalization(.none) // Helpful for usernames
                                     
@@ -103,7 +159,8 @@ struct CreateAccView: View {
                                     TextField("", text: $email)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
-                                        .background(Color.gray.opacity(0.2))
+                                        .background(Color.white.opacity(0.55))
+                                        .foregroundColor(.black)
                                         .cornerRadius(10)
                                         .keyboardType(.emailAddress) // Helps mobile users
                                         .autocapitalization(.none)
@@ -122,7 +179,8 @@ struct CreateAccView: View {
                                     SecureField("", text: $password)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
-                                        .background(Color.gray.opacity(0.2))
+                                        .background(Color.white.opacity(0.55))
+                                        .foregroundColor(.black)
                                         .cornerRadius(10)
                                     
                                     if !isPasswordValid && !password.isEmpty {
@@ -139,7 +197,8 @@ struct CreateAccView: View {
                                     SecureField("", text: $confirmPassword)
                                         .padding(.vertical, 10)
                                         .padding(.horizontal, 12)
-                                        .background(Color.gray.opacity(0.2))
+                                        .background(Color.white.opacity(0.55))
+                                        .foregroundColor(.black)
                                         .cornerRadius(10)
                                     
                                     if !isConfirmPasswordValid && !confirmPassword.isEmpty {
@@ -166,7 +225,15 @@ struct CreateAccView: View {
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
-                                .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                                .background(LinearGradient(
+                                    colors: [
+                                        Color(red: 0.250, green: 0.150, blue: 0.920),
+                                        Color(red: 0.655, green: 0.195, blue: 0.950),
+                                        Color(red: 0.985, green: 0.165, blue: 0.555)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ))
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
                         }
@@ -176,7 +243,7 @@ struct CreateAccView: View {
 
                         VStack(spacing: 8) {
                             Text("Already have an account?")
-                                .foregroundColor(.gray)
+                                .foregroundColor(.white.opacity(0.75))
                                 .padding(5)
 
                             Button("Sign In") {
@@ -185,7 +252,15 @@ struct CreateAccView: View {
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .background(LinearGradient(
+                                colors: [
+                                    Color(red: 0.250, green: 0.150, blue: 0.920),
+                                    Color(red: 0.655, green: 0.195, blue: 0.950),
+                                    Color(red: 0.985, green: 0.165, blue: 0.555)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             .padding(.top, 10)
@@ -193,14 +268,15 @@ struct CreateAccView: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.white)
-                    .foregroundColor(.black)
+                    .background(.white.opacity(0.09))
+                    .foregroundColor(.white)
                     .cornerRadius(25)
                     .padding(.horizontal, 40)
 
                     Spacer()
                 }
             }
+            .navigationBarBackButtonHidden()
             .navigationDestination(isPresented: $navigateToOnboarding) {
                 LangSelectionView()
             }
