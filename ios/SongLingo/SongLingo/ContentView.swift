@@ -19,6 +19,10 @@ struct ContentView: View {
                     .tabItem {
                         Label(Constants.playlistString, systemImage: Constants.playlistIcon)
                     }
+                SpotifyPlayerView()
+                .tabItem {
+                    Label("Player", systemImage: "play.circle.fill")
+                }
                 Profile()
                     .tabItem {
                         Label(Constants.profileString, systemImage: Constants.profileIcon)

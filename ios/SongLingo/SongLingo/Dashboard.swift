@@ -252,6 +252,7 @@ struct Dashboard: View {
                     }
                     .disabled(isLinkingSpotify)
                     .padding(.horizontal)
+                    .padding(.vertical, 10)
                 }
 
                 VStack(alignment: .leading, spacing: 15) {
@@ -411,7 +412,7 @@ struct Dashboard: View {
                         .cornerRadius(10)
                         .shadow(color: .black.opacity(0.10), radius: 4, x: 5, y: 5)
                     }
-                    .padding(.vertical)
+                    .padding(.top)
                     
                     VStack (alignment: .leading) {
                         Text("Practice Games")
