@@ -229,7 +229,7 @@ struct Dashboard: View {
                                     .foregroundColor(.white)
                                 Text("Unlock personalized playlists from your library")
                                     .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
+                                    .foregroundColor(.white.opacity(0.95))
                             }
 
                             Spacer()
@@ -243,10 +243,10 @@ struct Dashboard: View {
                             }
                         }
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(Constants.sunburst.opacity(0.4))
                         .overlay(
                             RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.green.opacity(0.4), lineWidth: 2)
+                                .stroke(Color.green.opacity(0.4), lineWidth: 4)
                         )
                         .cornerRadius(15)
                     }
@@ -256,14 +256,9 @@ struct Dashboard: View {
 
                 VStack(alignment: .leading, spacing: 15) {
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("Current Playlists")
-                            .foregroundColor(.white.opacity(0.95))
-                            .font(.headline)
-                            .padding(.leading, 15)
-                            .padding(.top, 15)
                         HStack {
                             Text("Current Playlists")
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.white.opacity(0.95))
                                 .font(.headline)
 
                             Spacer()
