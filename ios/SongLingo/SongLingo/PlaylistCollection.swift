@@ -80,9 +80,74 @@ struct PlaylistCollection: View {
                     )
                 }
             }
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .background(Constants.twilight_synth
-                .ignoresSafeArea()
+            .background (
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.030, green: 0.050, blue: 0.120),
+                            Color(red: 0.275, green: 0.095, blue: 0.250),
+                            Color(red: 0.110, green: 0.165, blue: 0.325)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                    
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(0..<150, id: \.self) { i in
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                    .opacity(Double.random(in: 0.1...0.9))
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                            
+                            ForEach(0..<10, id: \.self) { i in
+                                Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: CGFloat.random(in: 10...15)))
+                                    .opacity(Double.random(in: 0.5...0.7))
+                                    .shadow(color: .white.opacity(0.3), radius: 3)
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: -100, y: 10)
+                        
+                        Spacer(minLength: 0.2)
+                        
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: 200, y: -10)
+                    }
+                }
             )
             .task {
                 do {
@@ -157,6 +222,7 @@ struct PlaylistCard: View {
                     .foregroundColor(.white.opacity(0.8))
             }
             .frame(width: 140)
+            
         }
     }
 }
