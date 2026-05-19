@@ -165,6 +165,27 @@ struct Profile: View {
                             }
                             .padding()
                             .background(Color.white.opacity(0.2))
+                            
+                            Divider()
+                            
+                            Button {
+                                //Link Here
+                            } label: {
+                                HStack {
+                                    HStack(spacing: 8) {
+                                        Text("Connect to Spotify")
+                                            .foregroundStyle(Color.white.opacity(0.5))
+                                            .font(.subheadline)
+                                        Image(systemName: "music.note")
+                                            .foregroundStyle(Color.white.opacity(0.8))
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundStyle(Color.white.opacity(0.9))
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.2))
+                            }
                         }
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(20)
@@ -211,4 +232,8 @@ struct UserData {
     let languagePreference: String
     let languageProficiency: String
     let joinDate: String
+}
+
+#Preview {
+    Profile()
 }
