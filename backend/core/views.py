@@ -41,7 +41,7 @@ from .serializers import (
 from .views_helpers import (
     updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord,
     getSongDistractorWords, getTwoRandomSongLines, getPracticeExerciseSong,
-    search_spotify_track
+    search_spotify_track, getEnglishWordDistractors
 )
 
 from .helpers import fetch_word_info, clean_and_format_word, get_unique_words_from_lyrics
@@ -660,11 +660,9 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
         attempts -= 1
 
     word_distractors = []
-    most_listened_song = UserSong.objects.filter(user_profile=user_profile_id).order_by('-num_listens').first().song
-    if most_listened_song != None:
-        for word in practice_words:
-            distractors = getSongDistractorWords(most_listened_song, word)
-            word_distractors.append(distractors)
+    for word in practice_words:
+        distractors = getEnglishWordDistractors(user_profile_id, word.translation)
+        word_distractors.append(distractors)
 
     practice_words_serialized = WordCardSerializer(practice_words, many=True).data
     return Response(
