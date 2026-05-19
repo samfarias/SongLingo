@@ -47,13 +47,13 @@ struct UpdateUserInfo: View {
                                 HStack {
                                     Group {
                                         if isOldPasswordVisible {
-                                            TextField("", text: $oldPassword, prompt: Text("Old Password").foregroundColor(.white.opacity(0.8)))
+                                            TextField("", text: $oldPassword, prompt: Text("Old Password")
+                                                .foregroundColor(.white.opacity(0.8)))
                                                 .textContentType(.password)
-                                                .foregroundColor(.white)
                                         } else {
-                                            SecureField("", text: $oldPassword, prompt: Text("Old Password").foregroundColor(.white.opacity(0.8)))
+                                            SecureField("", text: $oldPassword, prompt: Text("Old Password")
+                                                .foregroundColor(.white.opacity(0.8)))
                                                 .textContentType(.password)
-                                                .foregroundColor(.white)
                                         }
                                         
                                         Button(action: {
@@ -65,7 +65,7 @@ struct UpdateUserInfo: View {
                                     }
                                 }
                                 .padding(10)
-                                .background(Color.white.opacity(0.3))
+                                .background(Constants.sunburst.opacity(0.6))
                                 .cornerRadius(8)
                                 .shadow(radius: 3)
                             }
@@ -105,7 +105,7 @@ struct UpdateUserInfo: View {
                                     }
                                 }
                                 .padding(10)
-                                .background(Color.white.opacity(0.3))
+                                .background(Constants.sunburst.opacity(0.6))
                                 .cornerRadius(8)
                                 .shadow(radius: 3)
                             }
@@ -117,7 +117,7 @@ struct UpdateUserInfo: View {
                         } else {
                             TextField("", text: $newValue, prompt: Text("New \(title)").foregroundColor(.white.opacity(0.8)))
                                 .padding(10)
-                                .background(Color.white.opacity(0.3))
+                                .background(Constants.sunburst.opacity(0.6))
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                                 .shadow(radius: 3)
@@ -157,7 +157,7 @@ struct UpdateUserInfo: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(10)
-                                .background(Color.white.opacity(0.3))
+                                .background(Constants.sunburst.opacity(0.6))
                                 .cornerRadius(8)
                                 .shadow(radius: 3)
                             }
@@ -167,7 +167,7 @@ struct UpdateUserInfo: View {
                         } else {
                             TextField("", text: $confirmValue, prompt: Text("Confirm \(title)").foregroundColor(.white.opacity(0.8)))
                                 .padding(10)
-                                .background(Color.white.opacity(0.3))
+                                .background(Constants.sunburst.opacity(0.6))
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                                 .shadow(radius: 3)
@@ -269,7 +269,15 @@ struct UpdateUserInfo: View {
                             .foregroundColor(.white.opacity(0.9))
                             .padding()
                             .frame(maxWidth: .infinity, maxHeight: 42)
-                            .background(Color.blue.opacity(0.5))
+                            .background(LinearGradient(
+                                colors: [
+                                    Color(red: 0.250, green: 0.150, blue: 0.920),
+                                    Color(red: 0.655, green: 0.195, blue: 0.950),
+                                    Color(red: 0.985, green: 0.165, blue: 0.555)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
                             .cornerRadius(10)
                             .padding(.horizontal, 20)
                     }
@@ -284,16 +292,74 @@ struct UpdateUserInfo: View {
                         .font(.headline)
                 }
             }
-            .background(
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.750, green: 0.355, blue: 0.550),
-                        Color(red: 0.576, green: 0.400, blue: 0.918),
-                        Color(red: 0.231, green: 0.027, blue: 0.592)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+            .background (
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.030, green: 0.050, blue: 0.120),
+                            Color(red: 0.275, green: 0.095, blue: 0.250),
+                            Color(red: 0.110, green: 0.165, blue: 0.325)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                    
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(0..<150, id: \.self) { _ in
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                    .opacity(Double.random(in: 0.1...0.9))
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                            
+                            ForEach(0..<10, id: \.self) { i in
+                                Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: CGFloat.random(in: 10...15)))
+                                    .opacity(Double.random(in: 0.5...0.7))
+                                    .shadow(color: .white.opacity(0.3), radius: 3)
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: 10, y: -100)
+                        
+                        Spacer(minLength: 0.2)
+                        
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: -30, y: -10)
+                    }
+                }
             )
         }
     }
