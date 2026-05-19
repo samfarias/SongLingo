@@ -28,12 +28,12 @@ struct Constants
     static let masteryLvlToFillColor: [Int: LinearGradient] = [0: yellow, 1: lavender, 2: blue, 3: green]
     
     static let genreIdToName: [Int: String] = [
-            1: "Pop",
-            2: "Reggaeton/Urbano",
-            3: "Regional Mexican",
-            4: "Indie Alternative",
-            5: "Tropical",
-            6: "Rock"
+            1: "Indie-Alternative",
+            2: "Tropical",
+            3: "Pop",
+            4: "Rock",
+            5: "Reggaeton-Urbano",
+            6: "Regional-Mexican"
         ]
     
     // -- MARK: ELEMENT COLORS
