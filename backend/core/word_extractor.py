@@ -31,12 +31,11 @@ def extractAndCleanWordsFromSongs():
   
   # Run the extraction
   unique_vocabulary = extract_unique_words("songs.json")
-  print(f"Extracted {len(unique_vocabulary)} unique words from 360 songs!")
-  print("📋 Sample vocabulary extracted:", unique_vocabulary[:10])
+  for word in unique_vocabulary:
+     print(f"{word},")
 
 
 # --- COMMAND LINE TRIGGER BLOCK ---
 if __name__ == "__main__":
-   print(f"🎬 Starting extraction pipeline on 'songs.json'...")
    # Execute the function
    extractAndCleanWordsFromSongs()
