@@ -47,21 +47,26 @@ struct Constants
     )
     
     static let lavender: LinearGradient = LinearGradient(
-        gradient: Gradient(colors: [
-            Color(red: 0.80, green: 0.75, blue: 0.95), // Light Airy Lavender
-            Color(red: 0.68, green: 0.62, blue: 0.88)  // Medium Dusty Lavender
-        ]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
+        gradient: Gradient(
+            colors: [
+                Color(red: 0.75, green: 0.15, blue: 0.55),
+                Color(red: 0.78, green: 0.22, blue: 0.78),
+                Color(red: 0.75, green: 0.15, blue: 0.55)
+            ]),
+            startPoint: .leading,
+            endPoint: .trailing
     )
     
     static let sunburst: LinearGradient = LinearGradient(
-        gradient: Gradient(colors: [
-            Color(red: 1.00, green: 0.78, blue: 0.45), // Softened Mango
-            Color(red: 0.98, green: 0.55, blue: 0.45)  // Gentle Coral
-        ]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
+        gradient: Gradient(
+            colors: [
+                Color(red: 0.90, green: 0.05, blue: 0.35),
+                Color(red: 0.88, green: 0.35, blue: 0.25),
+                Color(red: 0.90, green: 0.15, blue: 0.35)
+            ]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+
     )
     
     static let mint: LinearGradient = LinearGradient(
@@ -137,8 +142,8 @@ struct Constants
             Color(red: 0.94, green: 0.88, blue: 0.92), // Dusty Rose Bridge
             Color(red: 0.85, green: 0.80, blue: 0.95)  // Soft Lilac/Purple
         ]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
+        startPoint: .leading,
+        endPoint: .trailing
     )
     
     static let arctic_dawn: LinearGradient = LinearGradient(
