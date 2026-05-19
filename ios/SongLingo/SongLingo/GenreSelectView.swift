@@ -34,13 +34,41 @@ struct GenreSelectionView: View {
             ZStack {
                 LinearGradient(
                     colors: [
-                        Color(red: 0.984, green: 0.443, blue: 0.522),
-                        Color(red: 0.576, green: 0.200, blue: 0.918),
-                        Color(red: 0.231, green: 0.027, blue: 0.392)],
+                        Color(red: 0.030, green: 0.050, blue: 0.120),
+                        Color(red: 0.275, green: 0.095, blue: 0.250),
+                        Color(red: 0.110, green: 0.165, blue: 0.325)
+                    ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
+                
+                GeometryReader { geometry in
+                    ZStack {
+                        ForEach(0..<150, id: \.self) { i in
+                            Circle()
+                                .fill(.white)
+                                .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                .opacity(Double.random(in: 0.1...0.9))
+                                .position(
+                                    x: CGFloat.random(in: 0...geometry.size.width),
+                                    y: CGFloat.random(in: 0...geometry.size.height)
+                                )
+                        }
+                        
+                        ForEach(0..<10, id: \.self) { i in
+                            Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                .foregroundColor(.gray)
+                                .font(.system(size: CGFloat.random(in: 10...15)))
+                                .opacity(Double.random(in: 0.5...0.7))
+                                .shadow(color: .white.opacity(0.3), radius: 3)
+                                .position(
+                                    x: CGFloat.random(in: 0...geometry.size.width),
+                                    y: CGFloat.random(in: 0...geometry.size.height)
+                                )
+                        }
+                    }
+                }
                 
                 VStack(spacing: 20) {
                     Spacer()
@@ -52,18 +80,19 @@ struct GenreSelectionView: View {
                         
                         Text("Learn languages through the music you love")
                             .font(.system(size: 13))
-                            .foregroundColor(.white.opacity(0.95))
+                            .foregroundColor(.white.opacity(0.9))
                     }
                     VStack(spacing: 20) {
                         VStack(spacing: 6) {
                             Text("What music do you enjoy?")
                                 .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: 260)
                             
                             Text("Pick your favorite genres to get started")
                                 .font(.system(size: 13))
-                                .foregroundColor(.gray)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                         
                         LazyVGrid(columns: columns, spacing: 16) {
@@ -87,7 +116,7 @@ struct GenreSelectionView: View {
                                     .frame(maxWidth: .infinity)
                                     .aspectRatio(1.4, contentMode: .fit)
                                     .padding(10)
-                                    .background(selectedGenres.contains(genre) ? Color.blue.opacity(0.12) : Color.white)
+                                    .background(selectedGenres.contains(genre) ? Color.blue.opacity(0.12) : Color.white.opacity(0.55))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 14)
                                             .stroke(
@@ -109,7 +138,15 @@ struct GenreSelectionView: View {
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                            .background(LinearGradient(
+                                colors: [
+                                    Color(red: 0.250, green: 0.150, blue: 0.920),
+                                    Color(red: 0.655, green: 0.195, blue: 0.950),
+                                    Color(red: 0.985, green: 0.165, blue: 0.555)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             
@@ -138,7 +175,15 @@ struct GenreSelectionView: View {
                                     .fontWeight(.semibold)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 50)
-                                    .background(Color(red: 0.486, green: 0.227, blue: 0.929))
+                                    .background(LinearGradient(
+                                        colors: [
+                                            Color(red: 0.250, green: 0.150, blue: 0.920),
+                                            Color(red: 0.655, green: 0.195, blue: 0.950),
+                                            Color(red: 0.985, green: 0.165, blue: 0.555)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ))
                                     .foregroundColor(.white)
                                     .cornerRadius(12)
                             }
@@ -147,14 +192,14 @@ struct GenreSelectionView: View {
                         }
                     }
                     .padding(25)
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.09))
                     .cornerRadius(25)
                     .padding(.horizontal, 30)
                     
                     Spacer()
                 }
             }
-            // NEW: Listens for navigateToHome to become true, then slides to ContentView
+            .navigationBarBackButtonHidden()
             .navigationDestination(isPresented: $navigateToHome) {
                 ContentView()
             }

@@ -1,11 +1,9 @@
 import SwiftUI
 
 struct ProficiencyView: View {
-    // baton being received from LangSelectionView
     var selectedLanguage: String
     
     @State private var selectedLevel: String? = nil
-    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationStack {
@@ -108,8 +106,8 @@ struct ProficiencyView: View {
                         }
                         
                         HStack(spacing: 16) {
-                            Button("Back") {
-                                dismiss()
+                            NavigationLink(destination: LangSelectionView()) {
+                                Text("Back")
                             }
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
@@ -181,7 +179,7 @@ struct ProficiencyView: View {
         .cornerRadius(20)
         .overlay (
             RoundedRectangle(cornerRadius: 20)
-                .stroke(selectedLevel == title ? Color.purple : Color.gray.opacity(0.3),
+                .stroke(selectedLevel == title ? Color.indigo.opacity(0.65) : Color.gray.opacity(0.3),
                         lineWidth: selectedLevel == title ? 2 : 1)
         )
         .onTapGesture {

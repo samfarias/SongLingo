@@ -7,8 +7,6 @@ struct CreateAccView: View {
     @State private var confirmPassword = ""
     
     @State private var navigateToOnboarding = false
-
-    @Environment(\.dismiss) var dismiss
     
     // MARK: - Computed Validation Properties
     // These calculate in real-time instantly, no .onChange needed!
@@ -246,8 +244,8 @@ struct CreateAccView: View {
                                 .foregroundColor(.white.opacity(0.75))
                                 .padding(5)
 
-                            Button("Sign In") {
-                                dismiss()
+                            NavigationLink(destination: Login()) {
+                                Text("Sign In")
                             }
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
