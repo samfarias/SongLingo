@@ -12,26 +12,28 @@ struct Profile: View {
     // Dummy info fallback
     @State private var demo = UserData(username: "JohnDoe", email: "bob@gmail.com", password: "Password1@", genrePreference: "Rock", languagePreference: "Spanish", languageProficiency: "Beginner", joinDate: "March 2026")
 
-    // NEW: Live backend data holder
     @State private var homeData: HomeScreenData?
     @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var isLinkingSpotify = false
+    
+    private var liveGenrePreference: String {
+        if let genreId = homeData?.suggestedPlaylists.recentlyPlayed.first?.genre {
+            return Constants.genreIdToName[genreId] ?? "Genre \(genreId)"
+        }
+        return demo.genrePreference
+    }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Sets up icon w/ initials
                     ZStack {
                         Circle()
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [.white.opacity(0.4), .white.opacity(0.1), .indigo.opacity(0.6)]), startPoint: .topLeading, endPoint: .bottomTrailing
-                            ))
+                            .fill(Constants.sunburst.opacity(0.5))
                             .frame(width: 150, height: 100)
                             .overlay(Circle()
                                 .stroke(Color.white.opacity(0.15), lineWidth: 3))
-                        
-                        // LIVE: Pulls the first letter of the live first name
+                    
                         Text(String((homeData?.userInfo.firstName ?? demo.username).first!).uppercased())
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .foregroundColor(Color.white.opacity(0.8))
@@ -39,20 +41,19 @@ struct Profile: View {
                     .padding(.top, 1)
                     
                     VStack(spacing: 5) {
-                        // LIVE: Displays live first name
                         Text(homeData?.userInfo.firstName ?? demo.username)
                             .font(.title2)
-                            .bold(true)
+                            .bold()
                             .foregroundColor(.white.opacity(0.8))
                         
-                        // LIVE: Displays the real join date from Django
                         Text("Joined · " + (homeData?.userInfo.joinDate ?? demo.joinDate))
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(Color.white.opacity(0.8))
                             .padding(.vertical, 3)
                             .padding(.horizontal, 14)
-                            .background(Color.white.opacity(0.2))
+                            .background(Constants.sunburst.opacity(0.4))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
                     }
                     .padding(.horizontal)
                     
@@ -60,32 +61,34 @@ struct Profile: View {
                     LazyVStack(alignment: .leading, spacing: 10) {
                         Text("Preference")
                             .font(.headline)
-                            .foregroundColor(Color.white.opacity(0.8))
+                            .foregroundColor(Color.white.opacity(0.95))
                         
                         VStack(spacing: 0) {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Genre")
-                                        .foregroundStyle(Color.white.opacity(0.5))
+                                        .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
-                                    //Needs to be changed!!
-                                    Text(demo.genrePreference)
+                                    
+                                    // LIVE: Connected dynamic genre resolution
+                                    Text(liveGenrePreference)
                                         .font(.callout)
-                                        .foregroundStyle(Color.white.opacity(0.8))
+                                        .foregroundStyle(Color.white.opacity(0.95))
                                 }
                                 
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white.opacity(0.25))
+                            .background(Constants.sunburst.opacity(0.5))
                             
                             Divider()
                             
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Language")
-                                        .foregroundStyle(Color.white.opacity(0.5))
+                                        .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
+                                    
                                     // LIVE: Mapped Language ID to Name
                                     Text(Constants.languageIdToName[homeData?.userInfo.targetLanguage ?? 0] ?? demo.languagePreference)
                                         .font(.callout)
@@ -95,16 +98,17 @@ struct Profile: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white.opacity(0.25))
+                            .background(Constants.sunburst.opacity(0.5))
                             
                             Divider()
                             
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Proficiency")
-                                        .foregroundStyle(Color.white.opacity(0.5))
+                                        .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
-                                    // LIVE: Real Proficiency Level
+                                    
+                                    // LIVE: Connected user proficiency string from backend
                                     Text(homeData?.userInfo.proficiencyLevel ?? demo.languageProficiency)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
@@ -113,7 +117,7 @@ struct Profile: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white.opacity(0.25))
+                            .background(Constants.sunburst.opacity(0.5))
                         }
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(20)
@@ -122,18 +126,17 @@ struct Profile: View {
                         Spacer()
                         Text("Personal Information")
                             .font(.headline)
-                            .foregroundStyle(Color.white.opacity(0.8))
+                            .foregroundStyle(Color.white.opacity(0.95))
                         
                         VStack(spacing: 0) {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Email")
-                                        .foregroundStyle(Color.white.opacity(0.5))
+                                        .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
-                                    //Needs changing
-                                    Text(demo.email)
+                                    Text(String(repeating: "*", count: demo.email.count))
                                         .font(.callout)
-                                        .foregroundStyle(Color.white.opacity(0.8))
+                                        .foregroundStyle(Color.white.opacity(0.95))
                                 }
                                 
                                 Spacer()
@@ -145,7 +148,7 @@ struct Profile: View {
                                 
                             }
                             .padding()
-                            .background(Color.white.opacity(0.2))
+                            .background(Constants.sunburst.opacity(0.5))
                             
                             Divider()
                             
@@ -167,7 +170,7 @@ struct Profile: View {
                                 }
                             }
                             .padding()
-                            .background(Color.white.opacity(0.2))
+                            .background(Constants.sunburst.opacity(0.5))
                             
                             Divider()
                             
@@ -179,28 +182,40 @@ struct Profile: View {
                                         Text(spotifyLinked ? "Spotify Connected" : "Connect to Spotify")
                                             .foregroundStyle(Color.white.opacity(0.5))
                                             .font(.subheadline)
+
                                         Image(systemName: spotifyLinked ? "checkmark.circle.fill" : "music.note")
                                             .foregroundStyle(spotifyLinked ? .green : Color.white.opacity(0.8))
+
                                     }
+
                                     Spacer()
+
                                     if isLinkingSpotify {
                                         ProgressView()
                                             .tint(.white)
+
                                     } else if !spotifyLinked {
                                         Image(systemName: "chevron.right")
                                             .foregroundStyle(Color.white.opacity(0.9))
                                     }
                                 }
+
                                 .padding()
-                                .background(Color.white.opacity(0.2))
+                                .background(Constants.sunburst.opacity(0.5))
+
                             }
+
                             .disabled(spotifyLinked || isLinkingSpotify)
+
                         }
+
                         .background(Color.gray.opacity(0.2))
+
                         .cornerRadius(20)
+
                         .shadow(radius: 4)
 
-                        Spacer().frame(height: 20)
+                        Spacer(minLength: 1)
 
                         Button {
                             UserDefaults.standard.removeObject(forKey: "jwt_access_token")
@@ -216,32 +231,81 @@ struct Profile: View {
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.white.opacity(0.15))
+                            .background(Constants.sunburst.opacity(0.45))
                             .cornerRadius(15)
                         }
                     }
                     .padding()
                 }
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("Profile")
-                            .foregroundColor(Color.white.opacity(0.8))
-                            .font(.headline)
+            }
+            .background (
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.030, green: 0.050, blue: 0.120),
+                            Color(red: 0.275, green: 0.095, blue: 0.250),
+                            Color(red: 0.110, green: 0.165, blue: 0.325)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                    
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(0..<150, id: \.self) { _ in
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                    .opacity(Double.random(in: 0.1...0.9))
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                            
+                            ForEach(0..<10, id: \.self) { i in
+                                Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: CGFloat.random(in: 10...15)))
+                                    .opacity(Double.random(in: 0.5...0.7))
+                                    .shadow(color: .white.opacity(0.3), radius: 3)
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: 10, y: -100)
+                        
+                        Spacer(minLength: 0.2)
+                        
+                        RadialGradient(
+                            colors: [
+                                Color.red.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: -30, y: -10)
                     }
                 }
-            }
-            
-            // This coverrs the background to the whole screen
-            .background(
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.750, green: 0.355, blue: 0.550),
-                        Color(red: 0.576, green: 0.400, blue: 0.918),
-                        Color(red: 0.231, green: 0.027, blue: 0.592)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
             )
             .task {
                 do {
