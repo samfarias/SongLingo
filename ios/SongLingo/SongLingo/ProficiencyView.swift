@@ -8,84 +8,159 @@ struct ProficiencyView: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.984, green: 0.443, blue: 0.522),
-                    Color(red: 0.576, green: 0.200, blue: 0.918),
-                    Color(red: 0.231, green: 0.027, blue: 0.392)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                Spacer()
+        NavigationStack {
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.030, green: 0.050, blue: 0.120),
+                        Color(red: 0.275, green: 0.095, blue: 0.250),
+                        Color(red: 0.110, green: 0.165, blue: 0.325)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
                 
-                VStack(spacing: 6) {
-                    Text("♪ SongLingo")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
+                GeometryReader { geometry in
+                    ZStack {
+                        ForEach(0..<150, id: \.self) { i in
+                            Circle()
+                                .fill(.white)
+                                .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                .opacity(Double.random(in: 0.1...0.9))
+                                .position(
+                                    x: CGFloat.random(in: 0...geometry.size.width),
+                                    y: CGFloat.random(in: 0...geometry.size.height)
+                                )
+                        }
+                        
+                        ForEach(0..<10, id: \.self) { i in
+                            Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                .foregroundColor(.gray)
+                                .font(.system(size: CGFloat.random(in: 10...15)))
+                                .opacity(Double.random(in: 0.5...0.7))
+                                .shadow(color: .white.opacity(0.3), radius: 3)
+                                .position(
+                                    x: CGFloat.random(in: 0...geometry.size.width),
+                                    y: CGFloat.random(in: 0...geometry.size.height)
+                                )
+                        }
+                    }
+                }
+                
+                VStack {
+                    RadialGradient(
+                        colors: [
+                            Color.red.opacity(0.25),
+                                .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 200
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: -100, y: 10)
                     
-                    Text("Learn languages through the music you love")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.95))
+                    Spacer(minLength: 0.2)
+                    
+                    RadialGradient(
+                        colors: [
+                            Color.red.opacity(0.25),
+                                .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 200
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: 200, y: -10)
                 }
                 
                 VStack(spacing: 20) {
+                    Spacer()
+                    
                     VStack(spacing: 6) {
-                        Text("What's your current level?")
-                            .font(.system(size: 18, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: 260)
+                        Text("♪ SongLingo")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
                         
-                        Text("We'll tailor content to your proficiency")
+                        Text("Learn languages through the music you love")
                             .font(.system(size: 13))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white.opacity(0.9))
                     }
                     
-                    VStack(spacing: 12) {
-                        proficiencyOption(title: "Beginner", subtitle: "Just starting out")
-                        proficiencyOption(title: "Intermediate", subtitle: "Basic conversations")
-                        proficiencyOption(title: "Advanced", subtitle: "Fluent speaker")
-                    }
-                    
-                    HStack(spacing: 16) {
-                        Button("Back") {
-                            dismiss()
+                    VStack(spacing: 20) {
+                        VStack(spacing: 6) {
+                            Text("What's your current level?")
+                                .font(.system(size: 18, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: 260)
+                            
+                            Text("We'll tailor content to your proficiency")
+                                .font(.system(size: 13))
+                                .foregroundColor(.white.opacity(0.9))
                         }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
                         
-                        // handing the batons to GenreSelectionView
-                        NavigationLink(destination: GenreSelectionView(
-                            selectedLanguage: selectedLanguage,
-                            selectedProficiency: selectedLevel ?? "Beginner"
-                        )) {
-                            Text("Continue")
+                        VStack(spacing: 12) {
+                            proficiencyOption(title: "Beginner", subtitle: "Just starting out")
+                            proficiencyOption(title: "Intermediate", subtitle: "Basic conversations")
+                            proficiencyOption(title: "Advanced", subtitle: "Fluent speaker")
                         }
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(red: 0.486, green: 0.227, blue: 0.929))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .opacity(selectedLevel == nil ? 0.5 : 1.0)
-                        .disabled(selectedLevel == nil)
+                        
+                        HStack(spacing: 16) {
+                            Button("Back") {
+                                dismiss()
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(LinearGradient(
+                                colors: [
+                                    Color(red: 0.250, green: 0.150, blue: 0.920),
+                                    Color(red: 0.655, green: 0.195, blue: 0.950),
+                                    Color(red: 0.985, green: 0.165, blue: 0.555)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            
+                            // handing the batons to GenreSelectionView
+                            NavigationLink(destination: GenreSelectionView(
+                                selectedLanguage: selectedLanguage,
+                                selectedProficiency: selectedLevel ?? "Beginner"
+                            )) {
+                                Text("Continue")
+                            }
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(LinearGradient(
+                                colors: [
+                                    Color(red: 0.250, green: 0.150, blue: 0.920),
+                                    Color(red: 0.655, green: 0.195, blue: 0.950),
+                                    Color(red: 0.985, green: 0.165, blue: 0.555)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .opacity(selectedLevel == nil ? 0.5 : 1.0)
+                            .disabled(selectedLevel == nil)
+                        }
                     }
+                    .padding(25)
+                    .background(Color.white.opacity(0.09))
+                    .foregroundColor(.white)
+                    .cornerRadius(25)
+                    .padding(.horizontal, 30)
+                    
+                    Spacer()
                 }
-                .padding(25)
-                .background(Color.white)
-                .foregroundColor(.black) // reappears in dark mode 👻
-                .cornerRadius(25)
-                .padding(.horizontal, 30)
-                
-                Spacer()
             }
+            .navigationBarBackButtonHidden()
         }
     }
     
@@ -98,11 +173,11 @@ struct ProficiencyView: View {
             
             Text(subtitle)
                 .font(.system(size: 13))
-                .foregroundColor(.gray)
+                .foregroundColor(.black.opacity(0.9))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(selectedLevel == title ? Color.blue.opacity(0.12) : Color.white)
+        .background(selectedLevel == title ? Color.blue.opacity(0.12) : Color.white.opacity(0.55))
         .cornerRadius(20)
         .overlay (
             RoundedRectangle(cornerRadius: 20)
