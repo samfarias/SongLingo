@@ -10,10 +10,13 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
-            // Each tab can be wrapped in its own NavigationStack if needed
             Dashboard()
                 .tabItem {
                     Label(Constants.homeString, systemImage: Constants.homeIcon)
+                }
+            SpotifyPlayerView()
+                .tabItem {
+                    Label("Player", systemImage: "play.circle.fill")
                 }
             PlaylistCollection()
                 .tabItem {
@@ -24,6 +27,7 @@ struct ContentView: View {
                     Label(Constants.profileString, systemImage: Constants.profileIcon)
                 }
         }
+        .navigationBarBackButtonHidden(true)
 
     }
 }

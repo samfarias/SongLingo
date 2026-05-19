@@ -4,10 +4,12 @@ struct Dashboard: View {
     @State private var homeData: HomeScreenData?
     @State private var isNewUser = false
     @State private var streakDayFormat = "days"
-    
+
     @AppStorage("last_playlist_generation_date") private var lastGeneratedDateString: String = ""
     @AppStorage("daily_playlist_id") private var dailyPlaylistId: String = ""
+    @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var navigateToPlaylist = false
+    @State private var isLinkingSpotify = false
     
     private var hasGeneratedToday: Bool {
         let formatter = DateFormatter()
@@ -155,14 +157,83 @@ struct Dashboard: View {
                 .padding(.horizontal)
                 
                 Spacer(minLength: 20)
-                
+
+                if !spotifyLinked {
+                    Button {
+                        isLinkingSpotify = true
+                        Task {
+                            do {
+                                try await SpotifyAuthManager.shared.connect()
+                                try await NetworkManager.shared.generateSpotifyDrop()
+                                self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+                            } catch {
+                                print("DEBUG: Spotify link error: \(error)")
+                            }
+                            isLinkingSpotify = false
+                        }
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "music.note.tv")
+                                .font(.title2)
+                                .foregroundColor(.green)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Link your Spotify")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text("Unlock personalized playlists from your library")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+
+                            Spacer()
+
+                            if isLinkingSpotify {
+                                ProgressView().tint(.white)
+                            } else {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.green.opacity(0.4), lineWidth: 2)
+                        )
+                        .cornerRadius(15)
+                    }
+                    .disabled(isLinkingSpotify)
+                    .padding(.horizontal)
+                }
+
                 VStack(alignment: .leading, spacing: 15) {
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("Current Playlists")
-                            .foregroundColor(.white.opacity(0.8))
-                            .font(.headline)
-                            .padding(.leading, 15)
-                            .padding(.top, 15)
+                        HStack {
+                            Text("Current Playlists")
+                                .foregroundColor(.white.opacity(0.8))
+                                .font(.headline)
+
+                            Spacer()
+
+                            Button {
+                                Task {
+                                    do {
+                                        let _ = try await NetworkManager.shared.generateNewPlaylist()
+                                        self.homeData = try await NetworkManager.shared.fetchHomeScreenData()
+                                    } catch {
+                                        print("Error generating playlist: \(error)")
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                        }
+                        .padding(.horizontal, 15)
+                        .padding(.top, 15)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 15) {

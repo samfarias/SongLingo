@@ -165,6 +165,7 @@ struct GenreSelectionView: View {
                                         )
                                         
                                         // 3. Success! Slide to the home screen
+                                        UserDefaults.standard.set(true, forKey: "isLoggedIn")
                                         navigateToHome = true
                                     } catch {
                                         print("Failed to save profile: \(error)")

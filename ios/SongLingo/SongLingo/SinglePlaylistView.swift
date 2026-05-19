@@ -79,20 +79,29 @@ struct StatBadge: View {
 
 struct PlaylistSongRow: View {
     let entry: PlaylistSongEntry
-    
+
     var body: some View {
         HStack {
+            Button {
+                openInSpotify(title: entry.song.title, artist: entry.song.artist, spotifyId: entry.song.spotifyId)
+            } label: {
+                Image(systemName: "play.circle.fill")
+                    .font(.title)
+                    .foregroundColor(.green)
+            }
+            .padding(.leading)
+
             VStack(alignment: .leading) {
                 Text(entry.song.title)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
-                
+
                 Text(entry.song.artist)
                     .font(.system(size: 14))
                     .foregroundColor(.black.opacity(0.7))
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 8)
             
             Spacer()
             
