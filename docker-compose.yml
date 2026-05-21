@@ -10,7 +10,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   web:
-    build: ./backend
+    build: ./src/backend
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -24,7 +24,7 @@ services:
       - db
 
   mcp:
-    build: ./mcp
+    build: ./src/mcp
     restart: unless-stopped
     ports:
       - "8001:8001"
