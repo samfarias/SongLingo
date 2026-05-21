@@ -38,7 +38,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'target_language',
             'proficiency_level',
             'user_level',
-            'join_date'
+            'join_date',
+            'genres'
         ]
 
     def to_representation(self, instance):
