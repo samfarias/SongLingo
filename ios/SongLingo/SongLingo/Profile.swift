@@ -60,19 +60,19 @@ struct Profile: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("Genre")
-                                                .foregroundStyle(Color.white.opacity(0.85))
-                                                .font(.subheadline)
-                                            
-                                            if let genres = homeData?.userInfo.genres, !genres.isEmpty {
-                                                Text(genres.joined(separator: ", "))
-                                                    .font(.callout)
-                                                    .foregroundStyle(Color.white.opacity(0.95))
-                                            } else {
-                                                Text(demo.genrePreference)
-                                                    .font(.callout)
-                                                    .foregroundStyle(Color.white.opacity(0.95))
-                                            }
-                                
+                                        .foregroundStyle(Color.white.opacity(0.85))
+                                        .font(.subheadline)
+                                    
+                                    if let genres = homeData?.userInfo.genres, !genres.isEmpty {
+                                        Text(genres.joined(separator: ", "))
+                                            .font(.callout)
+                                            .foregroundStyle(Color.white.opacity(0.95))
+                                    } else {
+                                        Text(demo.genrePreference)
+                                            .font(.callout)
+                                            .foregroundStyle(Color.white.opacity(0.95))
+                                    }
+                                }
                                 Spacer()
                             }
                             .padding()
