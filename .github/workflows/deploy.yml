@@ -18,7 +18,7 @@ jobs:
           script: |
             cd ~/songlingo
             git pull
-            docker compose -f src/docker-compose.yml build --no-cache
-            docker compose -f src/docker-compose.yml up -d
-            docker compose -f src/docker-compose.yml exec -T web python manage.py makemigrations --check
-            docker compose -f src/docker-compose.yml exec -T web python manage.py migrate
+            docker compose build --no-cache
+            docker compose up -d
+            docker compose exec -T web python manage.py makemigrations --check
+            docker compose exec -T web python manage.py migrate
