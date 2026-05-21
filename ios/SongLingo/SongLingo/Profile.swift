@@ -16,13 +16,6 @@ struct Profile: View {
     @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var isLinkingSpotify = false
     
-    private var liveGenrePreference: String {
-        if let genreId = homeData?.suggestedPlaylists.recentlyPlayed.first?.genre {
-            return Constants.genreIdToName[genreId] ?? "Genre \(genreId)"
-        }
-        return demo.genrePreference
-    }
-    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -70,12 +63,16 @@ struct Profile: View {
                                         .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
                                     
-                                    // LIVE: Connected dynamic genre resolution
-                                    Text(liveGenrePreference)
-                                        .font(.callout)
-                                        .foregroundStyle(Color.white.opacity(0.95))
+                                    if let genres = homeData?.userInfo.genres, !genres.isEmpty {
+                                        Text(genres.joined(separator: ", "))
+                                            .font(.callout)
+                                            .foregroundStyle(Color.white.opacity(0.95))
+                                    } else {
+                                        Text(demo.genrePreference)
+                                            .font(.callout)
+                                            .foregroundStyle(Color.white.opacity(0.95))
+                                    }
                                 }
-                                
                                 Spacer()
                             }
                             .padding()
@@ -238,7 +235,7 @@ struct Profile: View {
                     .padding()
                 }
             }
-            .background (
+            .background(alignment: .center) {
                 ZStack {
                     LinearGradient(
                         colors: [
@@ -282,7 +279,7 @@ struct Profile: View {
                         RadialGradient(
                             colors: [
                                 Color.red.opacity(0.25),
-                                    .clear
+                                .clear
                             ],
                             center: .center,
                             startRadius: 10,
@@ -296,7 +293,7 @@ struct Profile: View {
                         RadialGradient(
                             colors: [
                                 Color.red.opacity(0.25),
-                                    .clear
+                                .clear
                             ],
                             center: .center,
                             startRadius: 10,
@@ -306,7 +303,7 @@ struct Profile: View {
                         .offset(x: -30, y: -10)
                     }
                 }
-            )
+            }
             .task {
                 do {
                     self.homeData = try await NetworkManager.shared.fetchHomeScreenData()

@@ -40,11 +40,7 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     // Our Live DigitalOcean Server is ACTIVE
-<<<<<<< Updated upstream
-    private let baseURL = "http://68.183.31.175:8000/api"
-=======
     private let baseURL = "http://68.183.31.175/api"
->>>>>>> Stashed changes
     
     // Localhost is COMMENTED OUT (Use this only when testing the backend on your Mac)
 //     private let baseURL = "http://localhost:8000/api"
