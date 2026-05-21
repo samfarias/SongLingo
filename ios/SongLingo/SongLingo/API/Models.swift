@@ -28,6 +28,7 @@ struct UserInfo: Codable {
     let userLevel: Int
     let targetLanguage: Int
     let joinDate: String?
+    let genres: [String]?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -48,6 +49,7 @@ struct UserInfo: Codable {
         userLevel = try container.decode(Int.self, forKey: .userLevel)
         targetLanguage = try container.decode(Int.self, forKey: .targetLanguage)
         joinDate = try container.decodeIfPresent(String.self, forKey: .joinDate)
+        self.genres = []
     }
 }
 
