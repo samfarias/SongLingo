@@ -254,7 +254,25 @@ class NetworkManager {
             throw URLError(.badServerResponse)
         }
         
-        return try JSONDecoder().decode(HomeScreenData.self, from: data)
+        do {
+            return try JSONDecoder().decode(HomeScreenData.self, from: data)
+        } catch let decodingError as DecodingError {
+            print("--- HOME SCREEN DECODING ERROR ---")
+            switch decodingError {
+            case .keyNotFound(let key, let context):
+                print("Missing key: '\(key.stringValue)' in \(context.codingPath.map(\.stringValue))")
+            case .typeMismatch(let type, let context):
+                print("Type mismatch: expected \(type) at \(context.codingPath.map(\.stringValue))")
+            case .valueNotFound(let type, let context):
+                print("Null value: expected \(type) at \(context.codingPath.map(\.stringValue))")
+            case .dataCorrupted(let context):
+                print("Data corrupted at \(context.codingPath.map(\.stringValue)): \(context.debugDescription)")
+            @unknown default:
+                print("Unknown decoding error: \(decodingError)")
+            }
+            print("Raw JSON: \(String(data: data, encoding: .utf8) ?? "unreadable")")
+            throw decodingError
+        }
     }
     
     func fetchWordBankScreenData() async throws -> WordBankData {

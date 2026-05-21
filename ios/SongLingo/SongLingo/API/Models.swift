@@ -38,6 +38,7 @@ struct UserInfo: Codable {
         case userLevel = "user_level"
         case targetLanguage = "target_language"
         case joinDate = "join_date"
+        case genres
     }
 
     init(from decoder: Decoder) throws {
@@ -49,7 +50,7 @@ struct UserInfo: Codable {
         userLevel = try container.decode(Int.self, forKey: .userLevel)
         targetLanguage = try container.decode(Int.self, forKey: .targetLanguage)
         joinDate = try container.decodeIfPresent(String.self, forKey: .joinDate)
-        self.genres = []
+        genres = try container.decodeIfPresent([String].self, forKey: .genres) ?? []
     }
 }
 
