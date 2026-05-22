@@ -1,10 +1,15 @@
+"""
+Module: make_playlist
+Description: Defines a custom Django management command that establishes interactive OAuth 
+             connectivity with Spotify and builds/populates a Weekly Drop playlist.
+"""
 import os
 import requests
 from django.core.management.base import BaseCommand
 from dotenv import load_dotenv, find_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from core.models import Playlist, Song, PlaylistSong, UserProfile //to talk to our DB
+from core.models import Playlist, Song, PlaylistSong, UserProfile
 
 # import this helper function
 from core.views_helpers import search_spotify_track
@@ -12,9 +17,31 @@ from core.views_helpers import search_spotify_track
 load_dotenv(find_dotenv())
 
 class Command(BaseCommand):
+    """
+    Django administrative command to create weekly playlists.
+
+    Purpose:
+        Performs interactive user OAuth, requests creation of a custom Spotify playlist, 
+        and updates it with curated tracks searched by the Genius/Spotify helpers.
+    """
     help = 'Creates a playlist and populates it with our curated weekly songs'
 
     def handle(self, *args, **kwargs):
+        """
+        Main CLI execution handler for interactive playlist provisioning.
+
+        Inputs:
+            *args: CLI arguments.
+            **kwargs: Command options dictionary.
+
+        Outputs:
+            None.
+
+        Side Effects:
+            - Performs interactive OAuth, launching a browser window or reading credentials cache.
+            - Triggers outgoing HTTP requests to Spotify accounts and API endpoints.
+            - Prints active connection parameters and success logs.
+        """
         client_id = os.getenv('SPOTIFY_CLIENT_ID')
         client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
         redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
@@ -63,7 +90,7 @@ class Command(BaseCommand):
             playlist_data = response_create.json()
             playlist_id = playlist_data['id']
             self.stdout.write(self.style.SUCCESS(f"Created: {playlist_data['name']}"))
-
+ 
             # 2. define the curated 5-10 songs for the week
             weekly_songs = [
                 {"title": "Despacito", "artist": "Luis Fonsi"},
@@ -85,7 +112,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"  Found: {result['title']} by {result['artist']}")
                 else:
                     self.stdout.write(self.style.WARNING(f"  Could not find: {song['title']}"))
-
+ 
             # 4. add the found tracks using spotipy's built-in method
             if track_uris:
                 self.stdout.write("Adding tracks to playlist...")

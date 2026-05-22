@@ -1,3 +1,8 @@
+"""
+Module: views_helpers
+Description: Business logic helper functions supporting user tracking, streak mechanics,
+             exercise vocabulary extraction, distractors builders, and Spotify API queries.
+"""
 import os
 import requests
 import base64
@@ -21,6 +26,24 @@ GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 
 # increments user's current_streak, longest_streak (if applicable), and adds a DaysActive record for this day
 def updateUserActivity(user_id: int):
+    """
+    Updates streak statistics and adds an active calendar record for the user.
+
+    Purpose:
+        Logs user activity for the current calendar date and increments their
+        consecutive active days streak. If the current streak equals the historical 
+        longest streak, updates the longest streak too.
+
+    Inputs:
+        user_id (int): Primary key ID of the user profile.
+
+    Outputs:
+        None.
+
+    Side Effects:
+        - Database mutation: Creates a `DaysActive` record.
+        - Database mutation: Increments `current_streak` and `longest_streak` on `UserActivity` table.
+    """
     print(user_id)
     last_activity = DaysActive.objects.filter(user_profile_id=user_id).order_by('-date').first()
     if last_activity and last_activity.date == date.today():
@@ -44,6 +67,23 @@ def updateUserActivity(user_id: int):
 
 # increments (+1) Playlist.num_song_listens. Updates last_date_played and num_days_played if it's a new day
 def updateUserPlaylistNumSongListens(playlist_id: int) -> int:
+    """
+    Increments listening statistics for a specific playlist.
+
+    Purpose:
+        Increments the song listens counter. If the play date is a new calendar day,
+        updates the last played date and increments the distinct active days counter.
+
+    Inputs:
+        playlist_id (int): Primary key ID of the playlist.
+
+    Outputs:
+        int: Number of rows updated (0 if playlist does not exist, >0 if successful).
+
+    Side Effects:
+        - Database mutation: Modifies `num_song_listens`, `last_date_played`, 
+          and `num_days_listened` on the target Playlist record.
+    """
     if playlist_id < 0:
         return 0
     try:
@@ -61,6 +101,18 @@ def updateUserPlaylistNumSongListens(playlist_id: int) -> int:
         return 0
     
 def getLyricAndMissingWord(practice_song: Song) -> tuple[str, str]:
+    """
+    Selects a random line and masks a target word for the lyric completion exercise.
+
+    Inputs:
+        practice_song (Song): The song database object to select lyrics from.
+
+    Outputs:
+        list: Contains [blanked_out_line (str), clean_missing_word (str)].
+
+    Side Effects:
+        None.
+    """
     lyrics = practice_song.lyrics
     lines = lyrics.split('\n')
     random_line = lines[random.randint(0, len(lines) - 1)][:-1] # be sure there is at least 1 line, [:-1] to remove '\r' at end
@@ -77,6 +129,19 @@ def getLyricAndMissingWord(practice_song: Song) -> tuple[str, str]:
     return [blanked_out_line, clean_and_format_word(random_word)]
 
 def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
+    """
+    Builds a list of 3 random distractor words from the same song's lyrics.
+
+    Inputs:
+        practice_song (Song): The song database object.
+        missing_word (str): Cleaned version of the correct word.
+
+    Outputs:
+        list: Contains up to 3 distinct distractor word tokens.
+
+    Side Effects:
+        None.
+    """
     word_set = {missing_word}
     lyrics = practice_song.lyrics
     lines = lyrics.split('\n')
@@ -97,6 +162,19 @@ def getSongDistractorWords(practice_song: Song, missing_word: str) -> list[str]:
     return distractor_words
 
 def getEnglishWordDistractors(user_profile_id: int, practice_word_in_english: str) -> list[str]:
+    """
+    Generates 3 English translation distractor options from the user's practice repertoire.
+
+    Inputs:
+        user_profile_id (int): Owner user profile ID.
+        practice_word_in_english (str): English translation of the correct target word.
+
+    Outputs:
+        list: Contains 3 English distractor definitions.
+
+    Side Effects:
+        None.
+    """
     distractors = set()
     attempts = 50
     
@@ -120,6 +198,18 @@ def getEnglishWordDistractors(user_profile_id: int, practice_word_in_english: st
 
 
 def getTwoRandomSongLines(practice_song: Song) -> tuple[str, str]:
+    """
+    Selects two consecutive lines from the song lyrics for matching exercises.
+
+    Inputs:
+        practice_song (Song): The song database object.
+
+    Outputs:
+        list: Contains [first_line (str), second_line_cleaned (str)].
+
+    Side Effects:
+        None.
+    """
     line_one = ""
     line_two = ""
     attempts = 20
@@ -133,6 +223,18 @@ def getTwoRandomSongLines(practice_song: Song) -> tuple[str, str]:
     return [line_one, line_two]
 
 def getPracticeExerciseSong(user_id: str) -> Song:
+    """
+    Retrieves a random song associated with the user's unlocked repository.
+
+    Inputs:
+        user_id (str/int): Owner user profile ID.
+
+    Outputs:
+        Song: A randomly selected Song object.
+
+    Side Effects:
+        Raises ObjectDoesNotExist if user has not unlocked or listened to any songs.
+    """
     user_songs_queryset = UserSong.objects.filter(user_profile=user_id)
     count = user_songs_queryset.count()
     if count == 0:
@@ -146,6 +248,19 @@ def getPracticeExerciseSong(user_id: str) -> Song:
 #--> External API helper functions <--#
 
 def get_spotify_access_token():
+    """
+    Requests a temporary access token from the Spotify Accounts API.
+
+    Inputs:
+        None.
+
+    Outputs:
+        str: Spotify bearer access token string if successful.
+        None: If credentials authentication fails.
+
+    Side Effects:
+        Initiates a POST request to `accounts.spotify.com/api/token`.
+    """
     """Authenticates with Spotify and returns a temporary access token."""
     # spotify requires your ID and secret to be combined and Base64 encoded
     auth_string = f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}"
@@ -176,6 +291,21 @@ def get_spotify_access_token():
         return None
     
 def search_spotify_track(song_title, artist_name, token):
+    """
+    Searches Spotify for a specific track, retrieving ID and preview details.
+
+    Inputs:
+        song_title (str): Title of the song.
+        artist_name (str): Artist name.
+        token (str): Spotify access authorization token.
+
+    Outputs:
+        dict: Target metadata containing "title", "artist", "spotify_id", and "preview_url".
+        None: If track search yielded no results or API error occurred.
+
+    Side Effects:
+        Initiates a GET request to `api.spotify.com/v1/search`.
+    """
     """Searches Spotify for a specific track and returns its data."""
     url = "https://api.spotify.com/v1/search"
     
