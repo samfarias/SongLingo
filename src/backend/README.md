@@ -48,12 +48,7 @@ This is the backend service for SongLingo, built with Django and Django REST Fra
    python manage.py runserver
    ```
    The backend will be available at `http://127.0.0.1:8000`.
-
-### Running with Docker
-The backend is included in the root `docker-compose.yml`. To run just the backend service:
-```bash
-docker-compose up web
-```
+   
 
 ## Project Structure
 - `backend/`: Configuration and settings.
