@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'capstone',  # <--- Make sure you create this DB name!
+        'NAME': 'songlingo',  # <--- Make sure you create this DB name!
         'USER': 'postgres',        # The default user for Postgres.app
         'PASSWORD': os.environ.get('DB_PASSWORD', 'password'), # Postgres.app usually has no password by default
 	'HOST': os.environ.get('DB_HOST', 'localhost'),
