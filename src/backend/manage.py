@@ -1,11 +1,34 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+Module: manage
+Description: Django's command-line utility for administrative tasks.
+
+Side Effects:
+    Parses sys.argv and executes Django administrative commands.
+"""
 import os
 import sys
 
 
 def main():
-    """Run administrative tasks."""
+    """
+    Executes command-line administrative tasks.
+
+    Purpose:
+        Configures Django settings module environment and runs commands from the command line.
+
+    Inputs:
+        None.
+
+    Outputs:
+        None.
+
+    Side Effects:
+        - Sets the DJANGO_SETTINGS_MODULE environment variable.
+        - Parses and executes administrative commands, which may mutate databases, 
+          spin up servers, or run tests depending on sys.argv arguments.
+        - Raises ImportError if Django is not installed or configured on Python path.
+    """
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
     try:
         from django.core.management import execute_from_command_line

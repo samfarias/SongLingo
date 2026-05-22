@@ -1,14 +1,47 @@
+"""
+Module: load_songs
+Description: Defines a custom Django administrative management command to load and parse
+             song metadata and vocabulary terms from a local JSON file into the database.
+"""
 import json
 from django.core.management.base import BaseCommand
 from core.models import Song, Word, Genre, Language
 
 class Command(BaseCommand):
+    """
+    Django administrative command to load songs from JSON.
+
+    Purpose:
+        Automates bulk loading of songs, including mapping language and genre ForeignKeys
+        and creating matching entries in the Word dictionary.
+    """
     help = 'Load songs and vocabulary from a JSON file'
 
     def add_arguments(self, parser):
+        """
+        Registers positional command line arguments.
+
+        Inputs:
+            parser (ArgumentParser): Django's built-in CLI parser.
+        """
         parser.add_argument('json_file', type=str, help='Path to the JSON file')
 
     def handle(self, *args, **kwargs):
+        """
+        Executes the import operation parsing the JSON file.
+
+        Inputs:
+            *args: CLI arguments list.
+            **kwargs: Keyword arguments containing 'json_file' path.
+
+        Outputs:
+            None.
+
+        Side Effects:
+            - Reads the specified JSON metadata file.
+            - Database mutation: Creates/updates `Language`, `Genre`, `Song`, and `Word` records.
+            - Writes execution success report to standard output stream.
+        """
         file_path = kwargs['json_file']
         
         with open(file_path, 'r', encoding='utf-8') as f:

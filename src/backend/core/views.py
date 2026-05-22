@@ -1,3 +1,8 @@
+"""
+Module: views
+Description: Defines primary REST controller classes and function-based API endpoints
+             for Django REST Framework in the SongLingo application.
+"""
 import random
 import os
 import json
@@ -52,15 +57,32 @@ from .helpers import fetch_word_info, clean_and_format_word, get_unique_words_fr
 # ==========================================
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Serializer providing customized authentication payload with user ID.
+    """
     def validate(self, attrs):
         data = super().validate(attrs)
         data['user_id'] = self.user.id
         return data
 
 class CustomLoginView(TokenObtainPairView):
+    """
+    API endpoint to authenticate users and issue JWT access and refresh tokens.
+    """
     serializer_class = CustomTokenObtainPairSerializer
 
 class RegisterView(APIView):
+    """
+    API endpoint for self-service user registration.
+
+    Request Body:
+        - username (str): Selected username.
+        - password (str): User password.
+
+    Responses:
+        - 201 Created: { 'refresh': str, 'access': str, 'user_id': int }
+        - 400 Bad Request: Serializer validation error dictionary.
+    """
     # allow anyone to hit this endpoint so they can actually sign up
     permission_classes = [AllowAny] 
     
@@ -91,6 +113,17 @@ class RegisterView(APIView):
 # ==========================================
 
 class UpdateProfileView(APIView):
+    """
+    API endpoint to update the user profile configuration (proficiency, target language, genre interests).
+
+    Request Body (Partial/Patch):
+        - proficiency_level (str): 'Beginner', 'Intermediate', or 'Advanced'.
+        - target_language (str): Name of language to study.
+        - genres (list[str]): List of target musical genre names.
+
+    Side Effects:
+        - Database mutation: Updates UserProfile and associated GenreSelection records.
+    """
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
@@ -116,6 +149,16 @@ class UpdateProfileView(APIView):
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
 
 class HomeScreenView(APIView):
+    """
+    API endpoint supplying full home dashboard parameters for the active user.
+
+    Purpose:
+        Retrieves user information, dynamic language learning progress stats
+        (words learned, songs completed, streaks), and playlist suggestion feeds.
+
+    Outputs:
+        - 200 OK: { "user_info": dict, "user_progress": dict, "suggested_playlists": dict }
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -175,6 +218,9 @@ class HomeScreenView(APIView):
 # ==========================================
 
 class WordsLearnedView(APIView):
+    """
+    API endpoint retrieving all vocabulary terms completed by the active user.
+    """
     permission_classes = [IsAuthenticated]
     def get(self, request):
         profile = request.user.profile
@@ -182,6 +228,9 @@ class WordsLearnedView(APIView):
         return Response({"user_word_data": UserWordSerializer(user_words, many=True).data})
 
 class SongsListenedView(APIView):
+    """
+    API endpoint retrieving all songs listened to by the active user.
+    """
     permission_classes = [IsAuthenticated]
     def get(self, request):
         profile = request.user.profile
@@ -189,6 +238,9 @@ class SongsListenedView(APIView):
         return Response({"user_song_data": UserSongSerializer(user_songs, many=True).data})
 
 class UserActivityView(APIView):
+    """
+    API endpoint providing comprehensive calendar tracking details and streak data.
+    """
     permission_classes = [IsAuthenticated]
     def get(self, request):
         profile = request.user.profile
@@ -208,6 +260,9 @@ class UserActivityView(APIView):
         })
 
 class PlaylistCollectionView(APIView):
+    """
+    API endpoint grouping user's playlists into standard chronological collections.
+    """
     permission_classes = [IsAuthenticated]
     def get(self, request):
         profile = request.user.profile
@@ -249,6 +304,9 @@ class PlaylistCollectionView(APIView):
         }})
 
 class SinglePlaylistView(APIView):
+    """
+    API endpoint serving all detailed tracks for a specific user playlist.
+    """
     permission_classes = [IsAuthenticated]
     def get(self, request):
         # We still need the playlist_id from the query param to know WHICH playlist to open
@@ -277,6 +335,14 @@ from django.utils import timezone
 from datetime import timedelta
 
 class SyncPlaylistsToSpotifyView(APIView):
+    """
+    API endpoint synchronizing all local playlists onto the user's linked Spotify account.
+
+    Side Effects:
+        - Refreshes expired Spotify credentials.
+        - Triggers HTTP requests (POST/GET) to the Spotify Web API.
+        - Creates brand new playlists on the user's Spotify account.
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -340,6 +406,14 @@ class SyncPlaylistsToSpotifyView(APIView):
 
 
 class GenerateWeeklyDropView(APIView):
+    """
+    API endpoint generating a curated weekly language learning playlist on Spotify and locally.
+
+    Side Effects:
+        - Refreshes Spotify tokens.
+        - Network integration queries Spotify API.
+        - Database mutation: Creates `Playlist`, `Song`, and `PlaylistSong` records.
+    """
     permission_classes = [IsAuthenticated]
     def post(self, request):
         user = request.user.profile
@@ -449,6 +523,18 @@ class GenerateWeeklyDropView(APIView):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def generateNewPlaylist(request):
+    """
+    Generates a personalized daily playlist based on active user learning parameters.
+
+    Purpose:
+        Applies algorithmic matching to select 6 songs based on difficulty level
+        and selected musical genres, provisions a local Playlist representation, 
+        and attempts to auto-export it directly to Spotify if credentials exist.
+
+    Side Effects:
+        - Database mutation: Creates `Playlist`, `PlaylistSong`, and `UserSong` records.
+        - Integrates with Spotify APIs via remote HTTP credentials requests.
+    """
     try:
         profile = request.user.profile
         django_user = request.user
@@ -621,6 +707,13 @@ def generateNewPlaylist(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUserWordNumPracticesCompleted(request):
+    """
+    Updates progress history count for a given studied vocabulary word.
+
+    Side Effects:
+        - Database mutation: Increments `num_practices_completed` on UserWord record.
+        - Network query: Resolves dictionary API details if the word is new.
+    """
     profile = request.user.profile
     word_text = request.query_params.get('word_text')
     if not word_text:
@@ -667,6 +760,12 @@ def updateUserWordNumPracticesCompleted(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUserSongProgress(request):
+    """
+    Updates completion and listening progress statistics for a song.
+
+    Side Effects:
+        - Database mutation: Mutates UserSong and Playlist listening stats.
+    """
     profile = request.user.profile
     song_id = request.query_params.get('song_id')
     request_type = request.query_params.get('request_type')
@@ -697,7 +796,10 @@ def updateUserSongProgress(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getWordCardExercise(request): # returns the user's 10 least practiced words and their relevant info
+def getWordCardExercise(request):
+    """
+    Assembles a set of 10 vocabulary terms and multiple-choice translation options.
+    """ # returns the user's 10 least practiced words and their relevant info
     user_profile_id = UserProfile.objects.get(user=request.user).pk
 
     if user_profile_id == None:
@@ -739,6 +841,9 @@ def getWordCardExercise(request): # returns the user's 10 least practiced words 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getCompleteTheLyricExercise(request):
+    """
+    Generates a lyric challenge containing a randomly selected line with a blanked word.
+    """
     profile = request.user.profile
     practice_song = getPracticeExerciseSong(profile.id)
 
@@ -762,6 +867,9 @@ def getCompleteTheLyricExercise(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getLyricMatchExercise(request):
+    """
+    Generates a matching challenge for two consecutive song lines.
+    """
     profile = request.user.profile
     practice_song = getPracticeExerciseSong(profile.id)
     two_song_lines = getTwoRandomSongLines(practice_song)
@@ -779,6 +887,9 @@ def getLyricMatchExercise(request):
 # ==========================================
 
 class PronunciationView(APIView):
+    """
+    Generates high-quality base64 Spanish pronunciation audio using gTTS.
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, word):
@@ -808,6 +919,9 @@ class PronunciationView(APIView):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 async def get_pronunciation(request, word):
+    """
+    Asynchronously proxies audio calls to remote FastMCP tools.
+    """
     mcp_url = "http://fastmcp:8001/sse"
     try:
         async with sse_client(mcp_url) as streams:
@@ -830,6 +944,9 @@ async def get_pronunciation(request, word):
 
 #The Helper: Generates the login link for the Swift frontend
 class SpotifyAuthURLView(APIView):
+    """
+    Supplies the URL needed to authorize the Swift client for Spotify interactions.
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -845,6 +962,12 @@ class SpotifyAuthURLView(APIView):
 
 from .models import SpotifyCredentials
 class SpotifyMobileCallbackView(APIView):
+    """
+    Exchanges mobile auth code callback tokens to securely save credentials.
+
+    Side Effects:
+        - Mutates SpotifyCredentials vault.
+    """
     permission_classes = [IsAuthenticated] 
     
     def post(self, request):

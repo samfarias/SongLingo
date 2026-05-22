@@ -38,14 +38,14 @@ SongLingo is a dynamic language learning application that helps users learn new 
    ```
    This will start the backend (Django), database (PostgreSQL), and pronunciation server (MCP).
 
-   * Refer to (backend/README.md) for django specific setup and run instructions
-   * Refer to (ios/README.md for) iOS specific setup and run instructions
+   * Refer to [backend/README.md](src/backend/README.md) for django specific setup and run instructions
+   * Refer to [ios/README.md](src/ios/README.md) for iOS specific setup and run instructions
 
 ## Repository Structure Overview
 
-- `backend/`: Django REST Framework application handling API, business logic, and database interactions.
-- `ios/`: Native Swift application for the iOS platform.
-- `mcp/`: Model Context Protocol server providing pronunciation services using gTTS.
+- `src/backend/`: Django REST Framework application handling API, business logic, and database interactions.
+- `src/ios/`: Native Swift application for the iOS platform.
+- `src/mcp/`: Model Context Protocol server providing pronunciation services using gTTS.
 - `docs/`: Project documentation, including architecture and citations.
 - `docker-compose.yml`: Main orchestration file for running the entire stack.
 
@@ -62,5 +62,5 @@ SongLingo is a dynamic language learning application that helps users learn new 
 
 ## Component Documentation
 For specific setup and run instructions, see the component READMEs:
-- [Backend README](backend/README.md)
-- [iOS README](ios/README.md)
+- [Backend README](src/backend/README.md)
+- [iOS README](src/ios/README.md)
