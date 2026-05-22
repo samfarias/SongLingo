@@ -13,32 +13,37 @@ This is the backend service for SongLingo, built with Django and Django REST Fra
 
 ### Local Development (without Docker)
 
-1. **Create a virtual environment**:
+1. **Navigate to backend directory if not already there**:
    ```bash
-   python3 -m venv venv
+   cd src/backend
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python3.11 -m venv venv
    . venv/bin/activate
    ```
 
-2. **Install dependencies**:
+3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Environment Variables**:
+4. **Environment Variables**:
    Ensure you have a `.env` file in the root directory with the necessary keys (SECRET_KEY, SPOTIFY_CLIENT_ID, etc.).
 
-4. **Run Migrations**:
+5. **Run Migrations**:
    ```bash
    python manage.py migrate
    ```
 
-5. **Import Initial Data**:
+6. **Import Initial Data**:
    If you have a `words.json` file, you can import it using:
    ```bash
    python import_words.py
    ```
 
-6. **Start the server**:
+7. **Start the server**:
    ```bash
    python manage.py runserver
    ```

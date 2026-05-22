@@ -15,9 +15,9 @@ This is the native iOS application for SongLingo, developed using Swift and Swif
 
 ### Running the App
 1. **Open the project**:
-   Navigate to the `ios/SongLingo` directory and open `SongLingo.xcodeproj` in Xcode.
+   Navigate to the `src/ios/SongLingo` directory and open `SongLingo.xcodeproj` in Xcode.
    ```bash
-   cd ios/SongLingo
+   cd src/ios/SongLingo
    open SongLingo.xcodeproj
    ```
 
