@@ -1,3 +1,9 @@
+"""
+Module: SongLyricsProcessing
+Description: Analyzes Spanish lyrics using spaCy NLP for grammatical complexity, 
+             generates translations/definitions for vocabulary cards, and outputs 
+             structured Django-compatible JSON song data.
+"""
 import os
 import re
 import time
@@ -44,7 +50,24 @@ GENRE_MAP = {
 
 def analyze_linguistics(lyrics_text):
     """
-    Analyzes lyrics using NLP to find grammatical complexity.
+    Analyzes Spanish lyrics using NLP to determine grammatical and lexical complexity.
+
+    Purpose:
+        To calculate a linguistic complexity score and extract a vocabulary sample
+        for the given Spanish song lyrics using morphological analysis.
+
+    Inputs:
+        lyrics_text (str): The raw text of the song lyrics to analyze.
+
+    Outputs:
+        dict: A dictionary containing:
+            - "linguistic_score" (float): A calculated score based on vocabulary base, 
+              grammar complexity penalties, and word speed penalties.
+            - "vocab_sample" (list): A list of up to 10 unique non-stopwords longer than 3 letters.
+        None: If the total word count is zero or the lyrics cannot be parsed.
+
+    Side Effects:
+        None.
     """
     doc = nlp(lyrics_text)
     
@@ -88,7 +111,23 @@ def analyze_linguistics(lyrics_text):
 
 def generate_vocab_dictionary(vocab_list):
     """
-    Automates the translation and definition generation for the Word Cards.
+    Translates vocabulary words and compiles definitions and pronunciations.
+
+    Purpose:
+        Automates Spanish-to-English translation and placeholder phonetic/definition
+        generation for each word in the provided vocabulary list.
+
+    Inputs:
+        vocab_list (list): A list of Spanish vocabulary words.
+
+    Outputs:
+        dict: A mapping of Spanish words to sub-dictionaries containing:
+            - "translation" (str): English translation of the word.
+            - "definition" (str): Definition or placeholder text.
+            - "pronunciation" (str): Pseudo-phonetic pronunciation text.
+
+    Side Effects:
+        Initiates network requests to the GoogleTranslator API for each word.
     """
     vocab_dict = {}
     translator_en = GoogleTranslator(source='es', target='en')
@@ -110,6 +149,29 @@ def generate_vocab_dictionary(vocab_list):
     return vocab_dict
 
 def run_pipeline(input_file="rock.txt", output_file="songs.json", genre_category="Rock"):
+    """
+    Executes the complete end-to-end processing pipeline for a list of songs.
+
+    Purpose:
+        Reads titles and artists from a text file, searches Genius for lyrics,
+        runs NLP-based complexity scoring, generates vocabulary cards, sorts
+        songs by proficiency level, and outputs a formatted JSON file.
+
+    Inputs:
+        input_file (str): Path to the input text file containing "Title - Artist" lines.
+        output_file (str): Path to the output JSON file where processed data is saved.
+        genre_category (str): The genre classification to associate with the songs.
+
+    Outputs:
+        None.
+
+    Side Effects:
+        - Reads local text files.
+        - Writes data to the output JSON file.
+        - Executes network queries to the Genius API.
+        - Executes network queries to the GoogleTranslator API.
+        - Prints diagnostic search and success logs to standard output.
+    """
     if not os.path.exists(input_file):
         print(f"Error: Could not find '{input_file}' in this folder.")
         return

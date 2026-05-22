@@ -1,8 +1,32 @@
+"""
+Module: helpers
+Description: General purpose utility functions for string formatting, API integration
+             with dictionaries, and parsing words from lyrics text.
+"""
 import requests
 import re
 import string
 
 def fetch_word_info(word_text):
+    """
+    Fetches word metadata (definition and pronunciation) from the Free Dictionary API.
+
+    Purpose:
+        Queries the Free Dictionary API for a given Spanish word to retrieve
+        its phonetic pronunciation and definition.
+
+    Inputs:
+        word_text (str): The Spanish word text to query.
+
+    Outputs:
+        dict: A dictionary containing:
+            - "pronunciation" (str): Phonetic pronunciation of the word.
+            - "definition" (str): First dictionary definition.
+        None: If the API request fails (non-200), times out, or receives invalid JSON structure.
+
+    Side Effects:
+        Initiates a network request (HTTP GET) to `freedictionaryapi.com`.
+    """
     # Your API Endpoint
     url = f"https://freedictionaryapi.com/api/v1/entries/es/{word_text}?translations=true" 
     
@@ -46,6 +70,22 @@ def fetch_word_info(word_text):
     
 
 def clean_and_format_word(word):
+    """
+    Cleans punctuation and normalizes a Spanish word or phrase.
+
+    Purpose:
+        Formats input tokens by stripping leading/trailing punctuation and standardizing whitespace.
+        For phrases, splits the text and cleans each token individually before re-joining.
+
+    Inputs:
+        word (str): The raw word or phrase to clean.
+
+    Outputs:
+        str: The normalized, cleaned lower-case word or phrase.
+
+    Side Effects:
+        None.
+    """
     word = word.lower()
     chars_to_strip = string.punctuation.replace("'", "").replace("-", "") + "¡¿"
     
@@ -73,6 +113,22 @@ def clean_and_format_word(word):
     
     
 def get_unique_words_from_lyrics(lyrics):
+    """
+    Extracts a list of unique words from raw song lyrics.
+
+    Purpose:
+        Tokenizes the lyrics text, strips punctuation (including special musical symbols),
+        converts to lowercase, filters out numerical strings, and returns the unique set of words.
+
+    Inputs:
+        lyrics (str): The raw text of song lyrics.
+
+    Outputs:
+        list: A list of unique, cleaned lowercase words extracted from the lyrics.
+
+    Side Effects:
+        None.
+    """
     chars_to_strip = string.punctuation.replace("'", "").replace("-", "") + "♪♫„“»«¡¿"
     unique_words = set()
     tokens = lyrics.split()

@@ -1,3 +1,9 @@
+"""
+Module: models
+Description: Core database models for the SongLingo Django application, encapsulating 
+             user profiles, gamified progress, songs, words, playlists, and 
+             Spotify API credentials.
+"""
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
@@ -8,12 +14,18 @@ from datetime import date
 ########################
 
 class Language(models.Model):
+    """
+    Represents a language supported by the application.
+    """
     language_name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.language_name
 
 class Genre(models.Model):
+    """
+    Represents a musical genre (e.g., Pop, Rock, Reggaeton/Urbano).
+    """
     genre_name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -24,6 +36,17 @@ class Genre(models.Model):
 ########################
 
 class UserProfile(models.Model):
+    """
+    Represents extended user profile metadata linked to Django's Auth User.
+
+    Fields:
+        user: One-to-one link to auth.User.
+        first_name: First name of the user.
+        last_name: Last name of the user.
+        target_language: Foreign key to Language indicating the language they want to learn.
+        proficiency_level: User's selected difficulty tier ('Beginner', 'Intermediate', 'Advanced').
+        user_level: Current level in the gamified progress system.
+    """
     # Links this profile to the built-in Django Auth system
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', null=True, blank=True)
 
@@ -41,6 +64,10 @@ class UserProfile(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 class GenreSelection(models.Model):
+    """
+    Represents a user's selected musical genre preference.
+    Serves as a join table linking UserProfile and Genre models.
+    """
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='genre_selections')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='genre_selections')
 
@@ -49,6 +76,14 @@ class GenreSelection(models.Model):
 
 
 class UserActivity(models.Model):
+    """
+    Tracks daily streak information for a user.
+
+    Fields:
+        user_profile: Foreign key to UserProfile.
+        current_streak: Number of consecutive active days.
+        longest_streak: Maximum streak milestone achieved.
+    """
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='activities')
     current_streak = models.IntegerField(default=0)
     longest_streak = models.IntegerField(default=0)
@@ -58,6 +93,9 @@ class UserActivity(models.Model):
 
 
 class DaysActive(models.Model):
+    """
+    Logs specific calendar dates when the user performed an activity.
+    """
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='days_active')
     date = models.DateField()
 
@@ -69,6 +107,18 @@ class DaysActive(models.Model):
 ########################
 
 class Word(models.Model):
+    """
+    Represents a vocabulary term in a target language.
+
+    Fields:
+        language: Language of the word.
+        word_text: The vocabulary text in the foreign language.
+        translation: English translation of the word.
+        pronunciation: Phonetic pronunciation details.
+        definition: Full dictionary definition or helper context.
+        lexical_category: Part of speech (e.g., Noun, Verb).
+        proficiency_level: Associated difficulty tier.
+    """
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='words')
     word_text = models.CharField(max_length=200)
     translation = models.CharField(max_length=200)
@@ -85,6 +135,16 @@ class Word(models.Model):
         return f"{self.word_text} ({self.translation})"
 
 class UserWord(models.Model):
+    """
+    Tracks a user's progress and practice history for a specific word.
+
+    Fields:
+        user_profile: Target user profile.
+        word: Reference to the Word model.
+        num_listens: Count of times the user listened to the word.
+        num_practices_completed: Count of vocabulary card practices.
+        mastery_lvl: User's calculated mastery progress.
+    """
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_word')
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='user_word')
     num_listens = models.IntegerField(default=0)
@@ -99,6 +159,20 @@ class UserWord(models.Model):
 ########################
 
 class Song(models.Model):
+    """
+    Represents a learning song loaded in the database.
+
+    Fields:
+        title: Title of the track.
+        artist: Name of the artist.
+        spotify_id: Corresponding track ID on Spotify.
+        language: Target foreign language.
+        genre: Musical genre classification.
+        vocabulary_json: List of target vocabulary words extracted from lyrics.
+        spotify_preview_url: URL link to a 30-second audio clip preview.
+        lyrics: Cleaned text transcription of song lyrics.
+        proficiency_level: Associated difficulty tier.
+    """
     title = models.CharField(max_length=200)
     artist = models.CharField(max_length=200)
     spotify_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
@@ -117,6 +191,9 @@ class Song(models.Model):
         return f"{self.title} - {self.artist}"
 
 class UserSong(models.Model):
+    """
+    Tracks a user's progress, completion, and statistics for a specific song.
+    """
 
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_profile')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='user_song')
@@ -132,6 +209,20 @@ class UserSong(models.Model):
 ########################
 
 class Playlist(models.Model):
+    """
+    Represents a collection of learning tracks curated for a user.
+
+    Fields:
+        user_profile: Owner profile of the playlist.
+        playlist_name: Name of the playlist.
+        language: Core target learning language.
+        genre: Major musical genre representing the selection.
+        description: Description details.
+        last_date_played: Calendar date when tracks were last listened.
+        num_days_listened: Total distinct days listened.
+        num_song_listens: Aggregate track listens count.
+        proficiency_level: Difficulty level association.
+    """
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='playlists')
     playlist_name = models.CharField(max_length=200)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='playlists')
@@ -151,6 +242,9 @@ class Playlist(models.Model):
         return self.playlist_name
 
 class PlaylistSong(models.Model):
+    """
+    Links a specific song track to a Playlist record (many-to-many helper).
+    """
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE, related_name='playlist_song')
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='playlists_contained_in')
 
@@ -165,6 +259,27 @@ import random
 
 @receiver(post_save, sender=User)
 def build_new_user_starter_pack(sender, instance, created, **kwargs):
+    """
+    Django post-save signal receiver triggered upon new User creation.
+
+    Purpose:
+        Automatically provisions a 'Welcome to SongLingo!' playlist, populates it
+        with a random sample of 5 beginner difficulty songs, and links the songs
+        to the user's progress.
+
+    Inputs:
+        sender (Model): The model class sending the signal (User).
+        instance (User): The actual User instance being saved.
+        created (bool): Indicates if a new record was created in the DB.
+        **kwargs: Extensible signal keyword arguments.
+
+    Outputs:
+        None.
+
+    Side Effects:
+        - Database mutation: Creates `UserProfile`, `Playlist`, `PlaylistSong`, and `UserSong` records.
+        - Prints traceback warnings to stdout in case of generation failure.
+    """
     if created:
         try:
             # 1. Safely grab or create the UserProfile for this new user
@@ -204,6 +319,16 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
             print(f"CRITICAL: Could not generate starter pack for {instance.username}: {e}")
 
 class SpotifyCredentials(models.Model):
+    """
+    Stores Spotify API OAuth access and refresh credentials securely.
+
+    Fields:
+        user: Reference to the standard auth.User.
+        spotify_id: User's explicit Spotify ID.
+        access_token: Encoded authorization bearer token.
+        refresh_token: Token used to request renewed access tokens.
+        expires_at: DateTime timestamp indicating token expiration.
+    """
     # Links directly to Django's built-in User system
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='spotify_creds')
     
