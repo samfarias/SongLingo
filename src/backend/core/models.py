@@ -295,7 +295,7 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
                 user_profile=profile, 
                 playlist_name="Welcome to SongLingo!",
                 language=default_language,
-                description="A hand-picked starter pack of easy songs to get you practicing immediately."
+                description="A sample platter of Jams in Spanish to whet your taste buds"
             )
 
             # 4. Attach the Beginner songs
@@ -334,8 +334,8 @@ class SpotifyCredentials(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='spotify_creds')
     
     spotify_id = models.CharField(max_length=150, null=True, blank=True)
-    access_token = models.CharField(max_length=300)
-    refresh_token = models.CharField(max_length=300)
+    access_token = models.TextField()
+    refresh_token = models.TextField()
     expires_at = models.DateTimeField()
 
     def __str__(self):

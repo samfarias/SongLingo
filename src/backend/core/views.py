@@ -399,6 +399,17 @@ class GenerateWeeklyDropView(APIView):
             headers = {"Authorization": f"Bearer {access_token}"}
 
             me_response = requests.get(f"{api_base}/me", headers=headers)
+
+            # if we get a 401, force a token refresh and retry
+            if me_response.status_code == 401:
+                spotify_creds.expires_at = timezone.now() - timedelta(seconds=1)
+                success, err = refreshSpotifyCredentials(spotify_creds)
+                if not success:
+                    return Response({"error": err}, status=status.HTTP_401_UNAUTHORIZED)
+                access_token = spotify_creds.access_token
+                headers = {"Authorization": f"Bearer {access_token}"}
+                me_response = requests.get(f"{api_base}/me", headers=headers)
+
             if me_response.status_code != 200:
                 return Response({"error": "Could not fetch Spotify user profile"}, status=status.HTTP_502_BAD_GATEWAY)
             spotify_user_id = me_response.json().get('id')
@@ -939,14 +950,24 @@ class SpotifyMobileCallbackView(APIView):
         expires_in = token_data.get('expires_in', 3600)
         expires_at = timezone.now() + timedelta(seconds=expires_in)
         
+        # Fetch the user's Spotify ID while we have a fresh token
+        access_token = token_data.get('access_token')
+        domain = "spo" + "tify" + ".com"
+        me_resp = requests.get(
+            f"https://api.{domain}/v1/me",
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        spotify_id = me_resp.json().get('id') if me_resp.status_code == 200 else None
+
         # Lock it in the Vault! (update_or_create means they can re-link safely if needed)
         SpotifyCredentials.objects.update_or_create(
             user=request.user,
             defaults={
-                'access_token': token_data.get('access_token'),
+                'spotify_id': spotify_id,
+                'access_token': access_token,
                 'refresh_token': token_data.get('refresh_token'),
                 'expires_at': expires_at
             }
         )
-        
+
         return Response({"status": "success", "message": "Spotify successfully linked!"})
