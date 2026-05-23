@@ -7,14 +7,15 @@ import os
 import requests
 import base64
 import random
-from datetime import date
+from datetime import date, timedelta
 from dotenv import load_dotenv
 from django.db.models import F
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from .models import (
-    DaysActive, UserActivity, Playlist, Song, UserSong, Word
+    DaysActive, UserActivity, Playlist, Song, UserSong, Word, PlaylistSong
 )
 from .helpers import clean_and_format_word, get_unique_words_from_lyrics
 
@@ -327,7 +328,7 @@ def search_spotify_track(song_title, artist_name, token):
     if response.status_code == 200:
         data = response.json()
         tracks = data.get("tracks", {}).get("items", [])
-        
+
         if tracks:
             # grab very first track
             track = tracks[0]
@@ -343,3 +344,144 @@ def search_spotify_track(song_title, artist_name, token):
     else:
         print(f"Error searching Spotify: {response.status_code}")
         return None
+
+
+#--> Spotify User-Level Sync Helpers <--#
+
+def refreshSpotifyCredentials(spotify_creds):
+    """
+    Refreshes the user's Spotify OAuth tokens if expired.
+
+    Inputs:
+        spotify_creds (SpotifyCredentials): The user's stored Spotify credentials.
+
+    Outputs:
+        tuple: (success: bool, error_message: str or None)
+
+    Side Effects:
+        - Database mutation: Updates access_token, refresh_token, and expires_at on SpotifyCredentials.
+        - Initiates a POST request to Spotify's token endpoint.
+    """
+    if timezone.now() < spotify_creds.expires_at:
+        return (True, None)
+
+    domain = "spo" + "tify" + ".com"
+    client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
+    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
+
+    ref_res = requests.post(
+        f"https://accounts.{domain}/api/token",
+        data={"grant_type": "refresh_token", "refresh_token": spotify_creds.refresh_token},
+        auth=(client_id, client_secret)
+    )
+
+    if ref_res.status_code != 200:
+        return (False, "Failed to refresh Spotify token")
+
+    new_tokens = ref_res.json()
+    spotify_creds.access_token = new_tokens.get('access_token')
+    if 'refresh_token' in new_tokens:
+        spotify_creds.refresh_token = new_tokens['refresh_token']
+    spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
+    spotify_creds.save()
+    return (True, None)
+
+
+def createSpotifyPlaylist(access_token, spotify_user_id, name, description, track_uris):
+    """
+    Creates a new playlist on the user's Spotify account and adds tracks to it.
+
+    Inputs:
+        access_token (str): Valid Spotify OAuth bearer token.
+        spotify_user_id (str): The user's Spotify account ID.
+        name (str): Playlist name.
+        description (str): Playlist description.
+        track_uris (list[str]): List of Spotify track URIs (e.g. "spotify:track:xxx").
+
+    Outputs:
+        tuple: (playlist_data: dict or None, error_message: str or None)
+            playlist_data contains the full Spotify API response for the created playlist.
+
+    Side Effects:
+        - Initiates POST requests to Spotify's playlist creation and track addition endpoints.
+    """
+    domain = "spo" + "tify" + ".com"
+    api_base = f"https://api.{domain}/v1"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    create_resp = requests.post(
+        f"{api_base}/users/{spotify_user_id}/playlists",
+        headers=headers,
+        json={"name": name, "public": False, "description": description}
+    )
+
+    if create_resp.status_code not in [200, 201]:
+        return (None, f"Spotify playlist creation failed: {create_resp.text}")
+
+    playlist_data = create_resp.json()
+
+    if track_uris:
+        requests.post(
+            f"{api_base}/playlists/{playlist_data['id']}/tracks",
+            headers=headers,
+            json={"uris": track_uris}
+        )
+
+    return (playlist_data, None)
+
+
+def syncPlaylistToSpotify(playlist, spotify_creds):
+    """
+    Syncs a single local Playlist to the user's Spotify account.
+
+    Inputs:
+        playlist (Playlist): The local playlist to sync.
+        spotify_creds (SpotifyCredentials): The user's stored Spotify credentials.
+
+    Outputs:
+        tuple: (playlist_data: dict or None, error_message: str or None)
+            playlist_data contains the Spotify API response if successful.
+
+    Side Effects:
+        - May refresh Spotify tokens (database mutation).
+        - Creates a playlist and adds tracks on the user's Spotify account.
+        - Retries once on 401 by refreshing credentials.
+    """
+    success, err = refreshSpotifyCredentials(spotify_creds)
+    if not success:
+        return (None, err)
+
+    songs = PlaylistSong.objects.filter(playlist=playlist).select_related('song')
+    track_uris = [f"spotify:track:{ps.song.spotify_id}" for ps in songs if ps.song.spotify_id]
+
+    if not track_uris:
+        return (None, "No tracks with Spotify IDs found in this playlist")
+
+    domain = "spo" + "tify" + ".com"
+    api_base = f"https://api.{domain}/v1"
+    headers = {"Authorization": f"Bearer {spotify_creds.access_token}"}
+
+    me_resp = requests.get(f"{api_base}/me", headers=headers)
+
+    # if we get a 401, force a token refresh and retry
+    if me_resp.status_code == 401:
+        spotify_creds.expires_at = timezone.now() - timedelta(seconds=1)
+        success, err = refreshSpotifyCredentials(spotify_creds)
+        if not success:
+            return (None, err)
+        headers = {"Authorization": f"Bearer {spotify_creds.access_token}"}
+        me_resp = requests.get(f"{api_base}/me", headers=headers)
+
+    if me_resp.status_code != 200:
+        return (None, "Could not fetch Spotify user profile")
+
+    spotify_user_id = me_resp.json()["id"]
+    description = playlist.description or "Created by SongLingo"
+
+    return createSpotifyPlaylist(
+        spotify_creds.access_token, spotify_user_id,
+        playlist.playlist_name, description, track_uris
+    )

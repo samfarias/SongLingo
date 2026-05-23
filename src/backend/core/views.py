@@ -47,7 +47,8 @@ from .serializers import (
 from .views_helpers import (
     updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord,
     getSongDistractorWords, getTwoRandomSongLines, getPracticeExerciseSong,
-    search_spotify_track, getEnglishWordDistractors
+    search_spotify_track, getEnglishWordDistractors,
+    refreshSpotifyCredentials, createSpotifyPlaylist, syncPlaylistToSpotify
 )
 
 from .helpers import fetch_word_info, clean_and_format_word, get_unique_words_from_lyrics
@@ -354,52 +355,12 @@ class SyncPlaylistsToSpotifyView(APIView):
         except SpotifyCredentials.DoesNotExist:
             return Response({"error": "Spotify not linked"}, status=status.HTTP_400_BAD_REQUEST)
 
-        domain = "spo" + "tify" + ".com"
-        api_base = f"https://api.{domain}/v1"
-
-        if timezone.now() >= spotify_creds.expires_at:
-            client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
-            client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
-            ref_res = requests.post(
-                f"https://accounts.{domain}/api/token",
-                data={"grant_type": "refresh_token", "refresh_token": spotify_creds.refresh_token},
-                auth=(client_id, client_secret)
-            )
-            if ref_res.status_code == 200:
-                new_tokens = ref_res.json()
-                spotify_creds.access_token = new_tokens.get('access_token')
-                if 'refresh_token' in new_tokens:
-                    spotify_creds.refresh_token = new_tokens['refresh_token']
-                spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
-                spotify_creds.save()
-            else:
-                return Response({"error": "Failed to refresh Spotify token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        headers = {"Authorization": f"Bearer {spotify_creds.access_token}", "Content-Type": "application/json"}
-
-        me_resp = requests.get(f"{api_base}/me", headers=headers)
-        if me_resp.status_code != 200:
-            return Response({"error": "Could not fetch Spotify profile"}, status=status.HTTP_502_BAD_GATEWAY)
-        spotify_user_id = me_resp.json()["id"]
-
         playlists = Playlist.objects.filter(user_profile=user.profile)
         synced = []
 
         for playlist in playlists:
-            songs = PlaylistSong.objects.filter(playlist=playlist).select_related('song')
-            track_uris = [f"spotify:track:{ps.song.spotify_id}" for ps in songs if ps.song.spotify_id]
-
-            if not track_uris:
-                continue
-
-            create_resp = requests.post(
-                f"{api_base}/users/{spotify_user_id}/playlists",
-                headers=headers,
-                json={"name": playlist.playlist_name, "public": False, "description": playlist.description or "Created by SongLingo"}
-            )
-            if create_resp.status_code in [200, 201]:
-                sp_id = create_resp.json()["id"]
-                requests.post(f"{api_base}/playlists/{sp_id}/tracks", headers=headers, json={"uris": track_uris})
+            playlist_data, err = syncPlaylistToSpotify(playlist, spotify_creds)
+            if playlist_data:
                 synced.append(playlist.playlist_name)
 
         return Response({"synced": synced, "count": len(synced)}, status=status.HTTP_200_OK)
@@ -425,66 +386,24 @@ class GenerateWeeklyDropView(APIView):
             except:
                 return Response({"error": "Spotify not linked. Please connect your account first."}, status=status.HTTP_403_FORBIDDEN)
 
-            # domain builder to bypass proxy filters
-            domain = "spo" + "tify" + ".com"
-            api_base = f"https://api.{domain}/v1"
-
             # auto-Refresh the token if it's dead!
-            if timezone.now() >= spotify_creds.expires_at:
-                refresh_url = f"https://accounts.{domain}/api/token"
-                client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
-                client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
-                
-                refresh_data = {
-                    "grant_type": "refresh_token",
-                    "refresh_token": spotify_creds.refresh_token
-                }
-                
-                ref_res = requests.post(refresh_url, data=refresh_data, auth=(client_id, client_secret))
-                if ref_res.status_code == 200:
-                    new_tokens = ref_res.json()
-                    spotify_creds.access_token = new_tokens.get('access_token')
-                    if 'refresh_token' in new_tokens:
-                        spotify_creds.refresh_token = new_tokens.get('refresh_token')
-                    spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
-                    spotify_creds.save()
-                else:
-                    return Response({"error": "Failed to refresh Spotify token"}, status=status.HTTP_401_UNAUTHORIZED)
+            success, err = refreshSpotifyCredentials(spotify_creds)
+            if not success:
+                return Response({"error": err}, status=status.HTTP_401_UNAUTHORIZED)
 
             access_token = spotify_creds.access_token
-            headers = {
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json"
-            }
 
             # get the user's Spotify ID (Required to create a playlist)
+            domain = "spo" + "tify" + ".com"
+            api_base = f"https://api.{domain}/v1"
+            headers = {"Authorization": f"Bearer {access_token}"}
+
             me_response = requests.get(f"{api_base}/me", headers=headers)
             if me_response.status_code != 200:
                 return Response({"error": "Could not fetch Spotify user profile"}, status=status.HTTP_502_BAD_GATEWAY)
             spotify_user_id = me_response.json().get('id')
 
-            # create the Playlist on Spotify
-            create_url = f"{api_base}/users/{spotify_user_id}/playlists"
-            data_create = {
-                "name": "SongLingo Weekly Drop",
-                "public": False,
-                "description": "Your curated language learning tracks for the week."
-            }
-            
-            response_create = requests.post(create_url, headers=headers, json=data_create)
-            if response_create.status_code not in [200, 201]:
-                return Response({"error": f"spotify failed: {response_create.text}"}, status=status.HTTP_502_BAD_GATEWAY)
-                
-            playlist_data = response_create.json()
-            playlist_id = playlist_data['id']
-
             # --- Austin DB LOGIC STARTS HERE ---
-            db_playlist = Playlist.objects.create(
-                user_profile=user,
-                playlist_name=playlist_data['name'],
-                language=user.target_language
-            )
-
             weekly_songs = [
                 {"title": "Despacito", "artist": "Luis Fonsi"},
                 {"title": "Bidi Bidi Bom Bom", "artist": "Selena"},
@@ -492,8 +411,9 @@ class GenerateWeeklyDropView(APIView):
                 {"title": "Vivir Mi Vida", "artist": "Marc Anthony"},
                 {"title": "Con Altura", "artist": "ROSALÍA"}
             ]
-            
+
             track_uris = []
+            db_songs = []
             for song in weekly_songs:
                 result = search_spotify_track(song["title"], song["artist"], access_token)
                 if result:
@@ -502,20 +422,33 @@ class GenerateWeeklyDropView(APIView):
                         spotify_id=result['spotify_id'],
                         defaults={'title': result['title'], 'artist': result['artist']}
                     )
-                    PlaylistSong.objects.create(playlist=db_playlist, song=db_song)
+                    db_songs.append(db_song)
             #--- AUSTIN LOGIC ENDS HERE ---
 
-            #add the songs to the newly created Spotify Playlist
-            if track_uris:
-                add_tracks_url = f"{api_base}/playlists/{playlist_id}/tracks"
-                requests.post(add_tracks_url, headers=headers, json={"uris": track_uris})
-                
+            # create the Playlist on Spotify
+            playlist_data, err = createSpotifyPlaylist(
+                access_token, spotify_user_id,
+                "Welcome to SongLingo!",
+                "A sample platter of Jams in Spanish to whet your taste buds",
+                track_uris
+            )
+            if not playlist_data:
+                return Response({"error": err}, status=status.HTTP_502_BAD_GATEWAY)
+
+            db_playlist = Playlist.objects.create(
+                user_profile=user,
+                playlist_name=playlist_data['name'],
+                language=user.target_language
+            )
+            for db_song in db_songs:
+                PlaylistSong.objects.create(playlist=db_playlist, song=db_song)
+
             return Response({
                 "message": "weekly drop generated successfully!",
                 "playlist_id": db_playlist.id,
                 "spotify_url": playlist_data['external_urls']['spotify']
             }, status=status.HTTP_201_CREATED)
-            
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
