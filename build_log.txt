@@ -1,0 +1,215 @@
+time="2026-05-15T02:22:39Z" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+#0 building with "default" instance using docker driver
+
+#1 [web internal] load build definition from Dockerfile
+#1 transferring dockerfile: 227B done
+#1 DONE 0.0s
+
+#2 [web internal] load metadata for docker.io/library/python:3.11-slim
+#2 DONE 0.2s
+
+#3 [web internal] load .dockerignore
+#3 transferring context: 2B 0.0s done
+#3 DONE 0.0s
+
+#4 [web internal] load build context
+#4 transferring context: 2.68kB done
+#4 DONE 0.0s
+
+#5 [web 1/5] FROM docker.io/library/python:3.11-slim@sha256:9a7765b36773a37061455b332f18e265e7f58f6fea9c419a550d2a8b0e9db834
+#5 resolve docker.io/library/python:3.11-slim@sha256:9a7765b36773a37061455b332f18e265e7f58f6fea9c419a550d2a8b0e9db834 0.1s done
+#5 DONE 0.1s
+
+#6 [web 2/5] WORKDIR /app
+#6 CACHED
+
+#7 [web 3/5] COPY requirements.txt .
+#7 CACHED
+
+#8 [web 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#8 4.377 Collecting es_core_news_sm@ https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.8.0/es_core_news_sm-3.8.0-py3-none-any.whl#sha256=e451a83d6df79b87e9eed0cb553f03e99e36a3bab18a7b79f0dcfd1fdf875e12 (from -r requirements.txt (line 21))
+#8 4.578   Downloading https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.8.0/es_core_news_sm-3.8.0-py3-none-any.whl (12.9 MB)
+#8 4.670      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.9/12.9 MB 177.2 MB/s eta 0:00:00
+#8 4.784 Collecting annotated-doc==0.0.4 (from -r requirements.txt (line 1))
+#8 4.823   Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
+#8 4.851 Collecting annotated-types==0.7.0 (from -r requirements.txt (line 2))
+#8 4.858   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+#8 4.917 Collecting anyio==4.13.0 (from -r requirements.txt (line 3))
+#8 4.926   Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+#8 4.979 Collecting asgiref==3.11.1 (from -r requirements.txt (line 4))
+#8 4.990   Downloading asgiref-3.11.1-py3-none-any.whl.metadata (9.3 kB)
+#8 5.042 Collecting attrs==26.1.0 (from -r requirements.txt (line 5))
+#8 5.051   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+#8 5.106 Collecting beautifulsoup4==4.14.3 (from -r requirements.txt (line 6))
+#8 5.114   Downloading beautifulsoup4-4.14.3-py3-none-any.whl.metadata (3.8 kB)
+#8 5.258 Collecting blis==1.3.3 (from -r requirements.txt (line 7))
+#8 5.266   Downloading blis-1.3.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (7.5 kB)
+#8 5.309 Collecting catalogue==2.0.10 (from -r requirements.txt (line 8))
+#8 5.317   Downloading catalogue-2.0.10-py3-none-any.whl.metadata (14 kB)
+#8 5.380 Collecting certifi==2026.2.25 (from -r requirements.txt (line 9))
+#8 5.390   Downloading certifi-2026.2.25-py3-none-any.whl.metadata (2.5 kB)
+#8 5.635 Collecting cffi==2.0.0 (from -r requirements.txt (line 10))
+#8 5.645   Downloading cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+#8 5.977 Collecting charset-normalizer==3.4.7 (from -r requirements.txt (line 11))
+#8 5.986   Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+#8 6.002      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 kB 109.2 MB/s eta 0:00:00
+#8 6.069 Collecting click==8.3.3 (from -r requirements.txt (line 12))
+#8 6.077   Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
+#8 6.126 Collecting cloudpathlib==0.24.0 (from -r requirements.txt (line 13))
+#8 6.136   Downloading cloudpathlib-0.24.0-py3-none-any.whl.metadata (16 kB)
+#8 6.173 Collecting confection==1.3.3 (from -r requirements.txt (line 14))
+#8 6.180   Downloading confection-1.3.3-py3-none-any.whl.metadata (19 kB)
+#8 6.770 Collecting cryptography==48.0.0 (from -r requirements.txt (line 15))
+#8 6.775   Downloading cryptography-48.0.0-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.3 kB)
+#8 6.866 Collecting cymem==2.0.13 (from -r requirements.txt (line 16))
+#8 6.874   Downloading cymem-2.0.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (9.7 kB)
+#8 6.940 Collecting deep-translator==1.11.4 (from -r requirements.txt (line 17))
+#8 6.950   Downloading deep_translator-1.11.4-py3-none-any.whl.metadata (30 kB)
+#8 7.134 Collecting Django==4.2.28 (from -r requirements.txt (line 18))
+#8 7.156   Downloading django-4.2.28-py3-none-any.whl.metadata (4.2 kB)
+#8 7.234 Collecting djangorestframework==3.16.1 (from -r requirements.txt (line 19))
+#8 7.248   Downloading djangorestframework-3.16.1-py3-none-any.whl.metadata (11 kB)
+#8 7.293 Collecting djangorestframework_simplejwt==5.5.1 (from -r requirements.txt (line 20))
+#8 7.304   Downloading djangorestframework_simplejwt-5.5.1-py3-none-any.whl.metadata (4.6 kB)
+#8 7.340 Collecting h11==0.16.0 (from -r requirements.txt (line 22))
+#8 7.364   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#8 7.418 Collecting httpcore==1.0.9 (from -r requirements.txt (line 23))
+#8 7.430   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#8 7.613 Collecting httpx==0.28.1 (from -r requirements.txt (line 24))
+#8 7.620   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#8 7.650 Collecting httpx-sse==0.4.3 (from -r requirements.txt (line 25))
+#8 7.657   Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)
+#8 7.698 Collecting idna==3.11 (from -r requirements.txt (line 26))
+#8 7.706   Downloading idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+#8 7.757 Collecting Jinja2==3.1.6 (from -r requirements.txt (line 27))
+#8 7.764   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+#8 7.850 Collecting jsonschema==4.26.0 (from -r requirements.txt (line 28))
+#8 7.868   Downloading jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+#8 7.906 Collecting jsonschema-specifications==2025.9.1 (from -r requirements.txt (line 29))
+#8 7.914   Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+#8 7.976 Collecting lyricsgenius==3.12.1 (from -r requirements.txt (line 30))
+#8 8.007   Downloading lyricsgenius-3.12.1-py3-none-any.whl.metadata (6.3 kB)
+#8 8.066 Collecting markdown-it-py==4.2.0 (from -r requirements.txt (line 31))
+#8 8.074   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+#8 8.210 Collecting MarkupSafe==3.0.3 (from -r requirements.txt (line 32))
+#8 8.222   Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#8 8.280 Collecting mcp==1.27.0 (from -r requirements.txt (line 33))
+#8 8.311   Downloading mcp-1.27.0-py3-none-any.whl.metadata (8.2 kB)
+#8 8.328 Collecting mdurl==0.1.2 (from -r requirements.txt (line 34))
+#8 8.347   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+#8 8.449 Collecting murmurhash==1.0.15 (from -r requirements.txt (line 35))
+#8 8.455   Downloading murmurhash-1.0.15-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (2.3 kB)
+#8 8.968 Collecting numpy==2.4.4 (from -r requirements.txt (line 36))
+#8 8.968   Downloading numpy-2.4.4-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+#8 9.023 Collecting packaging==26.2 (from -r requirements.txt (line 37))
+#8 9.052   Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+#8 9.148 Collecting preshed==3.0.13 (from -r requirements.txt (line 38))
+#8 9.160   Downloading preshed-3.0.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+#8 9.498 Collecting psycopg2-binary==2.9.11 (from -r requirements.txt (line 39))
+#8 9.509   Downloading psycopg2_binary-2.9.11-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+#8 9.553 Collecting pycparser==3.0 (from -r requirements.txt (line 40))
+#8 9.553   Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+#8 9.917 Collecting pydantic==2.13.3 (from -r requirements.txt (line 41))
+#8 9.948   Downloading pydantic-2.13.3-py3-none-any.whl.metadata (108 kB)
+#8 9.953      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 108.8/108.8 kB 120.5 MB/s eta 0:00:00
+#8 10.03 Collecting pydantic-settings==2.14.0 (from -r requirements.txt (line 42))
+#8 10.04   Downloading pydantic_settings-2.14.0-py3-none-any.whl.metadata (3.4 kB)
+#8 12.09 Collecting pydantic_core==2.46.3 (from -r requirements.txt (line 43))
+#8 12.10   Downloading pydantic_core-2.46.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+#8 12.37 Collecting Pygments==2.20.0 (from -r requirements.txt (line 44))
+#8 12.37   Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+#8 12.43 Collecting PyJWT==2.12.1 (from -r requirements.txt (line 45))
+#8 12.43   Downloading pyjwt-2.12.1-py3-none-any.whl.metadata (4.1 kB)
+#8 12.48 Collecting python-dotenv==1.2.2 (from -r requirements.txt (line 46))
+#8 12.49   Downloading python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+#8 12.56 Collecting python-multipart==0.0.27 (from -r requirements.txt (line 47))
+#8 12.57   Downloading python_multipart-0.0.27-py3-none-any.whl.metadata (2.1 kB)
+#8 12.68 Collecting redis==7.4.0 (from -r requirements.txt (line 48))
+#8 12.70   Downloading redis-7.4.0-py3-none-any.whl.metadata (12 kB)
+#8 12.77 Collecting referencing==0.37.0 (from -r requirements.txt (line 49))
+#8 12.78   Downloading referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+#8 12.87 Collecting requests==2.33.1 (from -r requirements.txt (line 50))
+#8 12.87   Downloading requests-2.33.1-py3-none-any.whl.metadata (4.8 kB)
+#8 13.03 Collecting rich==15.0.0 (from -r requirements.txt (line 51))
+#8 13.04   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+#8 13.73 Collecting rpds-py==0.30.0 (from -r requirements.txt (line 52))
+#8 13.74   Downloading rpds_py-0.30.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+#8 14.12 Collecting setuptools==82.0.1 (from -r requirements.txt (line 53))
+#8 14.13   Downloading setuptools-82.0.1-py3-none-any.whl.metadata (6.5 kB)
+#8 14.18 Collecting shellingham==1.5.4 (from -r requirements.txt (line 54))
+#8 14.20   Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+#8 14.25 Collecting smart_open==7.6.1 (from -r requirements.txt (line 55))
+#8 14.26   Downloading smart_open-7.6.1-py3-none-any.whl.metadata (25 kB)
+#8 14.32 Collecting soupsieve==2.8.3 (from -r requirements.txt (line 56))
+#8 14.32   Downloading soupsieve-2.8.3-py3-none-any.whl.metadata (4.6 kB)
+#8 14.94 Collecting spacy==3.8.14 (from -r requirements.txt (line 57))
+#8 14.95   Downloading spacy-3.8.14-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (28 kB)
+#8 14.99 Collecting spacy-legacy==3.0.12 (from -r requirements.txt (line 58))
+#8 14.99   Downloading spacy_legacy-3.0.12-py2.py3-none-any.whl.metadata (2.8 kB)
+#8 15.02 Collecting spacy-loggers==1.0.5 (from -r requirements.txt (line 59))
+#8 15.03   Downloading spacy_loggers-1.0.5-py3-none-any.whl.metadata (23 kB)
+#8 15.08 Collecting spotipy==2.26.0 (from -r requirements.txt (line 60))
+#8 15.09   Downloading spotipy-2.26.0-py3-none-any.whl.metadata (5.1 kB)
+#8 15.12 Collecting sqlparse==0.5.5 (from -r requirements.txt (line 61))
+#8 15.13   Downloading sqlparse-0.5.5-py3-none-any.whl.metadata (4.7 kB)
+#8 15.28 Collecting srsly==2.5.3 (from -r requirements.txt (line 62))
+#8 15.29   Downloading srsly-2.5.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (19 kB)
+#8 15.36 Collecting sse-starlette==3.4.1 (from -r requirements.txt (line 63))
+#8 15.37   Downloading sse_starlette-3.4.1-py3-none-any.whl.metadata (15 kB)
+#8 15.47 Collecting starlette==1.0.0 (from -r requirements.txt (line 64))
+#8 15.48   Downloading starlette-1.0.0-py3-none-any.whl.metadata (6.3 kB)
+#8 15.84 Collecting thinc==8.3.13 (from -r requirements.txt (line 65))
+#8 15.84   Downloading thinc-8.3.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (14 kB)
+#8 15.96 Collecting tqdm==4.67.3 (from -r requirements.txt (line 66))
+#8 15.97   Downloading tqdm-4.67.3-py3-none-any.whl.metadata (57 kB)
+#8 15.98      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.7/57.7 kB 67.2 MB/s eta 0:00:00
+#8 16.06 Collecting typer==0.25.1 (from -r requirements.txt (line 67))
+#8 16.07   Downloading typer-0.25.1-py3-none-any.whl.metadata (15 kB)
+#8 16.10 Collecting typing-inspection==0.4.2 (from -r requirements.txt (line 68))
+#8 16.11   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+#8 16.17 Collecting typing_extensions==4.15.0 (from -r requirements.txt (line 69))
+#8 16.18   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+#8 16.28 Collecting urllib3==2.6.3 (from -r requirements.txt (line 70))
+#8 16.29   Downloading urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+#8 16.37 Collecting uvicorn==0.46.0 (from -r requirements.txt (line 71))
+#8 16.38   Downloading uvicorn-0.46.0-py3-none-any.whl.metadata (6.7 kB)
+#8 16.42 Collecting wasabi==1.1.3 (from -r requirements.txt (line 72))
+#8 16.43   Downloading wasabi-1.1.3-py3-none-any.whl.metadata (28 kB)
+#8 16.46 Collecting weasel==1.0.0 (from -r requirements.txt (line 73))
+#8 16.47   Downloading weasel-1.0.0-py3-none-any.whl.metadata (4.6 kB)
+#8 17.04 Collecting wrapt==2.1.2 (from -r requirements.txt (line 74))
+#8 17.05   Downloading wrapt-2.1.2-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (7.4 kB)
+#8 17.09 Collecting gTTS==2.5.1 (from -r requirements.txt (line 75))
+#8 17.12   Downloading gTTS-2.5.1-py3-none-any.whl.metadata (4.1 kB)
+#8 20.10 INFO: pip is looking at multiple versions of gtts to determine which version is compatible with other requirements. This could take a while.
+#8 20.77 ERROR: Cannot install -r requirements.txt (line 67), -r requirements.txt (line 71), -r requirements.txt (line 75) and click==8.3.3 because these package versions have conflicting dependencies.
+#8 20.78 
+#8 20.78 The conflict is caused by:
+#8 20.78     The user requested click==8.3.3
+#8 20.78     typer 0.25.1 depends on click>=8.2.1
+#8 20.78     uvicorn 0.46.0 depends on click>=7.0
+#8 20.78     gtts 2.5.1 depends on click<8.2 and >=7.1
+#8 20.78 
+#8 20.78 To fix this you could try to:
+#8 20.78 1. loosen the range of package versions you've specified
+#8 20.78 2. remove package versions to allow pip attempt to solve the dependency conflict
+#8 20.78 
+#8 20.78 ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+#8 20.94 
+#8 20.94 [notice] A new release of pip is available: 24.0 -> 26.1.1
+#8 20.94 [notice] To update, run: pip install --upgrade pip
+#8 ERROR: process "/bin/sh -c pip install --no-cache-dir -r requirements.txt" did not complete successfully: exit code: 1
+------
+ > [web 4/5] RUN pip install --no-cache-dir -r requirements.txt:
+20.78     gtts 2.5.1 depends on click<8.2 and >=7.1
+20.78 
+20.78 To fix this you could try to:
+20.78 1. loosen the range of package versions you've specified
+20.78 2. remove package versions to allow pip attempt to solve the dependency conflict
+20.78 
+20.78 ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+20.94 
+20.94 [notice] A new release of pip is available: 24.0 -> 26.1.1
+20.94 [notice] To update, run: pip install --upgrade pip
+------
+failed to solve: process "/bin/sh -c pip install --no-cache-dir -r requirements.txt" did not complete successfully: exit code: 1
