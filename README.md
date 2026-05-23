@@ -54,6 +54,7 @@ SongLingo is a dynamic language learning application that helps users learn new 
 - **Figma Wireframe**: [View Figma Design](https://www.figma.com/design/GXeGcyl562g9byIwVufdXt/Group-7---Wireframe?node-id=0-1&t=LeB6mmdlXiCu73t6-1)
 - **C4 Diagram**: [View Rendered C4 Diagram](https://github.com/samfarias/SongLingo/blob/main/docs/architecture/workspace.dsl)
   - The architecture is defined using Structurizr DSL in `docs/architecture/workspace.dsl`.
+- **ER Diagram**: [View ER Diagram for Django Models](https://www.figma.com/board/OcoFMlVygslT1AxoYYh0r3/ER-Diagram?node-id=0-1&t=wMZGSM8Lqxqj127S-1)
 
 ## Code Style Standards
 
