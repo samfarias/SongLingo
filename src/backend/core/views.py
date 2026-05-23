@@ -861,14 +861,21 @@ class SpotifyAuthURLView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from urllib.parse import urlencode
         client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
-        redirect_uri = "songlingo://spotify-callback" 
+        redirect_uri = "songlingo://spotify-callback"
         scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email"
-        
+
         domain = "spo" + "tify" + ".com"
-        
-        url = f"https://accounts.{domain}/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope={scope}"
-        
+
+        params = urlencode({
+            'client_id': client_id,
+            'response_type': 'code',
+            'redirect_uri': redirect_uri,
+            'scope': scope
+        })
+        url = f"https://accounts.{domain}/authorize?{params}"
+
         return Response({"auth_url": url}, status=200)
 
 from .models import SpotifyCredentials
