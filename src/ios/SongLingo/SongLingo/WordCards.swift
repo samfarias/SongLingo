@@ -10,7 +10,6 @@ import SwiftUI
 struct WordCards: View {
     @State private var wordCardExerciseData: WordCardExerciseData?
     
-    // distractors[i] is the list of distractors for the word at practiceWords[i]
     @State private var practiceWords: [PracticeWord] = []
     @State private var distractors: [[String]] = []
     @State private var wordCardIdx = 0
@@ -280,7 +279,7 @@ struct WordCards: View {
         
         if index == correctOptionIndex {
             correctCards += 1
-            // Update the user's num_practices_completed for this Word
+            
             Task {
                 do {
                     try await NetworkManager.shared.updateUserWordNumPracticesCompleted(word_text: currWord)
@@ -290,12 +289,10 @@ struct WordCards: View {
             }
         }
         
-        // Pause briefly for 1 second so the user can see the green/red highlight
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             isCheckingAnswer = false
             selectedOptionIndex = nil
             
-            // Advance the game
             wordCardIdx += 1
             setupCurrentWord()
         }

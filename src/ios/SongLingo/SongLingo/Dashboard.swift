@@ -557,9 +557,6 @@ struct Dashboard: View {
                     print("DEBUG: Profile fetch failed with error: \(error)")
                 }
             }
-//            Button("Debug: Reset Daily Limit") {
-//                lastGeneratedDateString = "" // Clears the app storage state
-//            }
         }
     }
 }

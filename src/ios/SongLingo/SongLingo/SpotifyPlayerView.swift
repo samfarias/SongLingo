@@ -6,6 +6,7 @@ struct SpotifyPlayerView: View {
     @State private var playlistSongs: [Int: [PlaylistSongEntry]] = [:]
     @State private var isLoading = true
     @State private var nowPlayingTitle: String? = nil
+    
     @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var isLinkingSpotify = false
 
@@ -118,10 +119,13 @@ struct SpotifyPlayerView: View {
                                     HStack(spacing: 10) {
                                         Image(systemName: "link.circle.fill")
                                             .foregroundColor(.green)
+                                        
                                         Text("Link Spotify for full playback")
                                             .font(.subheadline)
                                             .foregroundColor(.white.opacity(0.8))
+                                        
                                         Spacer()
+                                        
                                         if isLinkingSpotify {
                                             ProgressView().tint(.green)
                                         }
@@ -240,12 +244,19 @@ struct SpotifyPlayerView: View {
                                 }
                             }
                         }
-                        .padding(.top, 10)
+                        .padding(.top, 30)
                     }
                 }
             }
-            .navigationTitle("Player")
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Player")
+                        .font(.headline)
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.vertical)
+                }
+            }
             .task {
                 await loadPlaylists()
             }

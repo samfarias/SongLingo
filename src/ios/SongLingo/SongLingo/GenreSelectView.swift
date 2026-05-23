@@ -23,8 +23,6 @@ struct GenreSelectionView: View {
     ]
     
     @State private var selectedGenres: Set<String> = []
-    
-    // state variable to trigger the navigation to the Home screen
     @State private var navigateToHome = false
     
     @Environment(\.dismiss) var dismiss
@@ -68,6 +66,34 @@ struct GenreSelectionView: View {
                                 )
                         }
                     }
+                }
+                
+                VStack {
+                    RadialGradient(
+                        colors: [
+                            Color.red.opacity(0.25),
+                                .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 200
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: -150, y: 10)
+                    
+                    Spacer(minLength: 0.2)
+                    
+                    RadialGradient(
+                        colors: [
+                            Color.red.opacity(0.25),
+                                .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 200
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: 150, y: -10)
                 }
                 
                 VStack(spacing: 20) {
@@ -150,21 +176,17 @@ struct GenreSelectionView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             
-                            // swapped NavigationLink for a Button to trigger the API Call
                             Button(action: {
                                 Task {
                                     do {
-                                        // convert the Set of genres into an Array of Strings
                                         let genresArray = Array(selectedGenres)
-                                        
-                                        // 2. Fire the PATCH request to the backend
+
                                         try await NetworkManager.shared.updateProfile(
                                             proficiency: selectedProficiency,
                                             language: "Spanish",
                                             genres: genresArray
                                         )
                                         
-                                        // 3. Success! Slide to the home screen
                                         UserDefaults.standard.set(true, forKey: "isLoggedIn")
                                         navigateToHome = true
                                     } catch {

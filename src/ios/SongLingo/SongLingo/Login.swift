@@ -190,11 +190,8 @@ struct Login: View {
         errorMessage = nil
         Task {
             do {
-                // 1. Tell the server who is trying to log in
                 let response = try await NetworkManager.shared.login(username: username, password: password)
                 
-                // 2. SAVE the real ID to the backpack!
-                // We use String() because your Dashboard is looking for a string.
                 UserDefaults.standard.set(String(response.user_id), forKey: "user_id")
                 UserDefaults.standard.set(true, forKey: "isLoggedIn")
 

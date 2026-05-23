@@ -9,10 +9,10 @@ import SwiftUI
 import AuthenticationServices
 
 struct Profile: View {
-    // Dummy info fallback
     @State private var demo = UserData(username: "JohnDoe", email: "bob@gmail.com", password: "Password1@", genrePreference: "Rock", languagePreference: "Spanish", languageProficiency: "Beginner", joinDate: "March 2026")
 
     @State private var homeData: HomeScreenData?
+    
     @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var isLinkingSpotify = false
     
@@ -86,7 +86,6 @@ struct Profile: View {
                                         .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
                                     
-                                    // LIVE: Mapped Language ID to Name
                                     Text(Constants.languageIdToName[homeData?.userInfo.targetLanguage ?? 0] ?? demo.languagePreference)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
@@ -105,7 +104,6 @@ struct Profile: View {
                                         .foregroundStyle(Color.white.opacity(0.85))
                                         .font(.subheadline)
                                     
-                                    // LIVE: Connected user proficiency string from backend
                                     Text(homeData?.userInfo.proficiencyLevel ?? demo.languageProficiency)
                                         .font(.callout)
                                         .foregroundStyle(Color.white.opacity(0.8))
@@ -121,68 +119,22 @@ struct Profile: View {
                         .shadow(radius: 4)
                         
                         Spacer()
-                        Text("Personal Information")
+                        Text("Music Connection")
                             .font(.headline)
                             .foregroundStyle(Color.white.opacity(0.95))
                         
                         VStack(spacing: 0) {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("Email")
-                                        .foregroundStyle(Color.white.opacity(0.85))
-                                        .font(.subheadline)
-                                    Text(String(repeating: "*", count: demo.email.count))
-                                        .font(.callout)
-                                        .foregroundStyle(Color.white.opacity(0.95))
-                                }
-                                
-                                Spacer()
-                                
-                                NavigationLink(destination: UpdateUserInfo(value: $demo.email, title: "Email", currentPass: demo.password)) {
-                                    Image(systemName: "chevron.right")
-                                        .foregroundStyle(Color.white.opacity(0.9))
-                                }
-                                
-                            }
-                            .padding()
-                            .background(Constants.sunburst.opacity(0.5))
-                            
-                            Divider()
-                            
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("Password")
-                                        .foregroundStyle(Color.white.opacity(0.5))
-                                        .font(.subheadline)
-                                    Text(String(repeating: "*", count: demo.password.count))
-                                        .font(.callout)
-                                        .foregroundStyle(Color.white.opacity(0.8))
-                                }
-                                
-                                Spacer()
-                                
-                                NavigationLink(destination: UpdateUserInfo(value: $demo.password, title: "Password", currentPass: demo.password)) {
-                                    Image(systemName: "chevron.right")
-                                        .foregroundStyle(Color.white.opacity(0.9))
-                                }
-                            }
-                            .padding()
-                            .background(Constants.sunburst.opacity(0.5))
-                            
-                            Divider()
-                            
                             Button {
                                 connectSpotify()
                             } label: {
                                 HStack {
                                     HStack(spacing: 8) {
                                         Text(spotifyLinked ? "Spotify Connected" : "Connect to Spotify")
-                                            .foregroundStyle(Color.white.opacity(0.5))
+                                            .foregroundStyle(Color.white.opacity(0.95))
                                             .font(.subheadline)
 
                                         Image(systemName: spotifyLinked ? "checkmark.circle.fill" : "music.note")
                                             .foregroundStyle(spotifyLinked ? .green : Color.white.opacity(0.8))
-
                                     }
 
                                     Spacer()
@@ -190,7 +142,6 @@ struct Profile: View {
                                     if isLinkingSpotify {
                                         ProgressView()
                                             .tint(.white)
-
                                     } else if !spotifyLinked {
                                         Image(systemName: "chevron.right")
                                             .foregroundStyle(Color.white.opacity(0.9))
@@ -199,17 +150,12 @@ struct Profile: View {
 
                                 .padding()
                                 .background(Constants.sunburst.opacity(0.5))
-
                             }
-
                             .disabled(spotifyLinked || isLinkingSpotify)
 
                         }
-
                         .background(Color.gray.opacity(0.2))
-
                         .cornerRadius(20)
-
                         .shadow(radius: 4)
 
                         Spacer(minLength: 1)
@@ -225,7 +171,8 @@ struct Profile: View {
                                 Text("Log Out")
                                     .fontWeight(.semibold)
                             }
-                            .foregroundColor(.red)
+                            .foregroundColor(.pink.opacity(0.9))
+                            .bold()
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Constants.sunburst.opacity(0.45))

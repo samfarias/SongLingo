@@ -44,6 +44,7 @@ struct PlaylistCollection: View {
                                 } else {
                                     Image(systemName: "plus")
                                         .font(.caption.bold())
+                                    
                                     Text("New Playlist")
                                         .font(.caption.bold())
                                 }
@@ -61,19 +62,16 @@ struct PlaylistCollection: View {
 
                     Spacer().frame(height: 10)
                     
-                    // --- Recently Played Section ---
                     renderSection(
                         title: "Recently Played",
                         playlists: playlistCollectionData?.playlistCollections.recentlyPlayed ?? []
                     )
                     
-                    // --- New For You Section ---
                     renderSection(
                         title: "New For You",
                         playlists: playlistCollectionData?.playlistCollections.newPlaylists ?? []
                     )
                     
-                    // --- A Trip Down Memory Lane Section ---
                     renderSection(
                         title: "A Trip Down Memory Lane",
                         playlists: playlistCollectionData?.playlistCollections.itsBeenAWhile ?? []
@@ -159,7 +157,6 @@ struct PlaylistCollection: View {
         }
     }
     
-    // Helper to render each horizontal category
     @ViewBuilder
     private func renderSection(title: String, playlists: [Playlist]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -169,7 +166,7 @@ struct PlaylistCollection: View {
                 .padding(.leading)
             
             Divider()
-                .background(Color.white.opacity(0.5))
+                .background(Color.white.opacity(0.9))
                 .padding(.horizontal)
             
             if playlists.isEmpty {
@@ -192,7 +189,6 @@ struct PlaylistCollection: View {
     }
 }
 
-// Subview for the individual playlist buttons
 struct PlaylistCard: View {
     let playlist: Playlist
 
@@ -241,6 +237,7 @@ func getPlaylistTint(_ playlist: Playlist) -> LinearGradient {
             endPoint: .bottomTrailing
         )
     }
+    
     return LinearGradient(
         colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
         startPoint: .topLeading,

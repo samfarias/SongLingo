@@ -22,7 +22,6 @@ struct SinglePlaylistView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Hero album art
                     if let url = heroArtUrl {
                         AsyncImage(url: url) { image in
                             image
@@ -30,13 +29,6 @@ struct SinglePlaylistView: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(height: 260)
                                 .clipped()
-                                .overlay(
-                                    LinearGradient(
-                                        colors: [.clear, .black.opacity(0.7)],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                )
                         } placeholder: {
                             Rectangle()
                                 .fill(.ultraThinMaterial)
@@ -44,7 +36,6 @@ struct SinglePlaylistView: View {
                         }
                     }
 
-                    // Playlist info header
                     if let info = singlePlaylistData?.playlistInfo {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(info.description)
@@ -55,7 +46,6 @@ struct SinglePlaylistView: View {
                         .padding(.top, 16)
                     }
 
-                    // Song list
                     if let songs = singlePlaylistData?.playlistSongs {
                         LazyVStack(spacing: 0) {
                             ForEach(songs) { entry in
@@ -73,15 +63,83 @@ struct SinglePlaylistView: View {
                     }
                 }
             }
-            .navigationTitle(singlePlaylistData?.playlistInfo.playlistName ?? "Playlist")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .background {
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(singlePlaylistData?.playlistInfo.playlistName ?? "Playlist")
+                        .font(.headline)
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.vertical)
+                }
+            }
+            .background (
                 ZStack {
-                    Color(red: 0.06, green: 0.06, blue: 0.12)
-                        .ignoresSafeArea()
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.07, green: 0.07, blue: 0.07),
+                            Color(red: 0.12, green: 0.12, blue: 0.14),
+                            Color(red: 0.07, green: 0.07, blue: 0.07)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                    
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(0..<150, id: \.self) { _ in
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                    .opacity(Double.random(in: 0.1...0.9))
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                            
+                            ForEach(0..<10, id: \.self) { i in
+                                Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: CGFloat.random(in: 10...15)))
+                                    .opacity(Double.random(in: 0.5...0.7))
+                                    .shadow(color: .white.opacity(0.3), radius: 3)
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        RadialGradient(
+                            colors: [
+                                Color.gray.opacity(0.15),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: -105, y: -30)
+                        
+                        Spacer(minLength: 0.2)
+                        
+                        RadialGradient(
+                            colors: [
+                                Color.gray.opacity(0.15),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: 95, y: -10)
+                    }
 
-                    // Blurred album art background
                     if let url = heroArtUrl {
                         AsyncImage(url: url) { image in
                             image
@@ -93,10 +151,9 @@ struct SinglePlaylistView: View {
                         } placeholder: {
                             EmptyView()
                         }
-                        .ignoresSafeArea()
                     }
                 }
-            }
+            )
             .task {
                 do {
                     self.singlePlaylistData = try await NetworkManager.shared.fetchSinglePlaylistData(playlistId: self.playlistId)
@@ -113,7 +170,6 @@ struct PlaylistSongRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Album art thumbnail
             if let artUrl = entry.song.albumArtUrl, let url = URL(string: artUrl) {
                 AsyncImage(url: url) { image in
                     image
@@ -163,7 +219,6 @@ struct PlaylistSongRow: View {
     }
 }
 
-// Reusable Badge for the Header
 struct StatBadge: View {
     let text: String
     let color: Color

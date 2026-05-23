@@ -43,7 +43,6 @@ class AudioPlayerManager: NSObject, AVSpeechSynthesizerDelegate {
     func playBase64Audio(_ base64String: String) {
         
         // Trap 1: Clean the string. Sometimes AI APIs send "data:audio/mp3;base64,GkXf..."
-        // We only want the gibberish after the comma.
         let cleanString = base64String.components(separatedBy: ",").last ?? base64String
         
         // Trap 2: Decode the raw string into an actual Data object
@@ -54,7 +53,6 @@ class AudioPlayerManager: NSObject, AVSpeechSynthesizerDelegate {
         
         do {
             // Trap 3: The "Silent Switch" Override
-            // Without this, the audio won't play if the user's phone is on vibrate!
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             

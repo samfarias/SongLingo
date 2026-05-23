@@ -13,48 +13,111 @@ struct WordBank: View {
     
     var body: some View {
         NavigationStack {
-            // 1. ZStack ensures your background fills the screen regardless of content state
             ZStack {
-                Constants.amber_tide
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.150, green: 0.155, blue: 0.425),
+                            Color(red: 0.275, green: 0.295, blue: 0.650),
+                            Color(red: 0.230, green: 0.230, blue: 0.560)
+
+
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
                     .ignoresSafeArea()
+                    
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(0..<150, id: \.self) { _ in
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
+                                    .opacity(Double.random(in: 0.1...0.9))
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                            
+                            ForEach(0..<10, id: \.self) { i in
+                                Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: CGFloat.random(in: 10...15)))
+                                    .opacity(Double.random(in: 0.5...0.7))
+                                    .shadow(color: .white.opacity(0.3), radius: 3)
+                                    .position(
+                                        x: CGFloat.random(in: 0...geometry.size.width),
+                                        y: CGFloat.random(in: 0...geometry.size.height)
+                                    )
+                            }
+                        }
+                    }
+                    
+                    VStack {
+                        RadialGradient(
+                            colors: [
+                                Color.indigo.opacity(0.35),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: -105, y: -30)
+                        
+                        Spacer(minLength: 0.2)
+                        
+                        RadialGradient(
+                            colors: [
+                                Color.indigo.opacity(0.25),
+                                    .clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                        .frame(width: 400, height: 400)
+                        .offset(x: 95, y: -10)
+                    }
+                }
                 
-                // 2. Main Content Conditional Control Flow Split
                 if userWords.isEmpty {
-                    // This block pushes the placeholder view to the exact absolute center
+
                     VStack(spacing: 12) {
                         Image(systemName: "tray")
                             .font(.system(size: 48))
-                            .foregroundColor(.black.opacity(0.4))
+                            .foregroundColor(.white.opacity(0.5))
                         
                         Text("Your Word Bank is Empty")
                             .font(.title3)
                             .bold()
-                            .foregroundColor(.black)
+                            .foregroundColor(.white.opacity(0.9))
                         
                         Text("Words you practice during song exercises will appear here automatically.")
                             .font(.subheadline)
-                            .foregroundColor(.black.opacity(0.6))
+                            .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Forces layout centralization
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                 } else {
-                    // Normal layout state rendering logic
                     ScrollView {
                         HStack (spacing: 5) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Constants.yellow)
+                                    .fill(Constants.yellow.opacity(0.8))
                                     .shadow(
                                         color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                                     )
                                 
                                 HStack {
-                                    Text("New🐣 (\(masteryLvlCounts[0]))")
-                                        .lineLimit(1)
+                                    Text("New🐣\n(\(masteryLvlCounts[0]))")
                                         .foregroundColor(.black)
-                                        .font(.system(size: 12))
+                                        .font(.system(size: 10))
                                 }
                                 .padding(.horizontal)
                             }
@@ -63,16 +126,15 @@ struct WordBank: View {
                             
                             ZStack {
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Constants.lavender)
+                                    .fill(Constants.lavender.opacity(0.8))
                                     .shadow(
                                         color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                                     )
                                 
                                 HStack {
-                                    Text("Learning✍️ (\(masteryLvlCounts[1]))")
-                                        .lineLimit(1)
+                                    Text("Learning✍️\n(\(masteryLvlCounts[1]))")
                                         .foregroundColor(.black)
-                                        .font(.system(size: 12))
+                                        .font(.system(size: 10))
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -80,16 +142,15 @@ struct WordBank: View {
                             
                             ZStack {
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Constants.blue)
+                                    .fill(Constants.blue.opacity(0.8))
                                     .shadow(
                                         color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                                     )
                                 
                                 HStack {
-                                    Text("Familiar🧠 (\(masteryLvlCounts[2]))")
-                                        .lineLimit(1)
+                                    Text("Familiar🧠\n(\(masteryLvlCounts[2]))")
                                         .foregroundColor(.black)
-                                        .font(.system(size: 12))
+                                        .font(.system(size: 10))
                                 }
                                 .padding(.horizontal)
                             }
@@ -98,16 +159,15 @@ struct WordBank: View {
                             
                             ZStack {
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Constants.green)
+                                    .fill(Constants.green.opacity(0.8))
                                     .shadow(
                                         color: .black.opacity(0.25), radius: 3, x: 1, y: 1
                                     )
                                 
                                 HStack {
-                                    Text("Mastered🔥 (\(masteryLvlCounts[3]))")
-                                        .lineLimit(1)
+                                    Text("Mastered🔥\n(\(masteryLvlCounts[3]))")
                                         .foregroundColor(.black)
-                                        .font(.system(size: 12))
+                                        .font(.system(size: 10))
                                 }
                                 .padding(.vertical, 10)
                             }
@@ -115,20 +175,27 @@ struct WordBank: View {
                             .padding(.vertical)
                         }
                         .padding(.horizontal)
+                        .padding(.top, 30)
                         
                         Divider()
-                            .overlay(Color.black)
+                            .overlay(Color.white)
                         
-                        // Dynamic List of Songs
                         ForEach(userWords) { entry in
                             WordRow(entry: entry)
-                            Divider().overlay(Color.black)
+                            Divider()
+                                .overlay(Color.white)
                         }
                     }
                 }
             }
-            .navigationTitle("Word Bank")
-            // Removed .background() from here since it's nested in the base ZStack layer now
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Word Bank")
+                        .font(.headline)
+                        .foregroundColor(.white.opacity(0.9))
+                }
+            }
             .task {
                 do {
                     let wordBankData = try await NetworkManager.shared.fetchWordBankScreenData()
@@ -154,18 +221,17 @@ struct WordRow: View {
             VStack(alignment: .leading) {
                 Text(entry.word.wordText.capitalized)
                     .font(.title2)
-                    .foregroundColor(.black)
+                    .foregroundColor(.white.opacity(0.9))
                 
                 Text("(\(entry.word.translation ?? ""))")
                     .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white.opacity(0.5))
             }
             .padding(.horizontal)
             
             Spacer()
             
             VStack(alignment: .trailing) {
-                // Mastery Badge
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(getMasteryLvlFillColor(entry))
@@ -174,7 +240,6 @@ struct WordRow: View {
                             color: .black.opacity(0.3), radius: 4, x: 3, y: 3
                         )
 
-                    // Map the Int mastery level back to text
                     Text("\(Constants.wordsMasteryLvlToMessage[calculateMasteryLvl(numActivitiesCompleted: entry.numListens + entry.numPracticesCompleted)] ?? "Lvl")")
                         .lineLimit(1)
                         .foregroundColor(.black)
@@ -182,7 +247,9 @@ struct WordRow: View {
                 }
                 
                 Label("\(entry.numListens) Listens", systemImage: "headphones.over.ear")
+                    .foregroundColor(.white.opacity(0.9))
                 Label("\(entry.numPracticesCompleted) Practices", systemImage: "square.and.pencil")
+                    .foregroundColor(.white.opacity(0.9))
             }
             .padding(.horizontal)
         }

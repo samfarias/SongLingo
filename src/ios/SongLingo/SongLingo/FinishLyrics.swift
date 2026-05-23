@@ -88,7 +88,7 @@ struct FinishLyrics: View {
                     
                     RadialGradient(
                         colors: [
-                            Color.blue.opacity(0.2),
+                            Color.blue.opacity(0.15),
                                 .clear
                         ],
                         center: .center,
@@ -96,7 +96,7 @@ struct FinishLyrics: View {
                         endRadius: 200
                     )
                     .frame(width: 400, height: 400)
-                    .offset(x: 200, y: -10)
+                    .offset(x: 150, y: -10)
                 }
                 
                 VStack(spacing: 20) {
@@ -188,7 +188,7 @@ struct FinishLyrics: View {
                     self.songArtist = challenge.songArtist
                     self.songId = challenge.songId
                     
-                    optionColors = Dictionary(uniqueKeysWithValues: currentLyric.options.map { ($0, Color.blue.opacity(0.3)) })
+                    optionColors = Dictionary(uniqueKeysWithValues: currentLyric.options.map { ($0, Color.white.opacity(0.3)) })
                     
                     self.isLoading = false
                 }
@@ -207,7 +207,7 @@ struct FinishLyrics: View {
         if selected == currentLyric.correctOption {
             correctAnswers += 1
             optionColors[selected] = Color.green
-            // Update the user's num_practices_completed for this Word
+            
             Task {
                 do {
                     try await NetworkManager.shared.updateUserWordNumPracticesCompleted(word_text: currentLyric.correctOption)
@@ -227,7 +227,6 @@ struct FinishLyrics: View {
             optionColors[currentLyric.correctOption] = Color.green
         }
         
-        // Wait about a second so they see if they were right/wrong
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                     if questionCount < maxQuestions {
                         loadGameData()
