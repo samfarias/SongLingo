@@ -52,7 +52,7 @@ SongLingo is a dynamic language learning application that helps users learn new 
 ## Design & Architecture
 
 - **Figma Wireframe**: [View Figma Design (Placeholder)](#)
-- **C4 Diagram**: [View Rendered C4 Diagrams (Placeholder)](#)
+- **C4 Diagram**: [View Rendered C4 Diagrams (Placeholder)](https://github.com/samfarias/SongLingo/blob/main/docs/architecture/workspace.dsl)
   - The architecture is defined using Structurizr DSL in `docs/architecture/workspace.dsl`.
 
 ## Code Style Standards
