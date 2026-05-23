@@ -278,7 +278,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if profile:
             # Send the profile ID
             data['user_id'] = profile.id 
-            data['first_name'] = profile.first_name or "User"
+            data['first_name'] = profile.first_name or self.user.username
             data['target_language'] = profile.target_language.language_name if profile.target_language else "Language"
             data['proficiency_level'] = profile.proficiency_level
         else:

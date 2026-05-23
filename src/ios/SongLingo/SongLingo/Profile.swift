@@ -161,9 +161,13 @@ struct Profile: View {
                         Spacer(minLength: 1)
 
                         Button {
+                            Task {
+                                await NetworkManager.shared.logout()
+                            }
                             UserDefaults.standard.removeObject(forKey: "jwt_access_token")
                             UserDefaults.standard.removeObject(forKey: "user_id")
                             UserDefaults.standard.removeObject(forKey: "is_new_user")
+                            UserDefaults.standard.set(false, forKey: "spotifyLinked")
                             UserDefaults.standard.set(false, forKey: "isLoggedIn")
                         } label: {
                             HStack {

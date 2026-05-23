@@ -143,6 +143,12 @@ class NetworkManager {
             return decodedResponse
         }
     
+    func logout() async {
+        guard let url = URL(string: "\(baseURL)/logout/") else { return }
+        let request = createAuthenticatedRequest(url: url, method: "POST")
+        try? await URLSession.shared.data(for: request)
+    }
+
     // MARK: - Authentication Helper (The Bridge)
     
     /// Automatically attaches the JWT "VIP Wristband" to outgoing requests

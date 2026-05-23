@@ -284,7 +284,10 @@ def build_new_user_starter_pack(sender, instance, created, **kwargs):
     if created:
         try:
             # 1. Safely grab or create the UserProfile for this new user
-            profile, _ = UserProfile.objects.get_or_create(user=instance)
+            profile, _ = UserProfile.objects.get_or_create(
+                user=instance,
+                defaults={'first_name': instance.username}
+            )
 
             # 2. Safely grab or create a default language (assuming Spanish for now!)
             # Adjust 'Spanish' if your Language model uses language codes like 'es' instead
