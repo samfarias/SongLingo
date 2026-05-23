@@ -14,8 +14,7 @@ struct LyricMatchView: View {
     @State private var wordBank: [String] = []
     @State private var sentence: [String] = []
     @State private var isPlaying: Bool = false
-    
-    // STATE MANAGERS FOR TRACKING AND PROGRESSION (Matching FinishLyrics)
+
     @State private var isLoading = true
     @State private var questionCount: Int = 0
     @State private var correctAnswers: Int = 0
@@ -237,7 +236,6 @@ struct LyricMatchView: View {
             )
             .navigationBarTitleDisplayMode(.inline)
             .animation(.spring(duration: 0.3), value: sentence)
-            // PROGRAMMATIC ROUTING OUT TO RESULTS
             .navigationDestination(isPresented: $navigateToLyricResults) {
                 FinishLyricsResults(
                     totalTime: totalTime,
@@ -253,9 +251,7 @@ struct LyricMatchView: View {
     }
 }
 
-// MARK: - Game Control Logic Extensions
 extension LyricMatchView {
-    
     func loadGameRound() {
         isLoading = true
         isSubmissionEvaluated = false
@@ -295,7 +291,6 @@ extension LyricMatchView {
             }
         }
         
-        // Progression delay window
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             questionCount += 1
             if questionCount < maxQuestions {
@@ -320,10 +315,9 @@ extension LyricMatchView {
     }
 }
 
-// MARK: - Component Layout Customization
 struct WordCapsule: View {
     let word: String
-    var isCorrect: Bool? = nil // Optional coloring hooks for feedback states
+    var isCorrect: Bool? = nil
     
     var body: some View {
         Text(word)

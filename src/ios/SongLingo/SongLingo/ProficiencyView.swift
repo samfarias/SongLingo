@@ -126,7 +126,6 @@ struct ProficiencyView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             
-                            // handing the batons to GenreSelectionView
                             NavigationLink(destination: GenreSelectionView(
                                 selectedLanguage: selectedLanguage,
                                 selectedProficiency: selectedLevel ?? "Beginner"
@@ -190,7 +189,6 @@ struct ProficiencyView: View {
     }
 }
 
-// preview provides a dummy language so it doesn't crash
 #Preview {
     ProficiencyView(selectedLanguage: "Spanish")
 }

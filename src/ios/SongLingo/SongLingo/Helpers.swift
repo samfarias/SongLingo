@@ -31,8 +31,6 @@ func getMasteryLvlFillColor(numActivitiesCompleted: Int) -> LinearGradient {
     }
 }
 
-// Converts Spanish spelling to English phonetic approximation
-// e.g. "bailar" -> "bah-ee-lahr", "corazón" -> "koh-rah-sohn"
 func spanishToEnglishPhonetic(_ word: String) -> String {
     let vowels: Set<Character> = ["a", "e", "i", "o", "u", "á", "é", "í", "ó", "ú", "ü"]
     let chars = Array(word.lowercased())

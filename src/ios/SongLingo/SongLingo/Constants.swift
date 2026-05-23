@@ -39,8 +39,8 @@ struct Constants
     // -- MARK: ELEMENT COLORS
     static let blue: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 0.64, green: 0.75, blue: 0.95), // Light Cornflower
-            Color(red: 0.50, green: 0.62, blue: 0.88)  // Medium Cornflower
+            Color(red: 0.64, green: 0.75, blue: 0.95),
+            Color(red: 0.50, green: 0.62, blue: 0.88)
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -80,8 +80,8 @@ struct Constants
     
     static let gold: LinearGradient = LinearGradient(
         colors: [
-            Color(red: 1.00, green: 0.93, blue: 0.65), // Luminous, bright gold
-            Color(red: 0.90, green: 0.78, blue: 0.50)  // Medium, soft gold
+            Color(red: 1.00, green: 0.93, blue: 0.65),
+            Color(red: 0.90, green: 0.78, blue: 0.50)
         ],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -89,8 +89,8 @@ struct Constants
     
     static let green: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 0.55, green: 0.85, blue: 0.65), // Lush Amazonite
-            Color(red: 0.35, green: 0.70, blue: 0.50)  // Deep Jade
+            Color(red: 0.55, green: 0.85, blue: 0.65),
+            Color(red: 0.35, green: 0.70, blue: 0.50)
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -98,8 +98,8 @@ struct Constants
     
     static let yellow: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 1.00, green: 0.94, blue: 0.65), // Buttery Silk
-            Color(red: 0.98, green: 0.85, blue: 0.45)  // Softened Amber
+            Color(red: 1.00, green: 0.94, blue: 0.65),
+            Color(red: 0.98, green: 0.85, blue: 0.45)
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -107,9 +107,9 @@ struct Constants
     
     static let red: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 0.96, green: 0.67, blue: 0.67), // The Middle Petal
-            Color(red: 0.90, green: 0.50, blue: 0.54), // The Middle Coral
-            Color(red: 0.80, green: 0.38, blue: 0.42)  // The Middle Rosewood
+            Color(red: 0.96, green: 0.67, blue: 0.67),
+            Color(red: 0.90, green: 0.50, blue: 0.54),
+            Color(red: 0.80, green: 0.38, blue: 0.42)
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -118,9 +118,9 @@ struct Constants
     // -- MARK: BACKGROUND GRADIENTS
     static let coastal_mist: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 1.00, green: 0.88, blue: 0.85), // Peach Fuzz
-            Color(red: 0.90, green: 0.92, blue: 0.95), // Silver Mist
-            Color(red: 0.82, green: 0.95, blue: 0.92)  // Seafoam Glow
+            Color(red: 1.00, green: 0.88, blue: 0.85),
+            Color(red: 0.90, green: 0.92, blue: 0.95),
+            Color(red: 0.82, green: 0.95, blue: 0.92)
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -128,9 +128,9 @@ struct Constants
     
     static let amber_tide: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 1.00, green: 0.94, blue: 0.85), // Pale Amber
-            Color(red: 0.93, green: 0.91, blue: 0.93), // Sandstone Mist
-            Color(red: 0.82, green: 0.85, blue: 0.98)  // Periwinkle Glow
+            Color(red: 1.00, green: 0.94, blue: 0.85),
+            Color(red: 0.93, green: 0.91, blue: 0.93),
+            Color(red: 0.82, green: 0.85, blue: 0.98)
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -138,9 +138,9 @@ struct Constants
     
     static let sunset_horizon: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 1.00, green: 0.85, blue: 0.85), // Soft Coral/Peach
-            Color(red: 0.94, green: 0.88, blue: 0.92), // Dusty Rose Bridge
-            Color(red: 0.85, green: 0.80, blue: 0.95)  // Soft Lilac/Purple
+            Color(red: 1.00, green: 0.85, blue: 0.85),
+            Color(red: 0.94, green: 0.88, blue: 0.92),
+            Color(red: 0.85, green: 0.80, blue: 0.95)
         ]),
         startPoint: .leading,
         endPoint: .trailing
@@ -148,9 +148,9 @@ struct Constants
     
     static let arctic_dawn: LinearGradient = LinearGradient(
         gradient: Gradient(colors: [
-            Color(red: 0.85, green: 0.97, blue: 0.93), // Mint (Lifted)
-            Color(red: 0.90, green: 0.92, blue: 0.96), // Frozen Silver Bridge
-            Color(red: 0.82, green: 0.82, blue: 0.97)  // Periwinkle (Lifted)
+            Color(red: 0.85, green: 0.97, blue: 0.93),
+            Color(red: 0.90, green: 0.92, blue: 0.96),
+            Color(red: 0.82, green: 0.82, blue: 0.97) 
         ]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing

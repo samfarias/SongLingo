@@ -10,10 +10,7 @@ struct CreateAccView: View {
     @State private var errorMessage: String? = nil
 
     @Environment(\.dismiss) var dismiss
-    
-    // MARK: - Computed Validation Properties
-    // These calculate in real-time instantly, no .onChange needed!
-    
+        
     private var isUsernameValid: Bool {
         !username.isEmpty && username.count >= 3
     }
@@ -35,8 +32,6 @@ struct CreateAccView: View {
     private var isFormValid: Bool {
         isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid
     }
-    
-    // MARK: - View Body
     
     var body: some View {
         NavigationStack {
@@ -144,7 +139,7 @@ struct CreateAccView: View {
                                         .background(Color.white.opacity(0.55))
                                         .foregroundColor(.black)
                                         .cornerRadius(10)
-                                        .autocapitalization(.none) // Helpful for usernames
+                                        .autocapitalization(.none)
                                     
                                     if !isUsernameValid && !username.isEmpty {
                                         Text("Username must be at least 3 characters")
@@ -163,7 +158,7 @@ struct CreateAccView: View {
                                         .background(Color.white.opacity(0.55))
                                         .foregroundColor(.black)
                                         .cornerRadius(10)
-                                        .keyboardType(.emailAddress) // Helps mobile users
+                                        .keyboardType(.emailAddress)
                                         .autocapitalization(.none)
                                     
                                     if !isEmailValid && !email.isEmpty {

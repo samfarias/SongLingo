@@ -9,9 +9,8 @@ import SwiftUI
 
 struct CustomCalendar: View {
     @State private var displayedMonth: Date = Date()
-    let activeDates: Set<String>
     
-    // 1. Move the columns definition out of the body
+    let activeDates: Set<String>
     private let columns = Array(repeating: GridItem(.flexible()), count: 7)
 
     var body: some View {
@@ -22,9 +21,7 @@ struct CustomCalendar: View {
                 
                     weekdayLabels
                     
-                    // 2. Use the pre-defined 'columns' variable
                     LazyVGrid(columns: columns, spacing: 10) {
-                        // 3. Cast the range to [Int] explicitly to fix the 'C' error
                         ForEach(Array(daysForDisplay.indices), id: \.self) { index in
                             if let date = daysForDisplay[index] {
                                 dateCell(for: date)
@@ -40,7 +37,6 @@ struct CustomCalendar: View {
         }
     }
     
-    // 4. Break the UI into smaller pieces to help the compiler
     private var headerView: some View {
         HStack {
             Button(action: goToPreviousMonth) {
@@ -74,11 +70,9 @@ struct CustomCalendar: View {
 
     @ViewBuilder
     private func dateCell(for date: Date) -> some View {
-        // 1. Run your logic BEFORE the view starts
         let dateKey = formatDate(date)
         let isActive = activeDates.contains(dateKey)
         
-        // 2. Now return the View
         Text("\(Calendar.current.component(.day, from: date))")
             .frame(maxWidth: .infinity, minHeight: 40)
             .background(isActive ? Constants.green : LinearGradient(
@@ -90,15 +84,12 @@ struct CustomCalendar: View {
             .fontWeight(isActive ? .bold : .regular)
             .cornerRadius(8)
     }
-
-    // 3. Helper function to handle the "work"
+    
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
-
-    // --- Logic remains the same ---
     
     var daysForDisplay: [Date?] {
         let calendar = Calendar.current

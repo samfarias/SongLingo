@@ -18,7 +18,6 @@ struct PracticeGameOptions: View {
         NavigationStack {
             ScrollView {
                 VStack {
-                    //Sends to Word Cards Screen
                     NavigationLink(destination: WordCards())
                     {
                         ZStack {
@@ -39,8 +38,6 @@ struct PracticeGameOptions: View {
                         
                     }
                     
-                    
-                    //Sends to Lyric Match Screen
                     NavigationLink(destination: LyricMatchView())
                     {
                         ZStack {
@@ -63,12 +60,12 @@ struct PracticeGameOptions: View {
                         .padding(.bottom, 30)
                     }
 
-                    //Sends to Complete the Lyrics Screen
                     NavigationLink(destination: FinishLyrics())
                     {
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.2))
+                            
                             VStack (alignment: .leading) {
                                 Text("Complete the Lyrics")
                                     .foregroundStyle(Color.white.opacity(0.8))

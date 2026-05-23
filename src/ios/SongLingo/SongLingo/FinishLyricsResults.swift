@@ -156,6 +156,7 @@ struct FinishLyricsResults: View {
                 Spacer()
             }
         }
+        .navigationBarBackButtonHidden()
     }
 }
 

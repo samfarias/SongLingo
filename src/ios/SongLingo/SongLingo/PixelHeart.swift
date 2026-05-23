@@ -10,7 +10,7 @@ import SwiftUI
 struct PixelHeart: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        let scale: CGFloat = rect.width / 21 // 21 columns
+        let scale: CGFloat = rect.width / 21
 
         let pixels = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
