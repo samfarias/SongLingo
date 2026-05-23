@@ -357,13 +357,16 @@ class SyncPlaylistsToSpotifyView(APIView):
 
         playlists = Playlist.objects.filter(user_profile=user.profile)
         synced = []
+        errors = []
 
         for playlist in playlists:
             playlist_data, err = syncPlaylistToSpotify(playlist, spotify_creds)
             if playlist_data:
                 synced.append(playlist.playlist_name)
+            else:
+                errors.append({"playlist": playlist.playlist_name, "error": err})
 
-        return Response({"synced": synced, "count": len(synced)}, status=status.HTTP_200_OK)
+        return Response({"synced": synced, "count": len(synced), "errors": errors}, status=status.HTTP_200_OK)
 
 
 class GenerateWeeklyDropView(APIView):
@@ -562,82 +565,26 @@ def generateNewPlaylist(request):
             for song in selected_songs
         ])
 
-        spotify_url = None 
-        
-        # We wrap this in a try/except so if Spotify fails, the user still gets 
+        spotify_url = None
+
+        # We wrap this in a try/except so if Spotify fails, the user still gets
         # their local SongLingo playlist without the app crashing!
         try:
             if hasattr(django_user, 'spotify_creds'):
                 spotify_creds = django_user.spotify_creds
-                domain = "spo" + "tify" + ".com"
-                api_base = f"https://api.{domain}/v1"
 
                 # 1. Auto-Refresh Token
-                if timezone.now() >= spotify_creds.expires_at:
-                    refresh_url = f"https://accounts.{domain}/api/token"
-                    client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
-                    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
-                    
-                    refresh_data = {
-                        "grant_type": "refresh_token",
-                        "refresh_token": spotify_creds.refresh_token
-                    }
-                    
-                    ref_res = requests.post(refresh_url, data=refresh_data, auth=(client_id, client_secret))
-                    if ref_res.status_code == 200:
-                        new_tokens = ref_res.json()
-                        spotify_creds.access_token = new_tokens.get('access_token')
-                        if 'refresh_token' in new_tokens:
-                            spotify_creds.refresh_token = new_tokens.get('refresh_token')
-                        spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
-                        spotify_creds.save()
-
-                access_token = spotify_creds.access_token
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                    "Content-Type": "application/json"
-                }
-
-                # 2. Get User ID
-                me_response = requests.get(f"{api_base}/me", headers=headers)
-                if me_response.status_code == 200:
-                    spotify_user_id = me_response.json().get('id')
-
-                    # 3. Create the Playlist using dynamic description
-                    create_url = f"{api_base}/users/{spotify_user_id}/playlists"
-                    data_create = {
-                        "name": playlist.playlist_name,
-                        "public": False,
-                        "description": playlist.description
-                    }
-                    
-                    response_create = requests.post(create_url, headers=headers, json=data_create)
-                    
-                    if response_create.status_code in [200, 201]:
-                        playlist_data = response_create.json()
-                        spotify_playlist_id = playlist_data['id']
+                success, err = refreshSpotifyCredentials(spotify_creds)
+                if not success:
+                    print(f"Spotify Export: token refresh failed — {err}")
+                else:
+                    playlist_data, err = syncPlaylistToSpotify(playlist, spotify_creds)
+                    if playlist_data:
                         spotify_url = playlist_data['external_urls']['spotify']
-
-                        # 4. Gather the Track URIs
-                        track_uris = []
-                        for song in selected_songs:
-                            # Use existing ID, or search it if missing
-                            if song.spotify_id:
-                                track_uris.append(f"spotify:track:{song.spotify_id}")
-                            else:
-                                result = search_spotify_track(song.title, song.artist, access_token)
-                                if result and result.get('spotify_id'):
-                                    song.spotify_id = result['spotify_id']
-                                    song.save()
-                                    track_uris.append(f"spotify:track:{song.spotify_id}")
-
-                        # 5. Push tracks to Spotify
-                        if track_uris:
-                            add_tracks_url = f"{api_base}/playlists/{spotify_playlist_id}/tracks"
-                            requests.post(add_tracks_url, headers=headers, json={"uris": track_uris})
+                    else:
+                        print(f"Spotify Export: sync failed — {err}")
 
         except Exception as spotify_error:
-            # We silently catch errors so the main app experience doesn't break
             print(f"Spotify Export Failed: {spotify_error}")
 
         # Return Austin's payload, plus the new Spotify link

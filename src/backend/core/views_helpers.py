@@ -458,7 +458,19 @@ def syncPlaylistToSpotify(playlist, spotify_creds):
         return (None, err)
 
     songs = PlaylistSong.objects.filter(playlist=playlist).select_related('song')
-    track_uris = [f"spotify:track:{ps.song.spotify_id}" for ps in songs if ps.song.spotify_id]
+
+    # Build track URIs, searching Spotify for any songs missing a spotify_id
+    track_uris = []
+    for ps in songs:
+        song = ps.song
+        if song.spotify_id:
+            track_uris.append(f"spotify:track:{song.spotify_id}")
+        else:
+            result = search_spotify_track(song.title, song.artist, spotify_creds.access_token)
+            if result and result.get('spotify_id'):
+                song.spotify_id = result['spotify_id']
+                song.save()
+                track_uris.append(f"spotify:track:{song.spotify_id}")
 
     if not track_uris:
         return (None, "No tracks with Spotify IDs found in this playlist")
