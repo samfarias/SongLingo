@@ -10,3 +10,4 @@ services:
       - .env  
     environment:
       - DEBUG=1
+      - PYTHONUNBUFFERED=1

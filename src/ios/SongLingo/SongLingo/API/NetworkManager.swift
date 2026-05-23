@@ -508,13 +508,13 @@ class NetworkManager {
         let request = createAuthenticatedRequest(url: url, method: "POST")
         let (data, response) = try await URLSession.shared.data(for: request)
 
+        let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
+        print("DEBUG: Sync response: \(responseBody)")
+
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-            let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
-            print("DEBUG: Sync playlists to Spotify error: \(errorMsg)")
+            print("DEBUG: Sync playlists to Spotify error: \(responseBody)")
             throw URLError(.badServerResponse)
         }
-
-        print("DEBUG: Synced existing playlists to user's Spotify account")
     }
 
     // MARK: - Spotify OAuth

@@ -380,7 +380,9 @@ class SyncPlaylistsToSpotifyView(APIView):
             else:
                 errors.append({"playlist": playlist.playlist_name, "error": err})
 
-        return Response({"synced": synced, "count": len(synced), "errors": errors}, status=status.HTTP_200_OK)
+        result = {"synced": synced, "count": len(synced), "errors": errors}
+        print(f"[Spotify Sync Result] {result}", flush=True)
+        return Response(result, status=status.HTTP_200_OK)
 
 
 class GenerateWeeklyDropView(APIView):
