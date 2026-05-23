@@ -9,8 +9,10 @@ class SpotifyAuthManager: NSObject, ASWebAuthenticationPresentationContextProvid
     private override init() { super.init() }
 
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-        return windowScene?.windows.first { $0.isKeyWindow } ?? ASPresentationAnchor()
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return UIWindow(frame: .zero)
+        }
+        return windowScene.windows.first { $0.isKeyWindow } ?? UIWindow(windowScene: windowScene)
     }
 
     @MainActor
