@@ -332,11 +332,14 @@ def search_spotify_track(song_title, artist_name, token):
         if tracks:
             # grab very first track
             track = tracks[0]
+            album_images = track.get("album", {}).get("images", [])
+            album_art_url = album_images[0]["url"] if album_images else None
             return {
                 "title": track["name"],
                 "artist": track["artists"][0]["name"],
                 "spotify_id": track["id"],
-                "preview_url": track.get("preview_url")
+                "preview_url": track.get("preview_url"),
+                "album_art_url": album_art_url
             }
         else:
             print(f"No results found for {song_title} by {artist_name}")

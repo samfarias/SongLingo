@@ -180,6 +180,7 @@ class Song(models.Model):
     genre = models.ForeignKey(Genre, null=True, on_delete=models.SET_NULL, related_name='song')
     vocabulary_json = models.JSONField(default=list, blank=True)
     spotify_preview_url = models.URLField(blank=True, null=True, help_text="Direct link to  audio clip")
+    album_art_url = models.URLField(blank=True, null=True)
     lyrics = models.TextField(blank=True)
     proficiency_level = models.CharField(
         max_length=20,

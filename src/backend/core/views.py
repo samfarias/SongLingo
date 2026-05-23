@@ -420,7 +420,11 @@ class GenerateWeeklyDropView(APIView):
                     track_uris.append(f"spotify:track:{result['spotify_id']}")
                     db_song, _ = Song.objects.get_or_create(
                         spotify_id=result['spotify_id'],
-                        defaults={'title': result['title'], 'artist': result['artist']}
+                        defaults={
+                            'title': result['title'],
+                            'artist': result['artist'],
+                            'album_art_url': result.get('album_art_url')
+                        }
                     )
                     db_songs.append(db_song)
             #--- AUSTIN LOGIC ENDS HERE ---

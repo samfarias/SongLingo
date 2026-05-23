@@ -231,7 +231,7 @@ class PlaylistSongSerializer(serializers.ModelSerializer):
         """
         class Meta:
             model = Song
-            fields = ['title', 'artist', 'proficiency_level', 'genre']
+            fields = ['title', 'artist', 'proficiency_level', 'genre', 'spotify_id', 'spotify_preview_url', 'album_art_url']
 
     song = SinglePlaylistScreenSongSerializer(read_only=True) # This nests the Song data inside the PlaylistSong object
 
