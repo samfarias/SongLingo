@@ -113,11 +113,11 @@ struct WordCardsResult: View {
                 .padding(.top, 20)
                 
             }
+            .navigationBarBackButtonHidden()
         }
     }
 }
 
-// Preview for testing
 #Preview {
     WordCardsResult(wordCardsCorrect: 10, totalWordCards: 40, totalTime: 14.3)
 }
