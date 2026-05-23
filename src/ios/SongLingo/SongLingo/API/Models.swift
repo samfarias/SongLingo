@@ -362,12 +362,14 @@ struct DetailedSong: Codable {
     let genre: Int
     let spotifyId: String?
     let spotifyPreviewUrl: String?
+    let albumArtUrl: String?
 
     enum CodingKeys: String, CodingKey {
         case title, artist, genre
         case proficiencyLevel = "proficiency_level"
         case spotifyId = "spotify_id"
         case spotifyPreviewUrl = "spotify_preview_url"
+        case albumArtUrl = "album_art_url"
     }
 }
 

@@ -195,58 +195,57 @@ struct PlaylistCollection: View {
 // Subview for the individual playlist buttons
 struct PlaylistCard: View {
     let playlist: Playlist
-    
+
     var body: some View {
         NavigationLink(destination: SinglePlaylistView(playlistId: playlist.id)) {
-            // Action to play playlist
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 6) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(getPlaylistBackground(playlist))
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(.ultraThinMaterial)
                         .frame(width: 140, height: 140)
-                        .shadow(color: .black.opacity(0.2), radius: 4, x: 2, y: 2)
-                    
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(getPlaylistTint(playlist))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .strokeBorder(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+
                     Image(systemName: "music.note.list")
-                        .font(.system(size: 40))
-                        .foregroundColor(getPlaylistForeground(playlist))
+                        .font(.system(size: 36, weight: .light))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
-                
+
                 Text(playlist.playlistName)
                     .font(.subheadline)
                     .bold()
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .lineLimit(1)
-                
+
                 Text(playlist.proficiencyLevel)
                     .font(.caption2)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundStyle(.white.opacity(0.7))
             }
             .frame(width: 140)
-            
         }
     }
 }
 
-// A helper function to fetch the right theme based on the playlist's data
-func getPlaylistBackground(_ playlist: Playlist) -> LinearGradient {
+func getPlaylistTint(_ playlist: Playlist) -> LinearGradient {
     if playlist.playlistName.contains("Daily Mix") {
-        return Constants.gold
+        return LinearGradient(
+            colors: [Color.orange.opacity(0.35), Color.yellow.opacity(0.2)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
     return LinearGradient(
-        gradient: Gradient(colors: [
-            Color(red: 0.600, green: 0.650, blue: 0.900),
-            Color(red: 0.450, green: 0.500, blue: 0.800)
-        ]),
+        colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
-}
-
-func getPlaylistForeground(_ playlist: Playlist) -> Color {
-    if playlist.playlistName.contains("Daily Mix") {
-        return Color.black.opacity(0.8)
-    }
-    return Color.white.opacity(0.8)
 }
 
 #Preview {
