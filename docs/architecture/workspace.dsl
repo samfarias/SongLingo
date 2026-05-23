@@ -21,6 +21,7 @@ workspace {
             // The API Server with internal components
             apiServer = container "API Server" "Handles game logic, user progress, and routes data." "Python / Django REST Framework" {
                 tags "Backend"
+                
                 coreModels = component "Core Models" "Defines the database schema (UserProfile, Song, Vocabulary)." "Django Models" {
                     tags "Django Module"
                 }
