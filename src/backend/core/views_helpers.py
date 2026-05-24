@@ -501,7 +501,19 @@ def syncPlaylistToSpotify(playlist, spotify_creds):
     if me_resp.status_code != 200:
         return (None, "Could not fetch Spotify user profile")
 
-    spotify_user_id = me_resp.json()["id"]
+    me_data = me_resp.json()
+    spotify_user_id = me_data["id"]
+    token_preview = spotify_creds.access_token[:10] + "..." + spotify_creds.access_token[-10:]
+    print(f"[Spotify Sync] User ID: {spotify_user_id}, Token: {token_preview}, Token length: {len(spotify_creds.access_token)}", flush=True)
+
+    # One-time scope test: try creating a simple public playlist to isolate the 403
+    test_resp = requests.post(
+        f"{api_base}/users/{spotify_user_id}/playlists",
+        headers=headers,
+        json={"name": "SongLingo Test", "public": True, "description": "scope test"}
+    )
+    print(f"[Spotify Scope Test] Public playlist create: {test_resp.status_code} {test_resp.text[:200]}", flush=True)
+
     description = playlist.description or "Created by SongLingo"
 
     return createSpotifyPlaylist(
