@@ -2,7 +2,7 @@
 
 SongLingo is a dynamic language learning application that helps users learn new languages through the power of music. By integrating with Spotify and Genius, it provides an immersive experience where users can study lyrics, practice pronunciation, and track their vocabulary progress.
 
-## App Gallery
+## Feature Showcase
 
 <table align="center">
   <tr>
