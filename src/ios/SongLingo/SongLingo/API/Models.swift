@@ -127,13 +127,14 @@ struct UserSongEntry: Codable, Identifiable {
 }
 
 struct SongDetails: Codable {
+    let id: Int
     let title: String
     let artist: String
     let spotifyId: String?
     let spotifyPreviewUrl: String?
 
     enum CodingKeys: String, CodingKey {
-        case title, artist
+        case id, title, artist
         case spotifyId = "spotify_id"
         case spotifyPreviewUrl = "spotify_preview_url"
     }
@@ -356,6 +357,7 @@ struct PlaylistSongEntry: Codable, Identifiable {
 }
 
 struct DetailedSong: Codable {
+    let id: Int
     let title: String
     let artist: String
     let proficiencyLevel: String
@@ -365,7 +367,7 @@ struct DetailedSong: Codable {
     let albumArtUrl: String?
 
     enum CodingKeys: String, CodingKey {
-        case title, artist, genre
+        case id, title, artist, genre
         case proficiencyLevel = "proficiency_level"
         case spotifyId = "spotify_id"
         case spotifyPreviewUrl = "spotify_preview_url"

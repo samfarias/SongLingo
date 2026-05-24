@@ -198,6 +198,11 @@ struct SpotifyPlayerView: View {
                                                     Button {
                                                         nowPlayingTitle = song.song.title
                                                         openInSpotify(title: song.song.title, artist: song.song.artist, spotifyId: song.song.spotifyId)
+                                                        if let pid = expandedPlaylistId {
+                                                            Task {
+                                                                try? await NetworkManager.shared.updateUserSongProgress(song_id: song.song.id, request_type: "song_listen", playlist_id: pid)
+                                                            }
+                                                        }
                                                     } label: {
                                                         HStack(spacing: 12) {
                                                             Image(systemName: nowPlayingTitle == song.song.title ? "speaker.wave.2.fill" : "play.fill")

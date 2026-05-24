@@ -49,7 +49,7 @@ struct SinglePlaylistView: View {
                     if let songs = singlePlaylistData?.playlistSongs {
                         LazyVStack(spacing: 0) {
                             ForEach(songs) { entry in
-                                PlaylistSongRow(entry: entry)
+                                PlaylistSongRow(entry: entry, playlistId: playlistId)
                                     .padding(.horizontal)
                                     .padding(.vertical, 6)
                             }
@@ -167,6 +167,7 @@ struct SinglePlaylistView: View {
 
 struct PlaylistSongRow: View {
     let entry: PlaylistSongEntry
+    let playlistId: Int
 
     var body: some View {
         HStack(spacing: 12) {
@@ -208,6 +209,9 @@ struct PlaylistSongRow: View {
 
             Button {
                 openInSpotify(title: entry.song.title, artist: entry.song.artist, spotifyId: entry.song.spotifyId)
+                Task {
+                    try? await NetworkManager.shared.updateUserSongProgress(song_id: entry.song.id, request_type: "song_listen", playlist_id: playlistId)
+                }
             } label: {
                 Image(systemName: "play.circle.fill")
                     .font(.title2)

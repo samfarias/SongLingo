@@ -202,6 +202,9 @@ struct SongRow: View {
         HStack {
             Button {
                 openInSpotify(title: entry.song.title, artist: entry.song.artist, spotifyId: entry.song.spotifyId)
+                Task {
+                    try? await NetworkManager.shared.updateUserSongProgress(song_id: entry.song.id, request_type: "song_listen", playlist_id: -1)
+                }
             } label: {
                 Image(systemName: "play.circle.fill")
                     .font(.title)
