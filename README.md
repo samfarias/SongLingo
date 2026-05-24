@@ -6,24 +6,24 @@ SongLingo is a dynamic language learning application that helps users learn new 
 
 <table align="center">
   <tr>
-    <td><img src="docs/images/onboarding1.gif" height="450" alt="Sign In"></td>
-    <td><img src="docs/images/onboarding2.gif" height="450" alt="Language Selection"></td>
-    <td><img src="docs/images/feature-screen1.png" height="450" alt="Playlist View"></td>
+    <td><img src="docs/images/onboarding1.gif" height="450" alt="Easy Sign Up"></td>
+    <td><img src="docs/images/onboarding2.gif" height="450" alt="Match Your Language and Proficiency"></td>
+    <td><img src="docs/images/activity1.gif" height="450" alt="Gets Songs & Their Vocabulary"></td>
   </tr>
   <tr>
-    <td align="center"><b>Seamless Onboarding</b></td>
+    <td align="center"><b>Easy Onboarding</b></td>
     <td align="center"><b>Personalized Setup</b></td>
-    <td align="center"><b>User Dashboard</b></td>
+    <td align="center"><b>Native Pronunciation Included</b></td>
   </tr>
   <tr>
-    <td><img src="docs/images/activity2.gif" height="450" alt="Vocabulary Game"></td>
-    <td><img src="docs/images/feature-screen3.png" height="450" alt="Spotify Sync"></td>
-    <td><img src="docs/images/feature-screen2.png" height="450" alt="Progress Tracking"></td>
+    <td><img src="docs/images/activity2.gif" height="450" alt="Practice Active Recall"></td>
+    <td><img src="docs/images/feature-screen1.png" height="450" alt="See Which Songs You Love"></td>
+    <td><img src="docs/images/feature-screen2.png" height="450" alt="Track Your Vocab Skills"></td>
   </tr>
   <tr>
-    <td align="center"><b>Interactive Practice</b></td>
-    <td align="center"><b>Spotify Integration</b></td>
-    <td align="center"><b>Progress Tracking</b></td>
+    <td align="center"><b>Interactive Practices</b></td>
+    <td align="center"><b>Seamless Spotify Integration</b></td>
+    <td align="center"><b>Words Learned All in One Place</b></td>
   </tr>
 </table>
 
