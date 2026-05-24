@@ -144,11 +144,7 @@ struct GenreSelectionView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .padding(.horizontal, 8)
-                                    .background(
-                                        selectedGenres.contains(genre)
-                                            ? Constants.sunburst.opacity(0.4)
-                                            : Color.white.opacity(0.10)
-                                    )
+                                    .background(genreBackground(isSelected: selectedGenres.contains(genre)))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 16)
                                             .stroke(
@@ -233,6 +229,15 @@ struct GenreSelectionView: View {
             .navigationDestination(isPresented: $navigateToHome) {
                 ContentView()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func genreBackground(isSelected: Bool) -> some View {
+        if isSelected {
+            Constants.sunburst.opacity(0.4)
+        } else {
+            Color.white.opacity(0.10)
         }
     }
 }
