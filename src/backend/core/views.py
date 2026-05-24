@@ -958,4 +958,3 @@ class SpotifyMobileCallbackView(APIView):
                 'expires_at': expires_at
             }
         )
-        
