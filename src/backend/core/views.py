@@ -958,3 +958,4 @@ class SpotifyMobileCallbackView(APIView):
                 'expires_at': expires_at
             }
         )
+        return Response({"status": "success", "message": "Spotify successfully linked!"})
