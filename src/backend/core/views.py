@@ -960,3 +960,16 @@ class SpotifyMobileCallbackView(APIView):
         )
         
         return Response({"status": "success", "message": "Spotify successfully linked!"})
+class LogoutView(APIView):
+    """
+    API endpoint to log out the user and unlink their Spotify account.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from .models import SpotifyCredentials
+        try:
+            request.user.spotify_creds.delete()
+        except SpotifyCredentials.DoesNotExist:
+            pass
+        return Response({"status": "logged out"}, status=status.HTTP_200_OK)
