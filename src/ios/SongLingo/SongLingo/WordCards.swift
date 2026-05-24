@@ -256,7 +256,7 @@ struct WordCards: View {
         let wordDistractors = distractors[wordCardIdx]
         
         self.currWord = wordObj.wordText
-        let backendPhonetic = wordObj.pronunciation ?? ""
+        let backendPhonetic = (wordObj.pronunciation ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         self.currentPhonetic = backendPhonetic.isEmpty ? spanishToEnglishPhonetic(wordObj.wordText) : backendPhonetic
 
         var options = wordDistractors

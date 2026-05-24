@@ -18,7 +18,6 @@ struct GenreSelectionView: View {
     
     let columns = [
         GridItem(.flexible()),
-        GridItem(.flexible()),
         GridItem(.flexible())
     ]
     
@@ -121,9 +120,8 @@ struct GenreSelectionView: View {
                                 .foregroundColor(.white.opacity(0.9))
                         }
                         
-                        LazyVGrid(columns: columns, spacing: 16) {
+                        LazyVGrid(columns: columns, spacing: 14) {
                             ForEach(genres, id: \.self) { genre in
-                                                    
                                 Button {
                                     if selectedGenres.contains(genre) {
                                         selectedGenres.remove(genre)
@@ -131,28 +129,37 @@ struct GenreSelectionView: View {
                                         selectedGenres.insert(genre)
                                     }
                                 } label: {
-                                                        
-                                    VStack(spacing: 8) {
-                                         
+                                    VStack(spacing: 6) {
                                         Image(genre.replacingOccurrences(of: "/", with: "-"))
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(height: 60)
+                                            .frame(height: 50)
+
+                                        Text(genre.replacingOccurrences(of: "-", with: " "))
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.8)
                                     }
                                     .frame(maxWidth: .infinity)
-                                    .aspectRatio(1.4, contentMode: .fit)
-                                    .padding(10)
-                                    .background(selectedGenres.contains(genre) ? Color.blue.opacity(0.12) : Color.white.opacity(0.55))
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 8)
+                                    .background(
+                                        selectedGenres.contains(genre)
+                                            ? Constants.sunburst.opacity(0.4)
+                                            : Color.white.opacity(0.10)
+                                    )
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 14)
+                                        RoundedRectangle(cornerRadius: 16)
                                             .stroke(
                                                 selectedGenres.contains(genre)
-                                                ? Color(red: 0.486, green: 0.227, blue: 0.929)
-                                                : Color.gray.opacity(0.35),
+                                                    ? Color.white.opacity(0.35)
+                                                    : Color.white.opacity(0.12),
                                                 lineWidth: selectedGenres.contains(genre) ? 2 : 1
                                             )
                                     )
-                                    .cornerRadius(14)
+                                    .cornerRadius(16)
+                                    .shadow(color: .black.opacity(0.15), radius: 4, x: 2, y: 2)
                                 }
                             }
                         }
