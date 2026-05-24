@@ -1,5 +1,30 @@
 # SongLingo
 
+## App Gallery
+
+<table align="center">
+  <tr>
+    <td><img src="docs/images/onboarding1.gif" width="220" alt="Sign In"></td>
+    <td><img src="docs/images/onboarding2.gif" width="220" alt="Language Selection"></td>
+    <td><img src="docs/images/feature-screen1.png" width="220" alt="Home Screen"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Seamless Onboarding</b></td>
+    <td align="center"><b>Personalized Setup</b></td>
+    <td align="center"><b>User Dashboard</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/activity2.gif" width="220" alt="Vocabulary Game"></td>
+    <td><img src="docs/images/feature-screen3.png" width="220" alt="Spotify Sync"></td>
+    <td><img src="docs/images/feature-screen2.png" width="220" alt="Progress Tracking"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Interactive Practice</b></td>
+    <td align="center"><b>Spotify Integration</b></td>
+    <td align="center"><b>Progress Tracking</b></td>
+  </tr>
+</table>
+
 SongLingo is a dynamic language learning application that helps users learn new languages through the power of music. By integrating with Spotify and Genius, it provides an immersive experience where users can study lyrics, practice pronunciation, and track their vocabulary progress.
 
 ## Features
