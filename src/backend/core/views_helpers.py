@@ -415,11 +415,13 @@ def createSpotifyPlaylist(access_token, spotify_user_id, name, description, trac
         "Content-Type": "application/json"
     }
 
-    create_resp = requests.post(
-        f"{api_base}/users/{spotify_user_id}/playlists",
-        headers=headers,
-        json={"name": name, "public": False, "description": description}
-    )
+    create_url = f"{api_base}/users/{spotify_user_id}/playlists"
+    create_body = {"name": name, "public": False, "description": description}
+    print(f"[Spotify Create] POST {create_url}", flush=True)
+    print(f"[Spotify Create] Body: {create_body}", flush=True)
+
+    create_resp = requests.post(create_url, headers=headers, json=create_body)
+    print(f"[Spotify Create] Response: {create_resp.status_code} {create_resp.text[:300]}", flush=True)
 
     if create_resp.status_code not in [200, 201]:
         return (None, f"Spotify playlist creation failed: {create_resp.text}")

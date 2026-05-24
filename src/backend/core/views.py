@@ -72,20 +72,6 @@ class CustomLoginView(TokenObtainPairView):
     """
     serializer_class = CustomTokenObtainPairSerializer
 
-class LogoutView(APIView):
-    """
-    API endpoint to log out the user and unlink their Spotify account.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        from .models import SpotifyCredentials
-        try:
-            request.user.spotify_creds.delete()
-        except SpotifyCredentials.DoesNotExist:
-            pass
-        return Response({"status": "logged out"}, status=status.HTTP_200_OK)
-
 class RegisterView(APIView):
     """
     API endpoint for self-service user registration.
@@ -371,18 +357,13 @@ class SyncPlaylistsToSpotifyView(APIView):
 
         playlists = Playlist.objects.filter(user_profile=user.profile)
         synced = []
-        errors = []
 
         for playlist in playlists:
             playlist_data, err = syncPlaylistToSpotify(playlist, spotify_creds)
             if playlist_data:
                 synced.append(playlist.playlist_name)
-            else:
-                errors.append({"playlist": playlist.playlist_name, "error": err})
 
-        result = {"synced": synced, "count": len(synced), "errors": errors}
-        print(f"[Spotify Sync Result] {result}", flush=True)
-        return Response(result, status=status.HTTP_200_OK)
+        return Response({"synced": synced, "count": len(synced)}, status=status.HTTP_200_OK)
 
 
 class GenerateWeeklyDropView(APIView):
@@ -418,17 +399,6 @@ class GenerateWeeklyDropView(APIView):
             headers = {"Authorization": f"Bearer {access_token}"}
 
             me_response = requests.get(f"{api_base}/me", headers=headers)
-
-            # if we get a 401, force a token refresh and retry
-            if me_response.status_code == 401:
-                spotify_creds.expires_at = timezone.now() - timedelta(seconds=1)
-                success, err = refreshSpotifyCredentials(spotify_creds)
-                if not success:
-                    return Response({"error": err}, status=status.HTTP_401_UNAUTHORIZED)
-                access_token = spotify_creds.access_token
-                headers = {"Authorization": f"Bearer {access_token}"}
-                me_response = requests.get(f"{api_base}/me", headers=headers)
-
             if me_response.status_code != 200:
                 return Response({"error": "Could not fetch Spotify user profile"}, status=status.HTTP_502_BAD_GATEWAY)
             spotify_user_id = me_response.json().get('id')
@@ -450,11 +420,7 @@ class GenerateWeeklyDropView(APIView):
                     track_uris.append(f"spotify:track:{result['spotify_id']}")
                     db_song, _ = Song.objects.get_or_create(
                         spotify_id=result['spotify_id'],
-                        defaults={
-                            'title': result['title'],
-                            'artist': result['artist'],
-                            'album_art_url': result.get('album_art_url')
-                        }
+                        defaults={'title': result['title'], 'artist': result['artist']}
                     )
                     db_songs.append(db_song)
             #--- AUSTIN LOGIC ENDS HERE ---
@@ -581,26 +547,82 @@ def generateNewPlaylist(request):
             for song in selected_songs
         ])
 
-        spotify_url = None
-
-        # We wrap this in a try/except so if Spotify fails, the user still gets
+        spotify_url = None 
+        
+        # We wrap this in a try/except so if Spotify fails, the user still gets 
         # their local SongLingo playlist without the app crashing!
         try:
             if hasattr(django_user, 'spotify_creds'):
                 spotify_creds = django_user.spotify_creds
+                domain = "spo" + "tify" + ".com"
+                api_base = f"https://api.{domain}/v1"
 
                 # 1. Auto-Refresh Token
-                success, err = refreshSpotifyCredentials(spotify_creds)
-                if not success:
-                    print(f"Spotify Export: token refresh failed — {err}")
-                else:
-                    playlist_data, err = syncPlaylistToSpotify(playlist, spotify_creds)
-                    if playlist_data:
+                if timezone.now() >= spotify_creds.expires_at:
+                    refresh_url = f"https://accounts.{domain}/api/token"
+                    client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
+                    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET', '').strip(' "\'')
+                    
+                    refresh_data = {
+                        "grant_type": "refresh_token",
+                        "refresh_token": spotify_creds.refresh_token
+                    }
+                    
+                    ref_res = requests.post(refresh_url, data=refresh_data, auth=(client_id, client_secret))
+                    if ref_res.status_code == 200:
+                        new_tokens = ref_res.json()
+                        spotify_creds.access_token = new_tokens.get('access_token')
+                        if 'refresh_token' in new_tokens:
+                            spotify_creds.refresh_token = new_tokens.get('refresh_token')
+                        spotify_creds.expires_at = timezone.now() + timedelta(seconds=new_tokens.get('expires_in', 3600))
+                        spotify_creds.save()
+
+                access_token = spotify_creds.access_token
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json"
+                }
+
+                # 2. Get User ID
+                me_response = requests.get(f"{api_base}/me", headers=headers)
+                if me_response.status_code == 200:
+                    spotify_user_id = me_response.json().get('id')
+
+                    # 3. Create the Playlist using dynamic description
+                    create_url = f"{api_base}/users/{spotify_user_id}/playlists"
+                    data_create = {
+                        "name": playlist.playlist_name,
+                        "public": False,
+                        "description": playlist.description
+                    }
+                    
+                    response_create = requests.post(create_url, headers=headers, json=data_create)
+                    
+                    if response_create.status_code in [200, 201]:
+                        playlist_data = response_create.json()
+                        spotify_playlist_id = playlist_data['id']
                         spotify_url = playlist_data['external_urls']['spotify']
-                    else:
-                        print(f"Spotify Export: sync failed — {err}")
+
+                        # 4. Gather the Track URIs
+                        track_uris = []
+                        for song in selected_songs:
+                            # Use existing ID, or search it if missing
+                            if song.spotify_id:
+                                track_uris.append(f"spotify:track:{song.spotify_id}")
+                            else:
+                                result = search_spotify_track(song.title, song.artist, access_token)
+                                if result and result.get('spotify_id'):
+                                    song.spotify_id = result['spotify_id']
+                                    song.save()
+                                    track_uris.append(f"spotify:track:{song.spotify_id}")
+
+                        # 5. Push tracks to Spotify
+                        if track_uris:
+                            add_tracks_url = f"{api_base}/playlists/{spotify_playlist_id}/tracks"
+                            requests.post(add_tracks_url, headers=headers, json={"uris": track_uris})
 
         except Exception as spotify_error:
+            # We silently catch errors so the main app experience doesn't break
             print(f"Spotify Export Failed: {spotify_error}")
 
         # Return Austin's payload, plus the new Spotify link
@@ -818,7 +840,7 @@ class PronunciationView(APIView):
             # 4. Convert the raw audio to a base64 string
             audio_base64 = base64.b64encode(audio_fp.getvalue()).decode('utf-8')
             
-            # 5. Return the exact JSON structure Jaci's Swift struct expects
+            # 5. Return the exact JSON structure Swift struct expects
             return Response({
                 "phonetic": dummy_phonetic,
                 "audio": audio_base64
@@ -861,21 +883,14 @@ class SpotifyAuthURLView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from urllib.parse import urlencode
         client_id = os.getenv('SPOTIFY_CLIENT_ID', '').strip(' "\'')
-        redirect_uri = "songlingo://spotify-callback"
+        redirect_uri = "songlingo://spotify-callback" 
         scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email"
-
+        
         domain = "spo" + "tify" + ".com"
-
-        params = urlencode({
-            'client_id': client_id,
-            'response_type': 'code',
-            'redirect_uri': redirect_uri,
-            'scope': scope
-        })
-        url = f"https://accounts.{domain}/authorize?{params}"
-
+        
+        url = f"https://accounts.{domain}/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope={scope}"
+        
         return Response({"auth_url": url}, status=200)
 
 from .models import SpotifyCredentials
@@ -920,24 +935,14 @@ class SpotifyMobileCallbackView(APIView):
         expires_in = token_data.get('expires_in', 3600)
         expires_at = timezone.now() + timedelta(seconds=expires_in)
         
-        # Fetch the user's Spotify ID while we have a fresh token
-        access_token = token_data.get('access_token')
-        domain = "spo" + "tify" + ".com"
-        me_resp = requests.get(
-            f"https://api.{domain}/v1/me",
-            headers={"Authorization": f"Bearer {access_token}"}
-        )
-        spotify_id = me_resp.json().get('id') if me_resp.status_code == 200 else None
-
         # Lock it in the Vault! (update_or_create means they can re-link safely if needed)
         SpotifyCredentials.objects.update_or_create(
             user=request.user,
             defaults={
-                'spotify_id': spotify_id,
-                'access_token': access_token,
+                'access_token': token_data.get('access_token'),
                 'refresh_token': token_data.get('refresh_token'),
                 'expires_at': expires_at
             }
         )
-
+        
         return Response({"status": "success", "message": "Spotify successfully linked!"})
