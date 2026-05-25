@@ -85,9 +85,10 @@ struct Playlist: Codable, Identifiable {
     let playlistName: String
     let language: Int
     let genre: Int?
-    let lastDatePlayed: String? // Optional because it can be null
+    let lastDatePlayed: String?
     let createdDate: String
     let proficiencyLevel: String
+    let coverArtUrl: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -96,6 +97,7 @@ struct Playlist: Codable, Identifiable {
         case lastDatePlayed = "last_date_played"
         case createdDate = "created_date"
         case proficiencyLevel = "proficiency_level"
+        case coverArtUrl = "cover_art_url"
     }
 }
 

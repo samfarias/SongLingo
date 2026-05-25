@@ -209,6 +209,12 @@ class PlaylistSerializer(serializers.ModelSerializer):
     """
     Serializes Playlist metadata objects.
     """
+    cover_art_url = serializers.SerializerMethodField()
+
+    def get_cover_art_url(self, obj):
+        first = PlaylistSong.objects.filter(playlist=obj).select_related('song').first()
+        return first.song.album_art_url if first and first.song.album_art_url else None
+
     class Meta:
         model = Playlist
         fields = '__all__'
@@ -217,6 +223,12 @@ class PlaylistCollectionSerializer(serializers.ModelSerializer):
     """
     Serializes Playlists structured into collection feeds.
     """
+    cover_art_url = serializers.SerializerMethodField()
+
+    def get_cover_art_url(self, obj):
+        first = PlaylistSong.objects.filter(playlist=obj).select_related('song').first()
+        return first.song.album_art_url if first and first.song.album_art_url else None
+
     class Meta:
         model = Playlist
         fields = '__all__'
@@ -243,9 +255,15 @@ class SuggestedPlaylistsSerializer(serializers.ModelSerializer):
     """
     Serializes high-level playlist suggestions shown on the home dashboard.
     """
+    cover_art_url = serializers.SerializerMethodField()
+
+    def get_cover_art_url(self, obj):
+        first = PlaylistSong.objects.filter(playlist=obj).select_related('song').first()
+        return first.song.album_art_url if first and first.song.album_art_url else None
+
     class Meta:
         model = Playlist
-        fields = ['id', 'playlist_name', 'language', 'genre', 'last_date_played', 'created_date', 'proficiency_level']
+        fields = ['id', 'playlist_name', 'language', 'genre', 'last_date_played', 'created_date', 'proficiency_level', 'cover_art_url']
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     """

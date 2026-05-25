@@ -196,22 +196,40 @@ struct PlaylistCard: View {
         NavigationLink(destination: SinglePlaylistView(playlistId: playlist.id)) {
             VStack(alignment: .leading, spacing: 6) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 140, height: 140)
-                        .overlay(
+                    if let artUrl = playlist.coverArtUrl, let url = URL(string: artUrl) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(getPlaylistTint(playlist))
-                        )
+                        }
+                        .frame(width: 140, height: 140)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
                                 .strokeBorder(.white.opacity(0.2), lineWidth: 1)
                         )
                         .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                    } else {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 140, height: 140)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(getPlaylistTint(playlist))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .strokeBorder(.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
 
-                    Image(systemName: "music.note.list")
-                        .font(.system(size: 36, weight: .light))
-                        .foregroundStyle(.white.opacity(0.7))
+                        Image(systemName: "music.note.list")
+                            .font(.system(size: 36, weight: .light))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
                 }
 
                 Text(playlist.playlistName)
