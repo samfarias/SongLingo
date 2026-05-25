@@ -5,7 +5,7 @@ from .views import (
     updateUserSongProgress, getWordCardExercise, getCompleteTheLyricExercise,
     getLyricMatchExercise, get_pronunciation, CustomLoginView, RegisterView,
     GenerateWeeklyDropView, UpdateProfileView, generateNewPlaylist,
-    SyncPlaylistsToSpotifyView, LogoutView
+    SyncPlaylistsToSpotifyView, LogoutView, BackfillAlbumArtView
 )
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -34,7 +34,8 @@ urlpatterns = [
     path('pronunciation/<str:word>/', views.get_pronunciation, name='get_pronunciation'),
     path('word-practices-completed/', updateUserWordNumPracticesCompleted, name='word-practices-completed'),
     path('user-song-progress/', updateUserSongProgress, name='user-song-progress'),
-    
+    path('backfill-album-art/', BackfillAlbumArtView.as_view(), name='backfill-album-art'),
+
     # --- AUTH & PROFILES ---
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

@@ -2,82 +2,31 @@ import SwiftUI
 
 struct SpotifyPlayerView: View {
     @State private var playlists: [Playlist] = []
-    @State private var expandedPlaylistId: Int? = nil
     @State private var playlistSongs: [Int: [PlaylistSongEntry]] = [:]
     @State private var isLoading = true
     @State private var nowPlayingTitle: String? = nil
-    
+    @State private var nowPlayingArtist: String? = nil
+    @State private var nowPlayingArt: String? = nil
+    @State private var nowPlayingPlaylistId: Int? = nil
+
     @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var isLinkingSpotify = false
+
+    private let durations = ["3:24", "2:58", "3:47", "4:12", "3:05", "3:33", "2:41", "3:19", "4:01", "3:15"]
 
     var body: some View {
         NavigationStack {
             ZStack {
                 LinearGradient(
                     colors: [
-                        Color(red: 0.07, green: 0.07, blue: 0.07),
-                        Color(red: 0.12, green: 0.12, blue: 0.14),
-                        Color(red: 0.07, green: 0.07, blue: 0.07)
+                        Color(red: 0.06, green: 0.06, blue: 0.08),
+                        Color(red: 0.10, green: 0.08, blue: 0.14),
+                        Color(red: 0.06, green: 0.06, blue: 0.08)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-                
-                GeometryReader { geometry in
-                    ZStack {
-                        ForEach(0..<150, id: \.self) { i in
-                            Circle()
-                                .fill(.white)
-                                .frame(width: CGFloat.random(in: 1.5...3), height: CGFloat.random(in: 1.5...3))
-                                .opacity(Double.random(in: 0.1...0.9))
-                                .position(
-                                    x: CGFloat.random(in: 0...geometry.size.width),
-                                    y: CGFloat.random(in: 0...geometry.size.height)
-                                )
-                        }
-                        
-                        ForEach(0..<10, id: \.self) { i in
-                            Image(systemName: i % 2 == 0 ? "sparkles" : "star.fill")
-                                .foregroundColor(.gray)
-                                .font(.system(size: CGFloat.random(in: 10...15)))
-                                .opacity(Double.random(in: 0.5...0.7))
-                                .shadow(color: .white.opacity(0.3), radius: 3)
-                                .position(
-                                    x: CGFloat.random(in: 0...geometry.size.width),
-                                    y: CGFloat.random(in: 0...geometry.size.height)
-                                )
-                        }
-                    }
-                }
-                
-                VStack {
-                    RadialGradient(
-                        colors: [
-                            Color.gray.opacity(0.15),
-                                .clear
-                        ],
-                        center: .center,
-                        startRadius: 10,
-                        endRadius: 200
-                    )
-                    .frame(width: 400, height: 400)
-                    .offset(x: -100, y: 10)
-                    
-                    Spacer(minLength: 0.2)
-                    
-                    RadialGradient(
-                        colors: [
-                            Color.gray.opacity(0.2),
-                                .clear
-                        ],
-                        center: .center,
-                        startRadius: 10,
-                        endRadius: 200
-                    )
-                    .frame(width: 400, height: 400)
-                    .offset(x: 200, y: -10)
-                }
 
                 if isLoading {
                     ProgressView("Loading playlists...")
@@ -102,192 +51,349 @@ struct SpotifyPlayerView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 0) {
-                            if !spotifyLinked {
-                                Button {
-                                    isLinkingSpotify = true
-                                    Task {
-                                        do {
-                                            try await SpotifyAuthManager.shared.connect()
-                                            let _ = try await NetworkManager.shared.generateNewPlaylist()
-                                            await loadPlaylists()
-                                        } catch {
-                                            print("Spotify link error: \(error)")
-                                        }
-                                        isLinkingSpotify = false
-                                    }
-                                } label: {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: "link.circle.fill")
-                                            .foregroundColor(.green)
-                                        
-                                        Text("Link Spotify for full playback")
-                                            .font(.subheadline)
-                                            .foregroundColor(.white.opacity(0.8))
-                                        
-                                        Spacer()
-                                        
-                                        if isLinkingSpotify {
-                                            ProgressView().tint(.green)
-                                        }
-                                    }
-                                    .padding()
-                                    .background(Color.white.opacity(0.06))
-                                    .cornerRadius(12)
-                                }
-                                .disabled(isLinkingSpotify)
+                            nowPlayingCard
                                 .padding(.horizontal)
-                                .padding(.top, 10)
+                                .padding(.top, 20)
+                                .padding(.bottom, 24)
+
+                            if !spotifyLinked {
+                                spotifyLinkBanner
+                                    .padding(.horizontal)
+                                    .padding(.bottom, 16)
                             }
 
                             ForEach(playlists) { playlist in
-                                VStack(spacing: 0) {
-                                    Button {
-                                        withAnimation(.easeInOut(duration: 0.25)) {
-                                            if expandedPlaylistId == playlist.id {
-                                                expandedPlaylistId = nil
-                                            } else {
-                                                expandedPlaylistId = playlist.id
-                                                if playlistSongs[playlist.id] == nil {
-                                                    Task { await loadSongs(for: playlist.id) }
-                                                }
-                                            }
-                                        }
-                                    } label: {
-                                        HStack(spacing: 14) {
-                                            ZStack {
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .fill(
-                                                        LinearGradient(
-                                                            colors: [.green.opacity(0.6), .green.opacity(0.3)],
-                                                            startPoint: .topLeading,
-                                                            endPoint: .bottomTrailing
-                                                        )
-                                                    )
-                                                    .frame(width: 50, height: 50)
-
-                                                Image(systemName: "music.note.list")
-                                                    .foregroundColor(.white)
-                                                    .font(.title3)
-                                            }
-
-                                            VStack(alignment: .leading, spacing: 3) {
-                                                Text(playlist.playlistName)
-                                                    .font(.headline)
-                                                    .foregroundColor(.white)
-                                                    .lineLimit(1)
-
-                                                Text("\(Constants.languageIdToName[playlist.language] ?? "Language") · \(playlist.proficiencyLevel)")
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                            }
-
-                                            Spacer()
-
-                                            Image(systemName: expandedPlaylistId == playlist.id ? "chevron.up" : "chevron.down")
-                                                .foregroundColor(.gray)
-                                                .font(.caption)
-                                        }
-                                        .padding(.horizontal)
-                                        .padding(.vertical, 12)
-                                    }
-
-                                    if expandedPlaylistId == playlist.id {
-                                        if let songs = playlistSongs[playlist.id] {
-                                            VStack(spacing: 0) {
-                                                ForEach(songs) { song in
-                                                    Button {
-                                                        nowPlayingTitle = song.song.title
-                                                        openInSpotify(title: song.song.title, artist: song.song.artist, spotifyId: song.song.spotifyId)
-                                                        if let pid = expandedPlaylistId {
-                                                            Task {
-                                                                try? await NetworkManager.shared.updateUserSongProgress(song_id: song.song.id, request_type: "song_listen", playlist_id: pid)
-                                                            }
-                                                        }
-                                                    } label: {
-                                                        HStack(spacing: 12) {
-                                                            Image(systemName: nowPlayingTitle == song.song.title ? "speaker.wave.2.fill" : "play.fill")
-                                                                .foregroundColor(nowPlayingTitle == song.song.title ? .green : .white.opacity(0.6))
-                                                                .font(.caption)
-                                                                .frame(width: 20)
-
-                                                            VStack(alignment: .leading, spacing: 2) {
-                                                                Text(song.song.title)
-                                                                    .font(.subheadline)
-                                                                    .foregroundColor(nowPlayingTitle == song.song.title ? .green : .white)
-                                                                    .lineLimit(1)
-
-                                                                Text(song.song.artist)
-                                                                    .font(.caption2)
-                                                                    .foregroundColor(.gray)
-                                                                    .lineLimit(1)
-                                                            }
-
-                                                            Spacer()
-
-                                                            Text(Constants.genreIdToName[song.song.genre] ?? "")
-                                                                .font(.caption2)
-                                                                .foregroundColor(.gray.opacity(0.7))
-                                                        }
-                                                        .padding(.horizontal, 28)
-                                                        .padding(.vertical, 8)
-                                                    }
-                                                }
-                                            }
-                                            .padding(.bottom, 8)
-                                            .transition(.opacity)
-                                        } else {
-                                            HStack {
-                                                Spacer()
-                                                ProgressView().tint(.green)
-                                                Spacer()
-                                            }
-                                            .padding(.vertical, 12)
-                                        }
-                                    }
-
-                                    Divider().background(Color.white.opacity(0.08))
-                                }
+                                playlistSection(playlist)
                             }
                         }
-                        .padding(.top, 30)
+                        .padding(.bottom, 30)
                     }
                 }
             }
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Player")
                         .font(.headline)
                         .foregroundColor(.white.opacity(0.9))
-                        .padding(.vertical)
                 }
             }
             .task {
-                await loadPlaylists()
+                await loadAllData()
             }
         }
     }
 
-    func loadPlaylists() async {
+    // MARK: - Now Playing Card
+
+    private var nowPlayingCard: some View {
+        VStack(spacing: 16) {
+            if let artUrl = nowPlayingArt, let url = URL(string: artUrl) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    albumArtPlaceholder
+                }
+                .frame(width: 220, height: 220)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .green.opacity(0.2), radius: 20, x: 0, y: 10)
+            } else {
+                albumArtPlaceholder
+                    .frame(width: 220, height: 220)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+
+            VStack(spacing: 4) {
+                Text(nowPlayingTitle ?? "Not Playing")
+                    .font(.title3.bold())
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+
+                Text(nowPlayingArtist ?? "Select a song below")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
+            }
+
+            VStack(spacing: 6) {
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(height: 4)
+
+                        Capsule()
+                            .fill(Color.green)
+                            .frame(width: nowPlayingTitle != nil ? geo.size.width * 0.35 : 0, height: 4)
+
+                        if nowPlayingTitle != nil {
+                            Circle()
+                                .fill(.white)
+                                .frame(width: 12, height: 12)
+                                .offset(x: geo.size.width * 0.35 - 6)
+                        }
+                    }
+                }
+                .frame(height: 12)
+
+                HStack {
+                    Text(nowPlayingTitle != nil ? "1:14" : "0:00")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                    Spacer()
+                    Text(nowPlayingTitle != nil ? "3:32" : "0:00")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.horizontal, 4)
+
+            HStack(spacing: 36) {
+                Image(systemName: "shuffle")
+                    .font(.body)
+                    .foregroundColor(.green.opacity(0.8))
+
+                Image(systemName: "backward.fill")
+                    .font(.title3)
+                    .foregroundColor(.white)
+
+                ZStack {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 52, height: 52)
+
+                    Image(systemName: nowPlayingTitle != nil ? "pause.fill" : "play.fill")
+                        .font(.title2)
+                        .foregroundColor(.black)
+                        .offset(x: nowPlayingTitle != nil ? 0 : 2)
+                }
+
+                Image(systemName: "forward.fill")
+                    .font(.title3)
+                    .foregroundColor(.white)
+
+                Image(systemName: "repeat")
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.5))
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial.opacity(0.5))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
+    }
+
+    private var albumArtPlaceholder: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.green.opacity(0.3), Color.purple.opacity(0.2)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Image(systemName: "music.note")
+                .font(.system(size: 50, weight: .light))
+                .foregroundColor(.white.opacity(0.4))
+        }
+    }
+
+    // MARK: - Spotify Link Banner
+
+    private var spotifyLinkBanner: some View {
+        Button {
+            isLinkingSpotify = true
+            Task {
+                do {
+                    try await SpotifyAuthManager.shared.connect()
+                    let _ = try await NetworkManager.shared.generateNewPlaylist()
+                    await loadAllData()
+                } catch {
+                    print("Spotify link error: \(error)")
+                }
+                isLinkingSpotify = false
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "link.circle.fill")
+                    .foregroundColor(.green)
+
+                Text("Link Spotify for full playback")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
+
+                Spacer()
+
+                if isLinkingSpotify {
+                    ProgressView().tint(.green)
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.06))
+            .cornerRadius(12)
+        }
+        .disabled(isLinkingSpotify)
+    }
+
+    // MARK: - Playlist Section
+
+    @ViewBuilder
+    private func playlistSection(_ playlist: Playlist) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Section header
+            HStack(spacing: 10) {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color.green)
+                    .frame(width: 3, height: 18)
+
+                Text(playlist.playlistName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+
+                Spacer()
+
+                let langName = Constants.languageIdToName[playlist.language] ?? ""
+                Text("\(langName) · \(playlist.proficiencyLevel)")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+            }
+            .padding(.horizontal)
+            .padding(.top, 16)
+            .padding(.bottom, 8)
+
+            // Songs
+            if let songs = playlistSongs[playlist.id] {
+                ForEach(Array(songs.enumerated()), id: \.element.id) { index, song in
+                    let isPlaying = nowPlayingTitle == song.song.title && nowPlayingPlaylistId == playlist.id
+                    Button {
+                        nowPlayingTitle = song.song.title
+                        nowPlayingArtist = song.song.artist
+                        nowPlayingArt = song.song.albumArtUrl
+                        nowPlayingPlaylistId = playlist.id
+                        openInSpotify(title: song.song.title, artist: song.song.artist, spotifyId: song.song.spotifyId)
+                        Task {
+                            try? await NetworkManager.shared.updateUserSongProgress(song_id: song.song.id, request_type: "song_listen", playlist_id: playlist.id)
+                        }
+                    } label: {
+                        HStack(spacing: 0) {
+                            // Track number or playing indicator
+                            Group {
+                                if isPlaying {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.green)
+                                } else {
+                                    Text("\(index + 1)")
+                                        .font(.caption.monospacedDigit())
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .frame(width: 28, alignment: .center)
+
+                            // Album art
+                            if let artUrl = song.song.albumArtUrl, let url = URL(string: artUrl) {
+                                AsyncImage(url: url) { image in
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    songArtPlaceholder
+                                }
+                                .frame(width: 40, height: 40)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                            } else {
+                                songArtPlaceholder
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                            }
+
+                            // Title & artist
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(song.song.title)
+                                    .font(.subheadline)
+                                    .foregroundColor(isPlaying ? .green : .white)
+                                    .lineLimit(1)
+
+                                Text(song.song.artist)
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                            }
+                            .padding(.leading, 10)
+
+                            Spacer()
+
+                            // Duration
+                            Text(durations[index % durations.count])
+                                .font(.caption.monospacedDigit())
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 7)
+                    }
+                }
+            } else {
+                HStack {
+                    Spacer()
+                    ProgressView().tint(.green)
+                    Spacer()
+                }
+                .padding(.vertical, 16)
+            }
+
+            Divider()
+                .background(Color.white.opacity(0.08))
+                .padding(.top, 6)
+        }
+    }
+
+    private var songArtPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(Color.white.opacity(0.08))
+            .overlay(
+                Image(systemName: "music.note")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.25))
+            )
+    }
+
+    // MARK: - Data Loading
+
+    func loadAllData() async {
         do {
             let data = try await NetworkManager.shared.fetchPlaylistCollectionData()
             let collections = data.playlistCollections
             self.playlists = collections.recentlyPlayed + collections.newPlaylists + collections.itsBeenAWhile
             self.isLoading = false
+
+            await withTaskGroup(of: (Int, [PlaylistSongEntry]?).self) { group in
+                for playlist in playlists {
+                    group.addTask {
+                        do {
+                            let songData = try await NetworkManager.shared.fetchSinglePlaylistData(playlistId: playlist.id)
+                            return (playlist.id, songData.playlistSongs)
+                        } catch {
+                            return (playlist.id, nil)
+                        }
+                    }
+                }
+                for await (id, songs) in group {
+                    if let songs {
+                        self.playlistSongs[id] = songs
+                    }
+                }
+            }
         } catch {
             print("Failed to load playlists: \(error)")
             self.isLoading = false
-        }
-    }
-
-    func loadSongs(for playlistId: Int) async {
-        do {
-            let data = try await NetworkManager.shared.fetchSinglePlaylistData(playlistId: playlistId)
-            await MainActor.run {
-                self.playlistSongs[playlistId] = data.playlistSongs
-            }
-        } catch {
-            print("Failed to load songs for playlist \(playlistId): \(error)")
         }
     }
 }

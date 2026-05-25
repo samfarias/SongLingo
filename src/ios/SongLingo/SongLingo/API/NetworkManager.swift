@@ -517,6 +517,24 @@ class NetworkManager {
         }
     }
 
+    // MARK: - Album Art
+
+    func backfillAlbumArt() async throws -> Int {
+        guard let url = URL(string: "\(baseURL)/backfill-album-art/") else {
+            throw URLError(.badURL)
+        }
+
+        let request = createAuthenticatedRequest(url: url, method: "POST")
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        return json?["updated"] as? Int ?? 0
+    }
+
     // MARK: - Spotify OAuth
 
     func fetchSpotifyAuthURL() async throws -> URL {

@@ -129,33 +129,25 @@ struct GenreSelectionView: View {
                                         selectedGenres.insert(genre)
                                     }
                                 } label: {
-                                    VStack(spacing: 6) {
-                                        Image(genre.replacingOccurrences(of: "/", with: "-"))
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: 50)
-
-                                        Text(genre.replacingOccurrences(of: "-", with: " "))
-                                            .font(.system(size: 11, weight: .semibold))
-                                            .foregroundColor(.white.opacity(0.9))
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.8)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 8)
-                                    .background(genreBackground(isSelected: selectedGenres.contains(genre)))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .stroke(
-                                                selectedGenres.contains(genre)
-                                                    ? Color.white.opacity(0.35)
-                                                    : Color.white.opacity(0.12),
-                                                lineWidth: selectedGenres.contains(genre) ? 2 : 1
-                                            )
-                                    )
-                                    .cornerRadius(16)
-                                    .shadow(color: .black.opacity(0.15), radius: 4, x: 2, y: 2)
+                                    Image(genre.replacingOccurrences(of: "/", with: "-"))
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal, 6)
+                                        .background(genreBackground(isSelected: selectedGenres.contains(genre)))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 16)
+                                                .stroke(
+                                                    selectedGenres.contains(genre)
+                                                        ? Color.white.opacity(0.35)
+                                                        : Color.white.opacity(0.08),
+                                                    lineWidth: selectedGenres.contains(genre) ? 2 : 1
+                                                )
+                                        )
+                                        .cornerRadius(16)
+                                        .shadow(color: .black.opacity(0.2), radius: 6, x: 2, y: 3)
+                                        .frame(height: 90)
                                 }
                             }
                         }
@@ -218,7 +210,7 @@ struct GenreSelectionView: View {
                         }
                     }
                     .padding(25)
-                    .background(Color.white.opacity(0.09))
+                    .background(Color.white.opacity(0.05))
                     .cornerRadius(25)
                     .padding(.horizontal, 30)
                     
@@ -235,9 +227,9 @@ struct GenreSelectionView: View {
     @ViewBuilder
     private func genreBackground(isSelected: Bool) -> some View {
         if isSelected {
-            Constants.sunburst.opacity(0.4)
+            Constants.sunburst.opacity(0.35)
         } else {
-            Color.white.opacity(0.10)
+            Color.white.opacity(0.06)
         }
     }
 }

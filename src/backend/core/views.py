@@ -48,7 +48,8 @@ from .views_helpers import (
     updateUserActivity, updateUserPlaylistNumSongListens, getLyricAndMissingWord,
     getSongDistractorWords, getTwoRandomSongLines, getPracticeExerciseSong,
     search_spotify_track, getEnglishWordDistractors,
-    refreshSpotifyCredentials, createSpotifyPlaylist, syncPlaylistToSpotify
+    refreshSpotifyCredentials, createSpotifyPlaylist, syncPlaylistToSpotify,
+    fetchAlbumArt, backfillAlbumArt
 )
 
 from .helpers import fetch_word_info, clean_and_format_word, get_unique_words_from_lyrics
@@ -85,6 +86,13 @@ class LogoutView(APIView):
         except SpotifyCredentials.DoesNotExist:
             pass
         return Response({"status": "logged out"}, status=status.HTTP_200_OK)
+
+class BackfillAlbumArtView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        updated = backfillAlbumArt()
+        return Response({"updated": updated}, status=status.HTTP_200_OK)
 
 class RegisterView(APIView):
     """
@@ -527,7 +535,14 @@ def generateNewPlaylist(request):
 
         if len(selected_songs) == 0: # no songs found after 30 attempts
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
+        for song in selected_songs:
+            if not song.album_art_url:
+                art_url = fetchAlbumArt(song.title, song.artist)
+                if art_url:
+                    song.album_art_url = art_url
+                    song.save(update_fields=["album_art_url"])
+
         # get most frequent genre to set as the playlists genre
         most_frequent_genre = None
         genres_in_playlist = [song.genre for song in selected_songs]

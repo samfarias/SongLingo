@@ -19,6 +19,8 @@ from .models import (
 )
 from .helpers import clean_and_format_word, get_unique_words_from_lyrics
 
+from urllib.parse import quote
+
 load_dotenv()
 #grab API keys
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
@@ -508,3 +510,34 @@ def syncPlaylistToSpotify(playlist, spotify_creds):
         spotify_creds.access_token, spotify_user_id,
         playlist.playlist_name, description, track_uris
     )
+
+
+def fetchAlbumArt(title, artist):
+    query = quote(f"{title} {artist}")
+    url = f"https://itunes.apple.com/search?term={query}&media=music&limit=3"
+    try:
+        resp = requests.get(url, timeout=10)
+        if resp.status_code != 200:
+            return None
+        results = resp.json().get("results", [])
+        if not results:
+            return None
+        art_url = results[0].get("artworkUrl100", "")
+        return art_url.replace("100x100bb", "600x600bb") if art_url else None
+    except Exception:
+        return None
+
+
+def backfillAlbumArt():
+    songs = Song.objects.filter(album_art_url__isnull=True) | Song.objects.filter(album_art_url="")
+    updated = 0
+    for song in songs:
+        art_url = fetchAlbumArt(song.title, song.artist)
+        if art_url:
+            song.album_art_url = art_url
+            song.save(update_fields=["album_art_url"])
+            updated += 1
+            print(f"[Album Art] {song.title} - {song.artist} -> {art_url}", flush=True)
+        else:
+            print(f"[Album Art] No result for {song.title} - {song.artist}", flush=True)
+    return updated

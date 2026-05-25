@@ -285,47 +285,12 @@ struct Dashboard: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 15) {
                                 ForEach(homeData?.suggestedPlaylists.allSuggestedPlaylists ?? []) { playlist in
-                                    NavigationLink(destination: PlaylistCollection()) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 15)
-                                                .fill(Color.white.opacity(0.2))
-                                            
-                                            VStack(spacing: 8) {
-                                                Image(systemName: "play.circle.fill")
-                                                    .font(.system(size: 28))
-                                                    .foregroundColor(Color.white.opacity(0.95))
-                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                                    .padding(.vertical, 8)
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: 4)
-                                                            .stroke(Color.white.opacity(0.35), lineWidth: 1.5)
-                                                    )
-                                                
-                                                Text(playlist.playlistName)
-                                                    .font(.system(size: 13, weight: .bold))
-                                                    .lineLimit(3)
-                                                    .multilineTextAlignment(.center)
-                                                    .fixedSize(horizontal: false, vertical: true)
-                                                
-                                                Spacer()
-                                                
-                                                Text("\(Constants.languageIdToName[playlist.language] ?? "ID") · \(playlist.proficiencyLevel)")
-                                                    .font(.system(size: 9))
-                                                
-                                                Text("\(Constants.genreIdToName[playlist.genre ?? 0] ?? "Multi-Genre")")
-                                                    .font(.system(size: 9))
-                                            }
-                                            .foregroundColor(Color.white.opacity(0.95))
-                                            .padding(10)
-                                        }
-                                        .frame(width: 110, height: 150)
-                                        .shadow(color: Color(red: 0.4, green: 0.6, blue: 0.5).opacity(0.3), radius: 5, x: 3, y: 3)
-                                    }
+                                    PlaylistCard(playlist: playlist)
                                 }
                             }
                             .padding(.horizontal, 15)
-                            .padding(.bottom, 30)
-                            .padding(.top, 1)
+                            .padding(.bottom, 15)
+                            .padding(.top, 4)
                         }
                     }
                     .background(
