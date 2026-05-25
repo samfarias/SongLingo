@@ -19,6 +19,7 @@ from .models import (
 )
 from .helpers import clean_and_format_word, get_unique_words_from_lyrics
 
+import re
 from urllib.parse import quote
 
 load_dotenv()
@@ -512,9 +513,15 @@ def syncPlaylistToSpotify(playlist, spotify_creds):
     )
 
 
-def fetchAlbumArt(title, artist):
-    query = quote(f"{title} {artist}")
-    url = f"https://itunes.apple.com/search?term={query}&media=music&limit=3"
+def _clean_title(title):
+    title = re.sub(r'\(.*?\)', '', title)
+    title = re.sub(r'\[.*?\]', '', title)
+    title = re.sub(r'\s*(feat|ft)\.?\s.*', '', title, flags=re.IGNORECASE)
+    return title.strip()
+
+
+def _itunes_search(query):
+    url = f"https://itunes.apple.com/search?term={quote(query)}&media=music&limit=3"
     try:
         resp = requests.get(url, timeout=10)
         if resp.status_code != 200:
@@ -528,9 +535,48 @@ def fetchAlbumArt(title, artist):
         return None
 
 
+def _deezer_search(title, artist):
+    query = quote(f"{title} {artist}")
+    url = f"https://api.deezer.com/search?q={query}&limit=1"
+    try:
+        resp = requests.get(url, timeout=10)
+        if resp.status_code != 200:
+            return None
+        results = resp.json().get("data", [])
+        if not results:
+            return None
+        album = results[0].get("album", {})
+        return album.get("cover_xl") or album.get("cover_big")
+    except Exception:
+        return None
+
+
+def fetchAlbumArt(title, artist):
+    art = _itunes_search(f"{title} {artist}")
+    if art:
+        return art
+
+    cleaned = _clean_title(title)
+    if cleaned != title:
+        art = _itunes_search(f"{cleaned} {artist}")
+        if art:
+            return art
+
+    art = _itunes_search(title)
+    if art:
+        return art
+
+    art = _deezer_search(title, artist)
+    if art:
+        return art
+
+    return None
+
+
 def backfillAlbumArt():
     songs = Song.objects.filter(album_art_url__isnull=True) | Song.objects.filter(album_art_url="")
     updated = 0
+    failed = []
     for song in songs:
         art_url = fetchAlbumArt(song.title, song.artist)
         if art_url:
@@ -539,5 +585,8 @@ def backfillAlbumArt():
             updated += 1
             print(f"[Album Art] {song.title} - {song.artist} -> {art_url}", flush=True)
         else:
-            print(f"[Album Art] No result for {song.title} - {song.artist}", flush=True)
+            failed.append(f"{song.title} - {song.artist}")
+            print(f"[Album Art] ALL STRATEGIES FAILED for {song.title} - {song.artist}", flush=True)
+    if failed:
+        print(f"[Album Art] {len(failed)} songs still missing art: {failed}", flush=True)
     return updated
