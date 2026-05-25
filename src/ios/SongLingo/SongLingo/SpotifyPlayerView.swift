@@ -4,15 +4,36 @@ struct SpotifyPlayerView: View {
     @State private var playlists: [Playlist] = []
     @State private var playlistSongs: [Int: [PlaylistSongEntry]] = [:]
     @State private var isLoading = true
-    @State private var nowPlayingTitle: String? = nil
-    @State private var nowPlayingArtist: String? = nil
-    @State private var nowPlayingArt: String? = nil
-    @State private var nowPlayingPlaylistId: Int? = nil
 
     @AppStorage("spotifyLinked") private var spotifyLinked = false
     @State private var isLinkingSpotify = false
 
+    @AppStorage("nowPlayingTitle") private var nowPlayingTitle: String = ""
+    @AppStorage("nowPlayingArtist") private var nowPlayingArtist: String = ""
+    @AppStorage("nowPlayingArt") private var nowPlayingArt: String = ""
+
+    @State private var elapsed: Double = 0
+    @State private var timer: Timer?
+    private let songDuration: Double = 212
+
     private let durations = ["3:24", "2:58", "3:47", "4:12", "3:05", "3:33", "2:41", "3:19", "4:01", "3:15"]
+
+    private var isPlaying: Bool { !nowPlayingTitle.isEmpty }
+
+    private var progress: CGFloat {
+        guard songDuration > 0, isPlaying else { return 0 }
+        return min(CGFloat(elapsed / songDuration), 1.0)
+    }
+
+    private var elapsedFormatted: String {
+        let secs = Int(elapsed)
+        return "\(secs / 60):\(String(format: "%02d", secs % 60))"
+    }
+
+    private var remainingFormatted: String {
+        let secs = max(0, Int(songDuration) - Int(elapsed))
+        return "\(secs / 60):\(String(format: "%02d", secs % 60))"
+    }
 
     var body: some View {
         NavigationStack {
@@ -81,6 +102,34 @@ struct SpotifyPlayerView: View {
             .task {
                 await loadAllData()
             }
+            .onAppear {
+                if isPlaying {
+                    startPlayback()
+                }
+            }
+            .onChange(of: nowPlayingTitle) {
+                startPlayback()
+            }
+            .onDisappear {
+                timer?.invalidate()
+            }
+        }
+    }
+
+    // MARK: - Playback Timer
+
+    private func startPlayback() {
+        timer?.invalidate()
+        elapsed = 0
+        guard isPlaying else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                if self.elapsed < self.songDuration {
+                    self.elapsed += 0.5
+                } else {
+                    self.timer?.invalidate()
+                }
+            }
         }
     }
 
@@ -88,7 +137,7 @@ struct SpotifyPlayerView: View {
 
     private var nowPlayingCard: some View {
         VStack(spacing: 16) {
-            if let artUrl = nowPlayingArt, let url = URL(string: artUrl) {
+            if !nowPlayingArt.isEmpty, let url = URL(string: nowPlayingArt) {
                 AsyncImage(url: url) { image in
                     image
                         .resizable()
@@ -106,17 +155,18 @@ struct SpotifyPlayerView: View {
             }
 
             VStack(spacing: 4) {
-                Text(nowPlayingTitle ?? "Not Playing")
+                Text(isPlaying ? nowPlayingTitle : "Not Playing")
                     .font(.title3.bold())
                     .foregroundColor(.white)
                     .lineLimit(1)
 
-                Text(nowPlayingArtist ?? "Select a song below")
+                Text(isPlaying ? nowPlayingArtist : "Select a song below")
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .lineLimit(1)
             }
 
+            // Progress bar
             VStack(spacing: 6) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
@@ -126,30 +176,31 @@ struct SpotifyPlayerView: View {
 
                         Capsule()
                             .fill(Color.green)
-                            .frame(width: nowPlayingTitle != nil ? geo.size.width * 0.35 : 0, height: 4)
+                            .frame(width: geo.size.width * progress, height: 4)
 
-                        if nowPlayingTitle != nil {
+                        if isPlaying {
                             Circle()
                                 .fill(.white)
                                 .frame(width: 12, height: 12)
-                                .offset(x: geo.size.width * 0.35 - 6)
+                                .offset(x: max(0, geo.size.width * progress - 6))
                         }
                     }
                 }
                 .frame(height: 12)
 
                 HStack {
-                    Text(nowPlayingTitle != nil ? "1:14" : "0:00")
+                    Text(elapsedFormatted)
                         .font(.caption2)
                         .foregroundColor(.gray)
                     Spacer()
-                    Text(nowPlayingTitle != nil ? "3:32" : "0:00")
+                    Text(remainingFormatted)
                         .font(.caption2)
                         .foregroundColor(.gray)
                 }
             }
             .padding(.horizontal, 4)
 
+            // Transport controls
             HStack(spacing: 36) {
                 Image(systemName: "shuffle")
                     .font(.body)
@@ -164,10 +215,10 @@ struct SpotifyPlayerView: View {
                         .fill(.white)
                         .frame(width: 52, height: 52)
 
-                    Image(systemName: nowPlayingTitle != nil ? "pause.fill" : "play.fill")
+                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                         .font(.title2)
                         .foregroundColor(.black)
-                        .offset(x: nowPlayingTitle != nil ? 0 : 2)
+                        .offset(x: isPlaying ? 0 : 2)
                 }
 
                 Image(systemName: "forward.fill")
@@ -249,7 +300,6 @@ struct SpotifyPlayerView: View {
     @ViewBuilder
     private func playlistSection(_ playlist: Playlist) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Section header
             HStack(spacing: 10) {
                 RoundedRectangle(cornerRadius: 3)
                     .fill(Color.green)
@@ -271,24 +321,21 @@ struct SpotifyPlayerView: View {
             .padding(.top, 16)
             .padding(.bottom, 8)
 
-            // Songs
             if let songs = playlistSongs[playlist.id] {
                 ForEach(Array(songs.enumerated()), id: \.element.id) { index, song in
-                    let isPlaying = nowPlayingTitle == song.song.title && nowPlayingPlaylistId == playlist.id
+                    let isCurrent = nowPlayingTitle == song.song.title && !nowPlayingTitle.isEmpty
                     Button {
                         nowPlayingTitle = song.song.title
                         nowPlayingArtist = song.song.artist
-                        nowPlayingArt = song.song.albumArtUrl
-                        nowPlayingPlaylistId = playlist.id
+                        nowPlayingArt = song.song.albumArtUrl ?? ""
                         openInSpotify(title: song.song.title, artist: song.song.artist, spotifyId: song.song.spotifyId)
                         Task {
                             try? await NetworkManager.shared.updateUserSongProgress(song_id: song.song.id, request_type: "song_listen", playlist_id: playlist.id)
                         }
                     } label: {
                         HStack(spacing: 0) {
-                            // Track number or playing indicator
                             Group {
-                                if isPlaying {
+                                if isCurrent {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.caption2)
                                         .foregroundColor(.green)
@@ -300,7 +347,6 @@ struct SpotifyPlayerView: View {
                             }
                             .frame(width: 28, alignment: .center)
 
-                            // Album art
                             if let artUrl = song.song.albumArtUrl, let url = URL(string: artUrl) {
                                 AsyncImage(url: url) { image in
                                     image.resizable().aspectRatio(contentMode: .fill)
@@ -315,11 +361,10 @@ struct SpotifyPlayerView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
 
-                            // Title & artist
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(song.song.title)
                                     .font(.subheadline)
-                                    .foregroundColor(isPlaying ? .green : .white)
+                                    .foregroundColor(isCurrent ? .green : .white)
                                     .lineLimit(1)
 
                                 Text(song.song.artist)
@@ -331,7 +376,6 @@ struct SpotifyPlayerView: View {
 
                             Spacer()
 
-                            // Duration
                             Text(durations[index % durations.count])
                                 .font(.caption.monospacedDigit())
                                 .foregroundColor(.gray)
