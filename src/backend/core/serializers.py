@@ -192,7 +192,7 @@ class UserSongSerializer(serializers.ModelSerializer):
         """
         class Meta:
             model = Song
-            fields = ['id', 'title', 'artist']
+            fields = ['id', 'title', 'artist', 'album_art_url']
 
     song = SongsListenedScreenSongSerializer(read_only=True) # This nests the Song data inside the UserSong object
 
@@ -217,7 +217,12 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = '__all__'
+        fields = [
+            'id', 'user_profile', 'playlist_name', 'language', 'genre',
+            'description', 'last_date_played', 'num_days_listened',
+            'num_song_listens', 'created_date', 'proficiency_level',
+            'cover_art_url'
+        ]
 
 class PlaylistCollectionSerializer(serializers.ModelSerializer):
     """
@@ -231,7 +236,12 @@ class PlaylistCollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = '__all__'
+        fields = [
+            'id', 'user_profile', 'playlist_name', 'language', 'genre',
+            'description', 'last_date_played', 'num_days_listened',
+            'num_song_listens', 'created_date', 'proficiency_level',
+            'cover_art_url'
+        ]
 
 class PlaylistSongSerializer(serializers.ModelSerializer):
     """

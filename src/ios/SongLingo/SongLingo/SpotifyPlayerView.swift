@@ -300,22 +300,34 @@ struct SpotifyPlayerView: View {
     @ViewBuilder
     private func playlistSection(_ playlist: Playlist) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 10) {
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(Color.green)
-                    .frame(width: 3, height: 18)
+            HStack(spacing: 12) {
+                if let artUrl = playlist.coverArtUrl, let url = URL(string: artUrl) {
+                    AsyncImage(url: url) { image in
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        playlistArtPlaceholder
+                    }
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                } else {
+                    playlistArtPlaceholder
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
 
-                Text(playlist.playlistName)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(playlist.playlistName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+
+                    let langName = Constants.languageIdToName[playlist.language] ?? ""
+                    Text("\(langName) · \(playlist.proficiencyLevel)")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
 
                 Spacer()
-
-                let langName = Constants.languageIdToName[playlist.language] ?? ""
-                Text("\(langName) · \(playlist.proficiencyLevel)")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
             }
             .padding(.horizontal)
             .padding(.top, 16)
@@ -406,6 +418,22 @@ struct SpotifyPlayerView: View {
                 Image(systemName: "music.note")
                     .font(.caption2)
                     .foregroundColor(.white.opacity(0.25))
+            )
+    }
+
+    private var playlistArtPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 6)
+            .fill(
+                LinearGradient(
+                    colors: [.green.opacity(0.5), .green.opacity(0.2)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                Image(systemName: "music.note.list")
+                    .font(.callout)
+                    .foregroundColor(.white.opacity(0.6))
             )
     }
 

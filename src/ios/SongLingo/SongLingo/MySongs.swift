@@ -197,28 +197,51 @@ struct MySongs: View {
 
 struct SongRow: View {
     let entry: UserSongEntry
+    @AppStorage("nowPlayingTitle") private var nowPlayingTitle: String = ""
+    @AppStorage("nowPlayingArtist") private var nowPlayingArtist: String = ""
+    @AppStorage("nowPlayingArt") private var nowPlayingArt: String = ""
 
     var body: some View {
         HStack {
             Button {
+                nowPlayingTitle = entry.song.title
+                nowPlayingArtist = entry.song.artist
+                nowPlayingArt = entry.song.albumArtUrl ?? ""
                 openInSpotify(title: entry.song.title, artist: entry.song.artist, spotifyId: entry.song.spotifyId)
                 Task {
                     try? await NetworkManager.shared.updateUserSongProgress(song_id: entry.song.id, request_type: "song_listen", playlist_id: -1)
                 }
             } label: {
-                Image(systemName: "play.circle.fill")
-                    .font(.title)
-                    .foregroundColor(.green)
+                ZStack {
+                    if let artUrl = entry.song.albumArtUrl, let url = URL(string: artUrl) {
+                        AsyncImage(url: url) { image in
+                            image.resizable().aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.white.opacity(0.1))
+                        }
+                        .frame(width: 48, height: 48)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } else {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.white.opacity(0.1))
+                            .frame(width: 48, height: 48)
+                    }
+                    Image(systemName: "play.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.green)
+                        .shadow(color: .black.opacity(0.5), radius: 2)
+                }
             }
             .padding(.leading)
 
             VStack(alignment: .leading) {
                 Text(entry.song.title)
-                    .font(.title2)
+                    .font(.headline)
                     .foregroundColor(.white.opacity(0.95))
 
-                Text("(\(entry.song.artist))")
-                    .font(.system(size: 14))
+                Text(entry.song.artist)
+                    .font(.subheadline)
                     .foregroundColor(.white.opacity(0.5))
             }
             .padding(.horizontal, 8)

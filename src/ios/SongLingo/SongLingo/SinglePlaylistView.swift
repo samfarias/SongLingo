@@ -168,6 +168,9 @@ struct SinglePlaylistView: View {
 struct PlaylistSongRow: View {
     let entry: PlaylistSongEntry
     let playlistId: Int
+    @AppStorage("nowPlayingTitle") private var nowPlayingTitle: String = ""
+    @AppStorage("nowPlayingArtist") private var nowPlayingArtist: String = ""
+    @AppStorage("nowPlayingArt") private var nowPlayingArt: String = ""
 
     var body: some View {
         HStack(spacing: 12) {
@@ -208,6 +211,9 @@ struct PlaylistSongRow: View {
             Spacer()
 
             Button {
+                nowPlayingTitle = entry.song.title
+                nowPlayingArtist = entry.song.artist
+                nowPlayingArt = entry.song.albumArtUrl ?? ""
                 openInSpotify(title: entry.song.title, artist: entry.song.artist, spotifyId: entry.song.spotifyId)
                 Task {
                     try? await NetworkManager.shared.updateUserSongProgress(song_id: entry.song.id, request_type: "song_listen", playlist_id: playlistId)
