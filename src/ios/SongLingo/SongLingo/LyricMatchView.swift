@@ -14,6 +14,7 @@ struct LyricMatchView: View {
     @State private var wordBank: [String] = []
     @State private var sentence: [String] = []
     @State private var isPlaying: Bool = false
+    @State private var previewURL: URL?
 
     @State private var isLoading = true
     @State private var questionCount: Int = 0
@@ -63,46 +64,32 @@ struct LyricMatchView: View {
                                         .lineLimit(1)
                                 }
 
-                                if lyricMatchData?.audioBase64 != nil {
-                                    Button {
-                                        if isPlaying {
-                                            isPlaying = false
-                                        } else if let b64 = lyricMatchData?.audioBase64 {
-                                            let clean = b64.trimmingCharacters(in: .whitespacesAndNewlines)
-                                            AudioPlayerManager.shared.playBase64Audio(clean)
-                                            isPlaying = true
-                                        }
-                                    } label: {
-                                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                            .font(.system(size: 26, weight: .bold))
-                                            .foregroundStyle(.white)
-                                            .frame(width: 64, height: 64)
-                                            .background(Circle().fill(Color.white.opacity(0.14)))
-                                            .overlay(Circle().stroke(Color.white.opacity(0.12)))
+                                Button {
+                                    if isPlaying {
+                                        AudioPlayerManager.shared.stopPlayback()
+                                        isPlaying = false
+                                    } else if let url = previewURL {
+                                        AudioPlayerManager.shared.playFromURL(url)
+                                        isPlaying = true
+                                    } else if let b64 = lyricMatchData?.audioBase64 {
+                                        let clean = b64.trimmingCharacters(in: .whitespacesAndNewlines)
+                                        AudioPlayerManager.shared.playBase64Audio(clean)
+                                        isPlaying = true
                                     }
-                                    .buttonStyle(.plain)
-                                    .disabled(isSubmissionEvaluated)
-
-                                    Text("Play Audio")
-                                        .font(.headline.weight(.semibold))
-                                        .foregroundStyle(.white.opacity(0.85))
-                                } else {
-                                    Text(lyricMatchData?.lineToDisplay ?? "")
-                                        .font(.title3.weight(.medium))
+                                } label: {
+                                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                        .font(.system(size: 26, weight: .bold))
                                         .foregroundStyle(.white)
-                                        .multilineTextAlignment(.center)
-                                        .padding(.horizontal)
-
-                                    if let data = lyricMatchData {
-                                        Button {
-                                            openInSpotify(title: data.songTitle, artist: data.songArtist)
-                                        } label: {
-                                            Label("Listen on Spotify", systemImage: "play.circle.fill")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.green)
-                                        }
-                                    }
+                                        .frame(width: 64, height: 64)
+                                        .background(Circle().fill(Color.white.opacity(0.14)))
+                                        .overlay(Circle().stroke(Color.white.opacity(0.12)))
                                 }
+                                .buttonStyle(.plain)
+                                .disabled(isSubmissionEvaluated)
+
+                                Text(isPlaying ? "Playing Preview" : "Play Preview")
+                                    .font(.headline.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.85))
                             }
                         }
                         .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
@@ -247,16 +234,22 @@ struct LyricMatchView: View {
                 startTime = Date()
                 loadGameRound()
             }
+            .onDisappear {
+                AudioPlayerManager.shared.stopPlayback()
+            }
         }
     }
 }
 
 extension LyricMatchView {
     func loadGameRound() {
+        AudioPlayerManager.shared.stopPlayback()
+        isPlaying = false
         isLoading = true
         isSubmissionEvaluated = false
         sentence = []
-        
+        previewURL = nil
+
         Task {
             do {
                 let data = try await NetworkManager.shared.fetchLyricMatchExerciseData()
@@ -265,6 +258,15 @@ extension LyricMatchView {
                     self.correctWords = data.lineToMatch.components(separatedBy: " ")
                     self.wordBank = self.correctWords.shuffled()
                     self.isLoading = false
+                }
+
+                let url = await fetchITunesPreviewURL(title: data.songTitle, artist: data.songArtist)
+                await MainActor.run {
+                    self.previewURL = url
+                    if let url {
+                        AudioPlayerManager.shared.playFromURL(url)
+                        self.isPlaying = true
+                    }
                 }
             } catch {
                 print("Request failed: \(error)")

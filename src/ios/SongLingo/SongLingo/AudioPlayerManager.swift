@@ -10,11 +10,10 @@ import AVFoundation
 
 class AudioPlayerManager: NSObject, AVSpeechSynthesizerDelegate {
 
-    // 1. The Singleton (Crucial for memory)
     static let shared = AudioPlayerManager()
 
-    // 2. The Player instance must be held in memory, otherwise it dies instantly
     private var audioPlayer: AVAudioPlayer?
+    private var urlPlayer: AVPlayer?
     private let speechSynthesizer = AVSpeechSynthesizer()
 
     private override init() {
@@ -39,7 +38,28 @@ class AudioPlayerManager: NSObject, AVSpeechSynthesizerDelegate {
         speechSynthesizer.speak(utterance)
     }
     
-    /// Decodes a Base64 string and plays it out loud
+    func playFromURL(_ url: URL) {
+        stopPlayback()
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Audio session error: \(error.localizedDescription)")
+        }
+
+        let playerItem = AVPlayerItem(url: url)
+        urlPlayer = AVPlayer(playerItem: playerItem)
+        urlPlayer?.play()
+    }
+
+    func stopPlayback() {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        urlPlayer?.pause()
+        urlPlayer = nil
+    }
+
     func playBase64Audio(_ base64String: String) {
         
         // Trap 1: Clean the string. Sometimes AI APIs send "data:audio/mp3;base64,GkXf..."
