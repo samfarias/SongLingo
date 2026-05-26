@@ -118,6 +118,32 @@ func spanishToEnglishPhonetic(_ word: String) -> String {
     return syllables.joined(separator: "-")
 }
 
+private struct ITunesSearchResponse: Codable {
+    let results: [ITunesTrack]
+}
+
+private struct ITunesTrack: Codable {
+    let previewUrl: String?
+}
+
+func fetchITunesPreviewURL(title: String, artist: String) async -> URL? {
+    let query = "\(title) \(artist)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    guard let url = URL(string: "https://itunes.apple.com/search?term=\(query)&media=music&limit=3") else {
+        return nil
+    }
+
+    do {
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let result = try JSONDecoder().decode(ITunesSearchResponse.self, from: data)
+        if let previewUrlString = result.results.first?.previewUrl {
+            return URL(string: previewUrlString)
+        }
+    } catch {
+        print("iTunes preview search failed: \(error)")
+    }
+    return nil
+}
+
 func openInSpotify(title: String, artist: String, spotifyId: String? = nil) {
     if let spotifyId = spotifyId, !spotifyId.isEmpty {
         let trackAppURL = URL(string: "spotify:track:\(spotifyId)")!
